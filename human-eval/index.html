@@ -1,0 +1,234 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="light" />
+    <meta name="referrer" content="no-referrer" />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net; style-src 'self'; img-src 'self' blob: data:; connect-src 'self' https://wfzstmzetyqcgzijabfd.supabase.co wss://wfzstmzetyqcgzijabfd.supabase.co; object-src 'none'; base-uri 'self'; form-action 'self'"
+    />
+    <title>Human Strategy Evaluation · CreativeContactBench</title>
+    <meta
+      name="description"
+      content="Password-gated CreativeContactBench human strategy evaluation."
+    />
+    <link rel="icon" href="data:," />
+    <link rel="stylesheet" href="./styles.css" />
+    <script src="./config.js" defer></script>
+    <script type="module" src="./app.js"></script>
+  </head>
+  <body>
+    <header class="site-header">
+      <a class="brand" href="../" aria-label="CreativeContactBench project home">
+        <span class="brand-mark" aria-hidden="true">CC</span>
+        <span>CreativeContactBench</span>
+      </a>
+      <div class="header-actions">
+        <span id="pilot-badge" class="pilot-badge" hidden>Pilot</span>
+        <span id="participant-label" class="participant-label" hidden></span>
+        <button id="sign-out-button" class="text-button" type="button" hidden>Sign out</button>
+      </div>
+    </header>
+
+    <main id="app" class="page-shell">
+      <section id="initializing-screen" class="centered-screen" aria-live="polite">
+        <div class="status-card compact-card">
+          <div class="spinner" aria-hidden="true"></div>
+          <p>Checking study access…</p>
+        </div>
+      </section>
+
+      <section id="login-screen" class="login-layout" hidden>
+        <div class="login-intro">
+          <p class="eyebrow">Protected research study</p>
+          <h1>CreativeContactBench</h1>
+          <p class="login-subtitle">Human Strategy Evaluation</p>
+          <p class="muted-copy">
+            Sign in with the study credentials supplied by the researcher. Task content is loaded only after authentication.
+          </p>
+        </div>
+        <div class="login-card">
+          <h2>Study sign in</h2>
+          <p>Enter the shared study username and password.</p>
+          <form id="login-form" novalidate>
+            <label for="username">Username</label>
+            <input id="username" name="username" type="text" autocomplete="username" autocapitalize="none" spellcheck="false" required />
+            <label for="password">Password</label>
+            <input id="password" name="password" type="password" autocomplete="current-password" required />
+            <p id="login-error" class="form-error" role="alert" hidden>Invalid username or password.</p>
+            <button id="sign-in-button" class="button button-primary button-full" type="submit">Sign In</button>
+          </form>
+          <p class="security-note">Your password is sent directly to the study authentication service and is not saved by this site.</p>
+        </div>
+      </section>
+
+      <section id="asset-loading-screen" class="centered-screen" hidden aria-live="polite">
+        <div class="status-card compact-card">
+          <div class="spinner" aria-hidden="true"></div>
+          <h2>Opening the study</h2>
+          <p>Loading protected task materials…</p>
+        </div>
+      </section>
+
+      <section id="asset-error-screen" class="centered-screen" hidden>
+        <div class="status-card">
+          <div class="status-icon error-icon" aria-hidden="true">!</div>
+          <p class="eyebrow">Protected materials unavailable</p>
+          <h1>We couldn’t load the study.</h1>
+          <p>The private task materials could not be retrieved. No public fallback is available.</p>
+          <p id="asset-error-detail" class="form-error" role="alert"></p>
+          <div class="button-row">
+            <button id="retry-assets-button" class="button button-primary" type="button">Retry</button>
+            <button class="button button-secondary sign-out-alias" type="button">Sign out</button>
+          </div>
+        </div>
+      </section>
+
+      <section id="welcome-screen" class="welcome-layout" hidden>
+        <div class="welcome-hero">
+          <div id="welcome-pilot-banner" class="pilot-banner-large" hidden>
+            <strong>Pilot mode</strong>
+            <span>3 tasks · Marked separately from formal responses</span>
+          </div>
+          <p class="eyebrow">Human study · <span id="welcome-task-count">18</span> scenes</p>
+          <h1>Human Strategy<br />Evaluation</h1>
+          <p class="lead">You will evaluate robot manipulation strategies across <span id="welcome-task-count-copy">18</span> scenes.</p>
+          <div class="time-estimate"><span aria-hidden="true">◷</span> Estimated time: 15–25 minutes</div>
+        </div>
+        <div class="instruction-card">
+          <h2>What you’ll do</h2>
+          <ol class="workflow-list">
+            <li><span>1</span><p>Review the scene, task, and four strategies.</p></li>
+            <li><span>2</span><p>Rate Task Effectiveness, Embodied Feasibility, and Functional Creativity.</p></li>
+            <li><span>3</span><p>Rank the four strategies overall.</p></li>
+          </ol>
+          <h2>Before you begin</h2>
+          <ul class="instruction-list">
+            <li>Judge the robot shown in the image.</li>
+            <li>Do not assume tools, objects, or robot capabilities that are not shown.</li>
+            <li>Evaluate each strategy as written.</li>
+            <li>A strategy may score high on one dimension and low on another.</li>
+            <li>A direct strategy may be effective but not creative.</li>
+          </ul>
+          <button id="start-evaluation-button" class="button button-primary button-full" type="button">Start Evaluation <span aria-hidden="true">→</span></button>
+        </div>
+      </section>
+
+      <section id="task-screen" class="task-screen" hidden>
+        <div class="task-topline">
+          <div>
+            <p class="eyebrow">Task <span id="task-position">1</span> of <span id="task-total">18</span></p>
+            <h1 id="task-id">Task</h1>
+          </div>
+          <p id="saved-count" class="saved-count">0 saved</p>
+        </div>
+        <div class="progress-track" role="progressbar" aria-label="Study progress" aria-valuemin="0" aria-valuemax="18" aria-valuenow="0">
+          <div id="progress-fill" class="progress-fill"></div>
+        </div>
+
+        <section class="scene-layout" aria-labelledby="task-instruction">
+          <div class="scene-frame">
+            <div id="image-loading" class="image-loading">Loading protected image…</div>
+            <img id="task-image" alt="" hidden />
+          </div>
+          <div class="task-prompt">
+            <p class="eyebrow">Task</p>
+            <h2 id="task-instruction"></h2>
+            <p>Judge each strategy in this scene exactly as written.</p>
+          </div>
+        </section>
+
+        <section aria-labelledby="strategies-heading">
+          <h2 id="strategies-heading" class="section-heading">Candidate strategies</h2>
+          <div id="strategy-grid" class="strategy-grid"></div>
+        </section>
+
+        <form id="evaluation-form" novalidate>
+          <section class="rating-section" aria-labelledby="ratings-heading">
+            <div class="section-heading-row">
+              <div>
+                <h2 id="ratings-heading">Rate each strategy</h2>
+                <p>Choose one score from 1 to 5 for every dimension.</p>
+              </div>
+              <span class="required-note">12 ratings required</span>
+            </div>
+            <div class="matrix-wrap">
+              <table class="rating-matrix">
+                <thead>
+                  <tr>
+                    <th scope="col">Strategy</th>
+                    <th scope="col">
+                      <span>Effectiveness</span>
+                      <button class="help-button" type="button" data-help="expected_task_effectiveness" aria-label="Show effectiveness rating guide">?</button>
+                    </th>
+                    <th scope="col">
+                      <span>Feasibility</span>
+                      <button class="help-button" type="button" data-help="embodied_feasibility" aria-label="Show feasibility rating guide">?</button>
+                    </th>
+                    <th scope="col">
+                      <span>Creativity</span>
+                      <button class="help-button" type="button" data-help="functional_creativity" aria-label="Show creativity rating guide">?</button>
+                    </th>
+                  </tr>
+                </thead>
+                <tbody id="rating-matrix-body"></tbody>
+              </table>
+            </div>
+            <div id="dimension-help" class="dimension-help" hidden>
+              <div>
+                <strong id="help-title"></strong>
+                <p id="help-question"></p>
+                <ol id="help-anchors"></ol>
+              </div>
+              <button id="close-help-button" type="button" aria-label="Close rating guide">×</button>
+            </div>
+          </section>
+
+          <section class="ranking-section" aria-labelledby="ranking-heading">
+            <div>
+              <h2 id="ranking-heading">Overall Ranking</h2>
+              <p>Assign each strategy a rank from 1 (best) to 4 (worst). Use the same rank for ties.</p>
+            </div>
+            <div id="rank-selectors" class="rank-selectors"></div>
+          </section>
+
+          <p id="task-form-error" class="form-error task-form-error" role="alert" hidden>Complete all 12 ratings and four rank selections to continue.</p>
+          <nav class="task-actions" aria-label="Task navigation">
+            <button id="previous-button" class="button button-secondary" type="button">← Previous</button>
+            <button id="next-button" class="button button-primary" type="submit" disabled>Save &amp; Next <span aria-hidden="true">→</span></button>
+          </nav>
+        </form>
+      </section>
+
+      <section id="completion-screen" class="centered-screen" hidden>
+        <div class="status-card completion-card">
+          <div class="status-icon success-icon" aria-hidden="true">✓</div>
+          <p class="eyebrow">Evaluation complete</p>
+          <h1>Thank you.</h1>
+          <p class="completion-total"><strong id="completion-count">18 / 18</strong> tasks completed.</p>
+          <p>Your responses are saved on this device but have not been submitted yet. You may review the last task or submit now.</p>
+          <p id="submission-error" class="form-error" role="alert" hidden>Submission failed. Your answers remain saved; please retry.</p>
+          <div class="button-row">
+            <button id="review-last-button" class="button button-secondary" type="button">← Review last task</button>
+            <button id="submit-responses-button" class="button button-primary" type="button">Submit Responses</button>
+          </div>
+        </div>
+      </section>
+
+      <section id="submitted-screen" class="centered-screen" hidden>
+        <div class="status-card completion-card">
+          <div class="status-icon success-icon" aria-hidden="true">✓</div>
+          <p class="eyebrow">Submission received</p>
+          <h1>Thank you.</h1>
+          <p class="completion-total"><strong id="submitted-count">18 / 18</strong> tasks completed.</p>
+          <p>Anonymous participant ID: <strong id="submitted-participant-id"></strong></p>
+          <div class="read-only-note">This participant session is now read-only.</div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">Human protocol v0.1 · Canonical order only</footer>
+  </body>
+</html>

@@ -1,0 +1,83 @@
+# CreativeContactBench Human Strategy Evaluation
+
+This directory contains only the public static study interface. Protected benchmark task text and images are loaded from private Supabase Storage only after a valid Supabase Auth session exists.
+
+## Architecture
+
+1. An unauthenticated visitor sees only the username/password screen.
+2. The participant-facing username is checked locally and mapped to the study Auth email from `config.js`.
+3. Supabase Auth performs the password sign-in. The site does not compare, log, or save the entered password.
+4. After authentication, the browser downloads `tasks.json` and the current task image from the private `human-eval-assets` bucket using the authenticated session.
+5. Anonymous ratings and timing are saved locally for refresh recovery. Protected task metadata, image blobs, and object URLs are not written to local storage.
+6. Final submission inserts one authenticated row into `human_eval_submissions` and does not read it back.
+
+The browser client is the pinned ESM build of `@supabase/supabase-js` v2.57.4 from jsDelivr. No Node build or backend server is required.
+
+## Configuration
+
+`config.js` contains only browser-safe values: the Supabase URL, publishable key, table and bucket names, participant-facing username, and mapped Auth email. The mapped email is not displayed by the participant UI.
+
+The study password must be entered interactively. Never add it to this repository, configuration, documentation, tests, logs, or browser storage. Do not add privileged server credentials to a static site.
+
+## Private asset layout
+
+The private package lives outside this repository at:
+
+```text
+/home/gechengs/projects/vlmeval/human_eval_private_assets/
+```
+
+The researcher uploads `tasks.json` and `images/` to the existing private bucket with an authenticated, linked Supabase CLI session. Do not use privileged credentials in browser code or shell history. This repository must never contain those files.
+
+From a trusted administrator workspace, validate the private package, confirm the linked project and private bucket, then copy only the validated files:
+
+```bash
+python /home/gechengs/projects/vlmeval/human_eval_private_assets/validate_assets.py
+npx --yes supabase projects list
+npx --yes supabase storage cp /home/gechengs/projects/vlmeval/human_eval_private_assets/tasks.json ss:///human-eval-assets/tasks.json --linked --experimental --content-type application/json
+npx --yes supabase storage cp /home/gechengs/projects/vlmeval/human_eval_private_assets/images ss:///human-eval-assets/images --recursive --linked --experimental --content-type image/jpeg
+```
+
+After upload, list the bucket recursively and confirm it contains exactly `tasks.json` plus the 18 expected images (task-01 through task-12 and task-14 through task-19). Never pass a service-role key on the command line.
+
+## Local preview
+
+From the website repository root:
+
+```bash
+python -m http.server 8000 --bind 127.0.0.1
+```
+
+Open:
+
+```text
+http://127.0.0.1:8000/human-eval/
+http://127.0.0.1:8000/human-eval/?pilot=1
+```
+
+Without a valid session, only the login screen is visible and no private task request is made. When the private bucket has not yet been populated, a successful login produces a retryable protected-materials error; there is no public fallback.
+
+## Local participant state
+
+The browser stores only:
+
+- random anonymous participant UUID;
+- protocol and dataset revision identifiers;
+- pilot flag and current task index;
+- ratings and rank selectors;
+- study/task timestamps and durations;
+- submission state.
+
+Signing out clears protected task content and image object URLs from memory while leaving the anonymous answer draft recoverable on that device.
+
+## Validation
+
+Run from the website repository root:
+
+```bash
+python scripts/validate_human_eval_site.py
+```
+
+The validation fails if protected task assets, exact task/strategy text, pinned image hashes, or privileged credential patterns appear in the public tree. It also checks that the authenticated sign-in, private download, and INSERT-only submission paths remain present.
+
+The human protocol is frozen at v0.1 with canonical A/B/C/D order, three 1–5 dimensions, tie-aware ranking, no rationale, and no confidence rating. Pilot mode uses task-01 through task-03 and is marked separately in submissions.

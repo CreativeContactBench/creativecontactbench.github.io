@@ -1,0 +1,51 @@
+{
+  "human_protocol_version": "0.1",
+  "dataset_repo_id": "chengshengge/CreativeContactBench-pilot",
+  "dataset_revision": "8d27ada2f16f1a90dfbf0cd7b7537c764cffa61d",
+  "task_count": 18,
+  "canonical_order_only": true,
+  "vlm_balanced_permutations_used": false,
+  "pilot_task_ids": ["task-01", "task-02", "task-03"],
+  "dimensions": {
+    "expected_task_effectiveness": {
+      "title": "Expected Task Effectiveness",
+      "short_title": "Effectiveness",
+      "question": "How likely is this strategy to fully accomplish the task in the shown scene?",
+      "anchors": {
+        "1": "Very unlikely to succeed",
+        "2": "Unlikely / major problems",
+        "3": "Plausible, but with noticeable risks",
+        "4": "Likely to succeed",
+        "5": "Very likely to fully succeed"
+      }
+    },
+    "embodied_feasibility": {
+      "title": "Embodied Feasibility",
+      "short_title": "Feasibility",
+      "question": "How realistically can the robot shown in the image execute this strategy?",
+      "anchors": {
+        "1": "Effectively infeasible",
+        "2": "Very difficult",
+        "3": "Possible but challenging",
+        "4": "Realistically executable",
+        "5": "Straightforward for this robot"
+      }
+    },
+    "functional_creativity": {
+      "title": "Functional Creativity",
+      "short_title": "Creativity",
+      "question": "Does this strategy use available objects, the environment, or physical properties in a non-obvious but useful way?",
+      "anchors": {
+        "1": "Direct / conventional",
+        "2": "Slightly non-standard",
+        "3": "Meaningful adaptation",
+        "4": "Clearly non-obvious and useful",
+        "5": "Especially clever and functionally important"
+      }
+    }
+  },
+  "rating_scale": { "minimum": 1, "maximum": 5 },
+  "ties_allowed": true,
+  "rationale_required": false,
+  "confidence_required": false
+}

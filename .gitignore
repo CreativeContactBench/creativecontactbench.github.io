@@ -5,3 +5,7 @@ codex_input/
 videos/Task */
 videos/web/
 videos/INTEGRATION_REPORT.md
+.DS_Store
+human-eval/tasks.json
+human-eval/images/
+human-eval/private-assets/

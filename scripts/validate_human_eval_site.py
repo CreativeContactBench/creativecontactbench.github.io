@@ -1,0 +1,139 @@
+#!/usr/bin/env python3
+"""Fail if protected study content or privileged credentials enter the public site."""
+
+from __future__ import annotations
+
+import argparse
+import hashlib
+import json
+import re
+from pathlib import Path
+
+REQUIRED_PUBLIC_FILES = {
+    "human-eval/index.html",
+    "human-eval/app.js",
+    "human-eval/styles.css",
+    "human-eval/config.js",
+    "human-eval/config.example.js",
+    "human-eval/human_eval_v0.1.json",
+    "human-eval/README.md",
+}
+TEXT_SUFFIXES = {".html", ".js", ".css", ".json", ".md", ".py", ".txt", ".yml", ".yaml"}
+
+
+def sha256(path: Path) -> str:
+    digest = hashlib.sha256()
+    with path.open("rb") as handle:
+        for chunk in iter(lambda: handle.read(1024 * 1024), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
+
+
+def iter_public_files(root: Path):
+    for path in root.rglob("*"):
+        if path.is_file() and ".git" not in path.parts:
+            yield path
+
+
+def validate(root: Path, private_assets: Path) -> None:
+    errors: list[str] = []
+    relative_files = {str(path.relative_to(root)) for path in iter_public_files(root)}
+    missing = sorted(REQUIRED_PUBLIC_FILES - relative_files)
+    if missing:
+        errors.append(f"Missing required public UI files: {missing}")
+
+    protected_paths = [
+        root / "human-eval" / "tasks.json",
+        root / "human-eval" / "images",
+        root / "videos",
+    ]
+    for path in protected_paths:
+        if path.exists():
+            errors.append(f"Protected benchmark content remains in the public tree: {path.relative_to(root)}")
+
+    task_image_pattern = re.compile(r"task-(?:0[1-9]|1[0-24-9])\.(?:jpg|jpeg|png|webp)$", re.I)
+    for path in iter_public_files(root):
+        if task_image_pattern.fullmatch(path.name):
+            errors.append(f"Benchmark-style task image found: {path.relative_to(root)}")
+
+    secret_markers = [
+        "sb_" + "secret_",
+        "service" + "_role",
+        "SUPABASE_" + "SERVICE_ROLE_KEY",
+        "database_" + "password",
+        "postgres" + "ql://postgres:",
+    ]
+    password_literal = re.compile(r"\b(?:study_)?password\s*[:=]\s*['\"][^'\"]+['\"]", re.I)
+    for path in iter_public_files(root):
+        if path.suffix.lower() not in TEXT_SUFFIXES or path.name == Path(__file__).name:
+            continue
+        text = path.read_text(encoding="utf-8", errors="ignore")
+        for marker in secret_markers:
+            if marker.lower() in text.lower():
+                errors.append(f"Forbidden credential marker in {path.relative_to(root)}")
+        if path.suffix.lower() == ".js" and password_literal.search(text):
+            errors.append(f"Possible hard-coded study password in {path.relative_to(root)}")
+
+    app_source = (root / "human-eval" / "app.js").read_text(encoding="utf-8")
+    required_security_calls = ["signInWithPassword", '.download("tasks.json")', ".insert(payload)"]
+    for call in required_security_calls:
+        if call not in app_source:
+            errors.append(f"Required authenticated runtime behavior is missing: {call}")
+    for unsafe_call in ("getPublicUrl", "createSignedUrl", "console.log", ".select("):
+        if unsafe_call in app_source:
+            errors.append(f"Unsafe or disallowed runtime behavior found: {unsafe_call}")
+
+    config_source = (root / "human-eval" / "config.js").read_text(encoding="utf-8")
+    email_match = re.search(r"authEmail:\s*['\"]([^'\"]+)['\"]", config_source)
+    if not email_match:
+        errors.append("Mapped study Auth email is missing from config.js")
+    else:
+        mapped_email = email_match.group(1)
+        for relative in ("human-eval/index.html", "human-eval/app.js", "human-eval/styles.css", "human-eval/README.md"):
+            if mapped_email in (root / relative).read_text(encoding="utf-8"):
+                errors.append(f"Mapped Auth email is displayed or embedded outside config.js: {relative}")
+
+    private_tasks_path = private_assets / "tasks.json"
+    manifest_path = private_assets / "ASSET_MANIFEST.json"
+    if not private_tasks_path.is_file() or not manifest_path.is_file():
+        errors.append("Private assets are unavailable; protected-content hash validation could not run")
+    else:
+        private_tasks = json.loads(private_tasks_path.read_text(encoding="utf-8"))["tasks"]
+        protected_phrases = {
+            task[field]
+            for task in private_tasks
+            for field in ("task_instruction", "option_A", "option_B", "option_C", "option_D")
+        }
+        for path in iter_public_files(root):
+            if path.suffix.lower() not in TEXT_SUFFIXES:
+                continue
+            text = path.read_text(encoding="utf-8", errors="ignore")
+            if any(phrase in text for phrase in protected_phrases):
+                errors.append(f"Protected task or strategy text found in {path.relative_to(root)}")
+
+        manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+        private_image_hashes = set(manifest["image_sha256"].values())
+        for path in iter_public_files(root):
+            if path.suffix.lower() in {".jpg", ".jpeg", ".png", ".webp", ".gif", ".bmp"}:
+                if sha256(path) in private_image_hashes:
+                    errors.append(f"Pinned private task image found in {path.relative_to(root)}")
+
+    if errors:
+        raise SystemExit("Public human-evaluation security validation failed:\n- " + "\n- ".join(errors))
+    print("Public site security validation passed: UI only, no protected benchmark assets or credentials.")
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--root", type=Path, default=Path(__file__).resolve().parents[1])
+    parser.add_argument(
+        "--private-assets",
+        type=Path,
+        default=Path(__file__).resolve().parents[2] / "human_eval_private_assets",
+    )
+    args = parser.parse_args()
+    validate(args.root.resolve(), args.private_assets.resolve())
+
+
+if __name__ == "__main__":
+    main()

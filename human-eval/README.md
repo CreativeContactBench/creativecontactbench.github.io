@@ -76,6 +76,7 @@ Run from the website repository root:
 
 ```bash
 python scripts/validate_human_eval_site.py
+node tests/human-eval-navigation.test.mjs
 ```
 
 The validation fails if protected task assets, exact task/strategy text, pinned image hashes, or privileged credential patterns appear in the public tree. It also checks that the authenticated sign-in, private download, and INSERT-only submission paths remain present.

@@ -16,9 +16,11 @@ REQUIRED_PUBLIC_FILES = {
     "human-eval/config.js",
     "human-eval/config.example.js",
     "human-eval/human_eval_v0.1.json",
+    "human-eval/study-navigation.mjs",
     "human-eval/README.md",
+    "tests/human-eval-navigation.test.mjs",
 }
-TEXT_SUFFIXES = {".html", ".js", ".css", ".json", ".md", ".py", ".txt", ".yml", ".yaml"}
+TEXT_SUFFIXES = {".html", ".js", ".mjs", ".css", ".json", ".md", ".py", ".txt", ".yml", ".yaml"}
 
 
 def sha256(path: Path) -> str:

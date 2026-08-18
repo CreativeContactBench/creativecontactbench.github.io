@@ -1,14 +1,18 @@
 import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.57.4/+esm";
+import {
+  DIMENSION_KEYS,
+  STRATEGIES,
+  getPrimaryTaskActionState,
+  getTaskSubmitDestination,
+  readStoredParticipantState,
+  responseIsComplete,
+  studyIsComplete,
+  writeStoredParticipantState,
+} from "./study-navigation.mjs";
 
 const CONFIG = window.CCB_CONFIG;
 const EXPECTED_REVISION = "8d27ada2f16f1a90dfbf0cd7b7537c764cffa61d";
 const PROTOCOL_VERSION = "0.1";
-const STRATEGIES = ["A", "B", "C", "D"];
-const DIMENSION_KEYS = [
-  "expected_task_effectiveness",
-  "embodied_feasibility",
-  "functional_creativity",
-];
 const EXPECTED_TASK_IDS = [
   ...Array.from({ length: 12 }, (_, index) => `task-${String(index + 1).padStart(2, "0")}`),
   ...Array.from({ length: 6 }, (_, index) => `task-${String(index + 14).padStart(2, "0")}`),
@@ -156,27 +160,16 @@ function showAssetError() {
 }
 
 function loadParticipantState() {
-  try {
-    const stored = JSON.parse(localStorage.getItem(STORAGE_KEY));
-    if (
-      !stored ||
-      stored.protocol_version !== PROTOCOL_VERSION ||
-      stored.dataset_revision !== EXPECTED_REVISION ||
-      stored.pilot !== PILOT ||
-      typeof stored.participant_id !== "string" ||
-      typeof stored.responses !== "object"
-    ) {
-      return null;
-    }
-    return stored;
-  } catch {
-    return null;
-  }
+  return readStoredParticipantState(localStorage, STORAGE_KEY, {
+    protocolVersion: PROTOCOL_VERSION,
+    datasetRevision: EXPECTED_REVISION,
+    pilot: PILOT,
+  });
 }
 
 function saveParticipantState() {
   if (!participantState) return;
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(participantState));
+  writeStoredParticipantState(localStorage, STORAGE_KEY, participantState);
   setAuthenticatedHeader(Boolean(authSession));
 }
 
@@ -327,19 +320,6 @@ function readCurrentForm() {
   return response;
 }
 
-function responseIsComplete(response) {
-  return STRATEGIES.every(
-    (label) =>
-      DIMENSION_KEYS.every((dimension) => {
-        const value = response?.ratings?.[label]?.[dimension];
-        return Number.isInteger(value) && value >= 1 && value <= 5;
-      }) &&
-      Number.isInteger(response?.rankings?.[label]) &&
-      response.rankings[label] >= 1 &&
-      response.rankings[label] <= 4,
-  );
-}
-
 function completeResponseCount() {
   return studyTasks.filter((task) => responseIsComplete(participantState.responses[task.task_id])).length;
 }
@@ -347,7 +327,14 @@ function completeResponseCount() {
 function updateNextButton() {
   const task = studyTasks[participantState.current_task_index];
   const complete = responseIsComplete(participantState.responses[task.task_id]);
-  elements["next-button"].disabled = !complete;
+  const action = getPrimaryTaskActionState(
+    participantState.current_task_index,
+    studyTasks.length,
+    complete,
+  );
+  elements["next-button"].textContent = `${action.label} →`;
+  elements["next-button"].hidden = !action.visible;
+  elements["next-button"].disabled = action.disabled;
   elements["task-form-error"].hidden = true;
 }
 
@@ -473,8 +460,6 @@ function renderTask() {
   renderRatingMatrix(response);
   renderRankSelectors(response);
   elements["previous-button"].hidden = index === 0;
-  elements["next-button"].innerHTML =
-    index === studyTasks.length - 1 ? "Review responses <span aria-hidden=\"true\">→</span>" : "Save &amp; Next <span aria-hidden=\"true\">→</span>";
   elements["dimension-help"].hidden = true;
   updateNextButton();
   setAuthenticatedHeader(true);
@@ -511,7 +496,12 @@ function buildSubmissionResponses() {
 }
 
 function showCompletion() {
-  saveActiveTaskDuration();
+  if (!studyIsComplete(studyTasks, participantState.responses)) {
+    elements["task-form-error"].hidden = false;
+    return;
+  }
+  activeTaskStartedAt = null;
+  participantState.study_completed_at = new Date().toISOString();
   saveParticipantState();
   const count = studyTasks.length;
   elements["completion-count"].textContent = `${count} / ${count}`;
@@ -546,7 +536,7 @@ async function submitResponses() {
     elements["submission-error"].hidden = false;
     return;
   }
-  const completedAt = new Date().toISOString();
+  const completedAt = participantState.study_completed_at || new Date().toISOString();
   const durationSeconds = Math.max(
     0,
     (Date.parse(completedAt) - Date.parse(participantState.study_started_at)) / 1000,
@@ -648,11 +638,17 @@ function bindEvents() {
   elements["evaluation-form"].addEventListener("submit", (event) => {
     event.preventDefault();
     const response = readCurrentForm();
-    if (!responseIsComplete(response)) {
+    const destination = getTaskSubmitDestination(
+      participantState.current_task_index,
+      studyTasks.length,
+      responseIsComplete(response),
+      studyIsComplete(studyTasks, participantState.responses),
+    );
+    if (destination === "incomplete") {
       elements["task-form-error"].hidden = false;
       return;
     }
-    if (participantState.current_task_index === studyTasks.length - 1) {
+    if (destination === "completion") {
       showCompletion();
       return;
     }
@@ -668,6 +664,7 @@ function bindEvents() {
   });
   elements["review-last-button"].addEventListener("click", () => {
     participantState.current_task_index = studyTasks.length - 1;
+    participantState.study_completed_at = null;
     saveParticipantState();
     renderTask();
   });

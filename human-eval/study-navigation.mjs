@@ -1,0 +1,73 @@
+export const STRATEGIES = ["A", "B", "C", "D"];
+export const DIMENSION_KEYS = [
+  "expected_task_effectiveness",
+  "embodied_feasibility",
+  "functional_creativity",
+];
+
+export function responseIsComplete(response) {
+  return STRATEGIES.every(
+    (label) =>
+      DIMENSION_KEYS.every((dimension) => {
+        const value = response?.ratings?.[label]?.[dimension];
+        return Number.isInteger(value) && value >= 1 && value <= 5;
+      }) &&
+      Number.isInteger(response?.rankings?.[label]) &&
+      response.rankings[label] >= 1 &&
+      response.rankings[label] <= 4,
+  );
+}
+
+export function getPrimaryTaskAction(currentTaskIndex, taskCount) {
+  if (!Number.isInteger(currentTaskIndex) || !Number.isInteger(taskCount) || taskCount < 1) {
+    throw new TypeError("Task position is invalid.");
+  }
+  const isFinal = currentTaskIndex === taskCount - 1;
+  return {
+    isFinal,
+    label: isFinal ? "Save & Finish" : "Save & Next",
+  };
+}
+
+export function getPrimaryTaskActionState(currentTaskIndex, taskCount, currentComplete) {
+  return {
+    ...getPrimaryTaskAction(currentTaskIndex, taskCount),
+    visible: true,
+    disabled: !currentComplete,
+  };
+}
+
+export function studyIsComplete(tasks, responses) {
+  return tasks.length > 0 && tasks.every((task) => responseIsComplete(responses?.[task.task_id]));
+}
+
+export function getTaskSubmitDestination(currentTaskIndex, taskCount, currentComplete, allComplete) {
+  if (!currentComplete) return "incomplete";
+  const { isFinal } = getPrimaryTaskAction(currentTaskIndex, taskCount);
+  if (!isFinal) return "next";
+  return allComplete ? "completion" : "incomplete";
+}
+
+export function readStoredParticipantState(storage, storageKey, expected) {
+  try {
+    const stored = JSON.parse(storage.getItem(storageKey));
+    if (
+      !stored ||
+      stored.protocol_version !== expected.protocolVersion ||
+      stored.dataset_revision !== expected.datasetRevision ||
+      stored.pilot !== expected.pilot ||
+      typeof stored.participant_id !== "string" ||
+      !stored.responses ||
+      typeof stored.responses !== "object"
+    ) {
+      return null;
+    }
+    return stored;
+  } catch {
+    return null;
+  }
+}
+
+export function writeStoredParticipantState(storage, storageKey, state) {
+  storage.setItem(storageKey, JSON.stringify(state));
+}

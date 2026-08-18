@@ -1,0 +1,7 @@
+.DS_Store
+*.log
+assets/images/teaser-poster.png
+codex_input/
+videos/Task */
+videos/web/
+videos/INTEGRATION_REPORT.md

@@ -4,18 +4,40 @@ export const DIMENSION_KEYS = [
   "embodied_feasibility",
   "functional_creativity",
 ];
+export const OVERALL_RANKING_SOURCE = "derived_equal_weight_dimension_sum";
 
 export function responseIsComplete(response) {
   return STRATEGIES.every(
-    (label) =>
-      DIMENSION_KEYS.every((dimension) => {
-        const value = response?.ratings?.[label]?.[dimension];
-        return Number.isInteger(value) && value >= 1 && value <= 5;
-      }) &&
-      Number.isInteger(response?.rankings?.[label]) &&
-      response.rankings[label] >= 1 &&
-      response.rankings[label] <= 4,
+    (label) => DIMENSION_KEYS.every((dimension) => {
+      const value = response?.ratings?.[label]?.[dimension];
+      return Number.isInteger(value) && value >= 1 && value <= 5;
+    }),
   );
+}
+
+export function deriveOverallRanking(ratings) {
+  if (!responseIsComplete({ ratings })) {
+    throw new TypeError("All 12 dimension ratings are required to derive an overall ranking.");
+  }
+
+  const overall_scores = Object.fromEntries(
+    STRATEGIES.map((label) => [
+      label,
+      DIMENSION_KEYS.reduce((total, dimension) => total + ratings[label][dimension], 0),
+    ]),
+  );
+  const labelsByScore = new Map();
+  for (const label of STRATEGIES) {
+    const score = overall_scores[label];
+    const group = labelsByScore.get(score) || [];
+    group.push(label);
+    labelsByScore.set(score, group);
+  }
+  const overall_ranking = [...labelsByScore.keys()]
+    .sort((left, right) => right - left)
+    .map((score) => [...labelsByScore.get(score)].sort());
+
+  return { overall_scores, overall_ranking };
 }
 
 export function getPrimaryTaskAction(currentTaskIndex, taskCount) {

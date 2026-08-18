@@ -102,7 +102,7 @@
           <ol class="workflow-list">
             <li><span>1</span><p>Review the scene, task, and four strategies.</p></li>
             <li><span>2</span><p>Rate Task Effectiveness, Embodied Feasibility, and Functional Creativity.</p></li>
-            <li><span>3</span><p>Rank the four strategies overall.</p></li>
+            <li><span>3</span><p>An overall ranking is calculated automatically from your ratings.</p></li>
           </ol>
           <h2>Before you begin</h2>
           <ul class="instruction-list">
@@ -186,15 +186,15 @@
             </div>
           </section>
 
-          <section class="ranking-section" aria-labelledby="ranking-heading">
+          <section id="derived-ranking" class="derived-ranking-summary" aria-labelledby="derived-ranking-heading" aria-live="polite" hidden>
             <div>
-              <h2 id="ranking-heading">Overall Ranking</h2>
-              <p>Assign each strategy a rank from 1 (best) to 4 (worst). Use the same rank for ties.</p>
+              <h2 id="derived-ranking-heading">Overall Ranking</h2>
+              <p>Calculated automatically from the three ratings above.</p>
             </div>
-            <div id="rank-selectors" class="rank-selectors"></div>
+            <ol id="derived-ranking-list" class="derived-ranking-list"></ol>
           </section>
 
-          <p id="task-form-error" class="form-error task-form-error" role="alert" hidden>Please complete all ratings and rankings before continuing.</p>
+          <p id="task-form-error" class="form-error task-form-error" role="alert" hidden>Please complete all 12 ratings before continuing.</p>
           <nav class="task-actions" aria-label="Task navigation">
             <button id="previous-button" class="button button-secondary" type="button">← Previous</button>
             <button id="next-button" class="button button-primary" type="submit" disabled>Save &amp; Next <span aria-hidden="true">→</span></button>
@@ -229,6 +229,6 @@
       </section>
     </main>
 
-    <footer class="site-footer">Human protocol v0.1 · Canonical order only</footer>
+    <footer class="site-footer">Human protocol v0.2 · Canonical order only</footer>
   </body>
 </html>

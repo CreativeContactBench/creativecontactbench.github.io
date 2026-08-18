@@ -16,6 +16,7 @@ REQUIRED_PUBLIC_FILES = {
     "human-eval/config.js",
     "human-eval/config.example.js",
     "human-eval/human_eval_v0.1.json",
+    "human-eval/human_eval_v0.2.json",
     "human-eval/study-navigation.mjs",
     "human-eval/README.md",
     "tests/human-eval-navigation.test.mjs",
@@ -84,6 +85,41 @@ def validate(root: Path, private_assets: Path) -> None:
     for unsafe_call in ("getPublicUrl", "createSignedUrl", "console.log", ".select("):
         if unsafe_call in app_source:
             errors.append(f"Unsafe or disallowed runtime behavior found: {unsafe_call}")
+    for required_v02_source in (
+        'const PROTOCOL_VERSION = "0.2"',
+        'fetch("./human_eval_v0.2.json"',
+        "deriveOverallRanking",
+        "overall_ranking_source",
+    ):
+        if required_v02_source not in app_source:
+            errors.append(f"Required Human v0.2 behavior is missing: {required_v02_source}")
+
+    index_source = (root / "human-eval" / "index.html").read_text(encoding="utf-8")
+    navigation_source = (root / "human-eval" / "study-navigation.mjs").read_text(encoding="utf-8")
+    for removed_manual_control in ("rank-selectors", 'name="rank-', "Assign each strategy a rank"):
+        if removed_manual_control in index_source or removed_manual_control in app_source:
+            errors.append(f"Manual overall-ranking control remains: {removed_manual_control}")
+    if "derived_equal_weight_dimension_sum" not in navigation_source:
+        errors.append("Derived-ranking provenance constant is missing")
+
+    protocol_v02 = json.loads((root / "human-eval" / "human_eval_v0.2.json").read_text(encoding="utf-8"))
+    if protocol_v02.get("human_protocol_version") != "0.2":
+        errors.append("Human v0.2 protocol version is invalid")
+    if protocol_v02.get("dataset_revision") != "8d27ada2f16f1a90dfbf0cd7b7537c764cffa61d":
+        errors.append("Human v0.2 dataset revision is invalid")
+    if protocol_v02.get("manual_overall_ranking_required") is not False:
+        errors.append("Human v0.2 must not require manual overall ranking")
+    expected_ranking_metadata = {
+        "source": "derived_from_dimension_ratings",
+        "weighting": "equal",
+        "formula": "effectiveness + feasibility + creativity",
+        "sort": "descending",
+        "ties_allowed": True,
+        "tie_method": "group_equal_total_scores",
+        "ranking_style": "dense",
+    }
+    if protocol_v02.get("overall_ranking") != expected_ranking_metadata:
+        errors.append("Human v0.2 derived-ranking metadata is invalid")
 
     config_source = (root / "human-eval" / "config.js").read_text(encoding="utf-8")
     email_match = re.search(r"authEmail:\s*['\"]([^'\"]+)['\"]", config_source)

@@ -64,7 +64,7 @@ The browser stores only:
 - random anonymous participant UUID;
 - protocol and dataset revision identifiers;
 - pilot flag and current task index;
-- ratings and rank selectors;
+- the 12 dimension ratings and their deterministic derived totals/ranking;
 - study/task timestamps and durations;
 - submission state.
 
@@ -81,4 +81,4 @@ node tests/human-eval-navigation.test.mjs
 
 The validation fails if protected task assets, exact task/strategy text, pinned image hashes, or privileged credential patterns appear in the public tree. It also checks that the authenticated sign-in, private download, and INSERT-only submission paths remain present.
 
-The human protocol is frozen at v0.1 with canonical A/B/C/D order, three 1–5 dimensions, tie-aware ranking, no rationale, and no confidence rating. Pilot mode uses task-01 through task-03 and is marked separately in submissions.
+Human protocol v0.2 preserves canonical A/B/C/D order and the three 1–5 dimensions, but removes participant-entered ranking. Each strategy's overall score is the equal-weight sum of Effectiveness, Feasibility, and Creativity (range 3–15). Unique totals are sorted descending and equal totals are preserved as dense tied groups. Submissions store the raw ratings, `overall_scores`, grouped `overall_ranking`, and `overall_ranking_source = derived_equal_weight_dimension_sum`. The v0.1 metadata remains available for provenance; the v0.2 LocalStorage key is separate. Pilot mode continues to use task-01 through task-03 and is marked separately in submissions.

@@ -128,21 +128,22 @@
           <div id="progress-fill" class="progress-fill"></div>
         </div>
 
-        <section class="scene-layout" aria-labelledby="task-instruction">
-          <div class="scene-frame">
-            <div id="image-loading" class="image-loading">Loading protected image…</div>
-            <img id="task-image" class="task-image" alt="" hidden />
-          </div>
-          <div class="task-prompt">
-            <p class="eyebrow">Task</p>
-            <h2 id="task-instruction"></h2>
-            <p>Judge each strategy in this scene exactly as written.</p>
-          </div>
-        </section>
+        <section class="task-context-layout" aria-label="Task scene and candidate strategies">
+          <article class="scene-task-card" aria-labelledby="task-instruction">
+            <div class="scene-image-region">
+              <div id="image-loading" class="image-loading">Loading protected image…</div>
+              <img id="task-image" class="task-image" alt="" hidden />
+            </div>
+            <div class="task-instruction-region">
+              <p class="eyebrow">Task</p>
+              <h2 id="task-instruction"></h2>
+            </div>
+          </article>
 
-        <section aria-labelledby="strategies-heading">
-          <h2 id="strategies-heading" class="section-heading">Candidate strategies</h2>
-          <div id="strategy-grid" class="strategy-grid"></div>
+          <section class="strategy-panel" aria-labelledby="strategies-heading">
+            <h2 id="strategies-heading">Candidate strategies</h2>
+            <div id="strategy-grid" class="strategy-grid"></div>
+          </section>
         </section>
 
         <form id="evaluation-form" novalidate>

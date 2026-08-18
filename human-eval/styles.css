@@ -20,11 +20,13 @@
 
 * { box-sizing: border-box; }
 [hidden] { display: none !important; }
+html { overflow-x: hidden; }
 
 body {
   min-width: 320px;
   min-height: 100vh;
   margin: 0;
+  overflow-x: hidden;
   color: var(--ink);
   background: var(--canvas);
   line-height: 1.55;
@@ -294,64 +296,65 @@ h3 { font-size: 17px; }
 .task-topline { display: flex; align-items: end; justify-content: space-between; gap: 20px; }
 .task-topline h1 { margin: 0; font-size: 25px; }
 .saved-count { margin-bottom: 2px; color: var(--muted); font-size: 13px; }
-.progress-track { height: 7px; margin: 15px 0 24px; overflow: hidden; background: #d6dfda; border-radius: 99px; }
+.progress-track { height: 7px; margin: 12px 0 18px; overflow: hidden; background: #d6dfda; border-radius: 99px; }
 .progress-fill { width: 0; height: 100%; background: var(--accent); border-radius: inherit; }
 
-.scene-layout {
+.task-context-layout {
   display: grid;
-  grid-template-columns: minmax(0, 1.25fr) minmax(300px, 0.75fr);
-  gap: 24px;
-  align-items: stretch;
+  grid-template-columns: minmax(0, 1.4fr) minmax(340px, 1fr);
+  gap: 18px;
+  align-items: start;
 }
 
-.scene-frame {
-  min-height: 0;
-  padding: 16px;
+.scene-task-card,
+.strategy-panel {
+  overflow: hidden;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+}
+
+.scene-image-region {
+  padding: 12px;
   display: grid;
   place-items: center;
+  min-height: 0;
   overflow: hidden;
   background: #e2e8e4;
-  border: 1px solid #d0dad5;
-  border-radius: 14px;
+  border-bottom: 1px solid #d0dad5;
 }
 
 .task-image {
   display: block;
-  width: min(100%, 720px);
-  max-height: 420px;
+  width: 100%;
+  max-height: 320px;
   height: auto;
   object-fit: contain;
   margin: 0 auto;
 }
 .image-loading { color: var(--muted); font-size: 14px; }
 
-.task-prompt {
-  padding: 28px;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  color: #fff;
-  background: var(--ink);
-  border-radius: 14px;
+.task-instruction-region {
+  padding: 17px 20px 20px;
 }
-.task-prompt .eyebrow { color: #8dd2b7; }
-.task-prompt h2 { font-size: clamp(27px, 3vw, 39px); }
-.task-prompt > p:last-child { margin-bottom: 0; color: #bcc8c3; }
+.task-instruction-region .eyebrow { margin-bottom: 6px; }
+.task-instruction-region h2 { margin: 0; font-size: clamp(26px, 2.25vw, 31px); line-height: 1.16; }
 
-.section-heading { margin: 32px 0 14px; }
-.strategy-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; }
+.strategy-panel { padding: 18px; }
+.strategy-panel h2 { margin-bottom: 13px; font-size: 20px; }
+.strategy-grid { display: grid; grid-template-columns: 1fr; gap: 10px; }
 .strategy-card {
-  min-height: 116px;
-  padding: 18px;
+  min-height: 0;
+  padding: 13px 14px;
   display: grid;
-  grid-template-columns: 40px 1fr;
-  gap: 16px;
-  align-items: start;
-  background: #fff;
+  grid-template-columns: 38px minmax(0, 1fr);
+  gap: 12px;
+  align-items: center;
+  background: var(--surface-soft);
   border: 1px solid var(--line);
-  border-radius: 12px;
+  border-radius: 10px;
 }
-.strategy-card p { margin: 2px 0 0; }
+.strategy-card p { min-width: 0; margin: 0; line-height: 1.42; overflow-wrap: anywhere; }
 .strategy-label,
 .matrix-strategy {
   width: 38px;
@@ -364,8 +367,8 @@ h3 { font-size: 17px; }
   font-weight: 850;
 }
 
-.rating-section { position: relative; margin-top: 32px; padding: 24px; }
-.section-heading-row { margin-bottom: 22px; display: flex; justify-content: space-between; gap: 20px; align-items: start; }
+.rating-section { position: relative; margin-top: 18px; padding: 20px 22px; }
+.section-heading-row { margin-bottom: 14px; display: flex; justify-content: space-between; gap: 20px; align-items: start; }
 .section-heading-row h2,
 .derived-ranking-summary h2 { margin-bottom: 5px; }
 .section-heading-row p,
@@ -374,8 +377,8 @@ h3 { font-size: 17px; }
 .matrix-wrap { overflow: visible; }
 .rating-matrix { width: 100%; border-collapse: separate; border-spacing: 0; }
 .rating-matrix th,
-.rating-matrix td { padding: 14px 12px; text-align: center; border-top: 1px solid var(--line); }
-.rating-matrix thead th { padding-top: 9px; border-top: 0; color: var(--muted); font-size: 13px; }
+.rating-matrix td { padding: 12px 10px; text-align: center; border-top: 1px solid var(--line); }
+.rating-matrix thead th { padding-top: 7px; border-top: 0; color: var(--muted); font-size: 13px; }
 .rating-matrix thead th:first-child { text-align: left; }
 .rating-matrix thead th:not(:first-child) > span { vertical-align: middle; }
 .rating-matrix tbody th { width: 100px; }
@@ -478,12 +481,14 @@ h3 { font-size: 17px; }
   .login-layout,
   .welcome-layout { grid-template-columns: 1fr; gap: 28px; padding-top: 20px; }
   .login-card { max-width: none; }
-  .scene-layout { grid-template-columns: 1fr; }
-  .task-prompt { padding: 28px; }
   .matrix-wrap { overflow-x: auto; padding-bottom: 8px; }
   .rating-matrix { min-width: 850px; }
   .derived-ranking-summary { align-items: start; flex-direction: column; }
   .derived-ranking-list { justify-content: start; }
+}
+
+@media (max-width: 860px) {
+  .task-context-layout { grid-template-columns: 1fr; }
 }
 
 @media (max-width: 680px) {
@@ -496,9 +501,13 @@ h3 { font-size: 17px; }
   .instruction-card,
   .rating-section,
   .derived-ranking-summary { padding: 20px; }
-  .strategy-grid { grid-template-columns: 1fr; }
-  .scene-frame { min-height: 0; padding: 10px; }
-  .task-image { max-height: 320px; }
+  .task-context-layout { gap: 14px; }
+  .scene-image-region { padding: 10px; }
+  .task-image { max-height: 280px; }
+  .task-instruction-region { padding: 15px 17px 18px; }
+  .task-instruction-region h2 { font-size: clamp(24px, 7vw, 28px); }
+  .strategy-panel { padding: 16px; }
+  .strategy-card { padding: 12px; }
   .section-heading-row { flex-direction: column; gap: 4px; }
   .task-actions .button { padding-inline: 14px; }
 }

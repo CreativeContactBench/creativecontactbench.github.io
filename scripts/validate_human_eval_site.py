@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Fail if protected study content or privileged credentials enter the public site."""
+"""Validate the approved public gallery and protect private study content."""
 
 from __future__ import annotations
 
@@ -10,6 +10,11 @@ import re
 from pathlib import Path
 
 REQUIRED_PUBLIC_FILES = {
+    "videos/index.html",
+    "videos/gallery.js",
+    "videos/task.html",
+    "videos/task.js",
+    "videos/tasks.js",
     "human-eval/index.html",
     "human-eval/app.js",
     "human-eval/styles.css",
@@ -48,7 +53,6 @@ def validate(root: Path, private_assets: Path) -> None:
     protected_paths = [
         root / "human-eval" / "tasks.json",
         root / "human-eval" / "images",
-        root / "videos",
     ]
     for path in protected_paths:
         if path.exists():
@@ -56,8 +60,36 @@ def validate(root: Path, private_assets: Path) -> None:
 
     task_image_pattern = re.compile(r"task-(?:0[1-9]|1[0-24-9])\.(?:jpg|jpeg|png|webp)$", re.I)
     for path in iter_public_files(root):
-        if task_image_pattern.fullmatch(path.name):
+        relative = path.relative_to(root)
+        if task_image_pattern.fullmatch(path.name) and relative.parts[0] != "videos":
             errors.append(f"Benchmark-style task image found: {path.relative_to(root)}")
+
+    gallery_manifest_path = root / "videos" / "tasks.js"
+    gallery_video_root = root / "videos" / "optimized"
+    if gallery_manifest_path.is_file() and gallery_video_root.is_dir():
+        gallery_source = gallery_manifest_path.read_text(encoding="utf-8")
+        referenced_videos = set(re.findall(r'"video":\s*"([^"\n]+\.mp4)"', gallery_source))
+        actual_videos = {
+            path.relative_to(gallery_video_root).as_posix()
+            for path in gallery_video_root.rglob("*.mp4")
+            if path.is_file()
+        }
+        missing_videos = sorted(referenced_videos - actual_videos)
+        unreferenced_videos = sorted(actual_videos - referenced_videos)
+        if missing_videos:
+            errors.append(f"Public gallery references missing videos: {missing_videos}")
+        if unreferenced_videos:
+            errors.append(f"Public gallery contains unreferenced videos: {unreferenced_videos}")
+        if not referenced_videos:
+            errors.append("Public gallery manifest contains no video references")
+
+        oversized_videos = sorted(
+            path.relative_to(root).as_posix()
+            for path in gallery_video_root.rglob("*.mp4")
+            if path.stat().st_size >= 100 * 1024 * 1024
+        )
+        if oversized_videos:
+            errors.append(f"Public gallery videos exceed GitHub's 100 MiB file limit: {oversized_videos}")
 
     secret_markers = [
         "sb_" + "secret_",
@@ -143,6 +175,8 @@ def validate(root: Path, private_assets: Path) -> None:
             for field in ("task_instruction", "option_A", "option_B", "option_C", "option_D")
         }
         for path in iter_public_files(root):
+            if path.relative_to(root).parts[0] == "videos":
+                continue
             if path.suffix.lower() not in TEXT_SUFFIXES:
                 continue
             text = path.read_text(encoding="utf-8", errors="ignore")
@@ -152,13 +186,18 @@ def validate(root: Path, private_assets: Path) -> None:
         manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
         private_image_hashes = set(manifest["image_sha256"].values())
         for path in iter_public_files(root):
+            if path.relative_to(root).parts[0] == "videos":
+                continue
             if path.suffix.lower() in {".jpg", ".jpeg", ".png", ".webp", ".gif", ".bmp"}:
                 if sha256(path) in private_image_hashes:
                     errors.append(f"Pinned private task image found in {path.relative_to(root)}")
 
     if errors:
         raise SystemExit("Public human-evaluation security validation failed:\n- " + "\n- ".join(errors))
-    print("Public site security validation passed: UI only, no protected benchmark assets or credentials.")
+    print(
+        "Public site validation passed: approved video gallery complete; "
+        "private Human Evaluation assets and credentials absent."
+    )
 
 
 def main() -> None:

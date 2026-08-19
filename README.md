@@ -6,12 +6,14 @@ Static GitHub Pages site for the CreativeContactBench project page.
 
 1. Replace author, affiliation, venue, paper, code, and data links in `index.html`.
 2. Replace the abstract with the final paper abstract.
-3. Add a real teaser image only if you want one.
-4. Update the results table and BibTeX in `index.html`.
-5. Keep protected benchmark task content outside this public repository.
+3. Keep the researcher-approved reproduction gallery under `videos/` web-ready and publicly reviewable.
+4. Add a real teaser image only if you want one.
+5. Update the results table and BibTeX in `index.html`.
+6. Keep private Human Evaluation assets and participant data outside this public repository.
 
-The password-gated study interface is in `human-eval/`. Its task metadata and images are stored in private Supabase
-Storage and are fetched only after authentication. See `human-eval/README.md` for the security architecture.
+The public video gallery is in `videos/`. The password-gated study interface is in `human-eval/`; its separate task
+package is stored in private Supabase Storage and is fetched only after authentication. See `human-eval/README.md`
+for the study security architecture.
 
 ## Local preview
 
@@ -25,11 +27,12 @@ Then open:
 
 ```text
 http://localhost:8000/
+http://localhost:8000/videos/
 http://localhost:8000/human-eval/
 ```
 
-Before review, run `python scripts/validate_human_eval_site.py`. It fails if protected task content or privileged
-credential patterns are present in the public tree.
+Before review, run `python scripts/validate_human_eval_site.py`. It verifies the complete public video inventory and
+fails if private Human Evaluation assets or privileged credential patterns are present in the public tree.
 
 ## GitHub Pages
 

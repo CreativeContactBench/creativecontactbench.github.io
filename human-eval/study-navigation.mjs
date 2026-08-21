@@ -7,7 +7,7 @@ export const DIMENSION_KEYS = [
 export const OVERALL_RANKING_SOURCE = "derived_equal_weight_dimension_sum";
 
 export function getOnboardingCtaLabel(participantState) {
-  return participantState ? "Resume Evaluation →" : "Start Evaluation →";
+  return participantState ? "Resume Evaluation →" : "I understand — let’s get started! →";
 }
 
 export function responseIsComplete(response) {

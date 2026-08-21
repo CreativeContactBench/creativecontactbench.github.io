@@ -1,0 +1,50 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 540" role="img" aria-labelledby="title description">
+  <title id="title">Tutorial robot manipulation scene</title>
+  <desc id="description">A robot arm, blue foam block, movable board, and green target tray arranged on a table.</desc>
+  <defs>
+    <linearGradient id="wall" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#edf5f1"/>
+      <stop offset="1" stop-color="#dfeae4"/>
+    </linearGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="160%">
+      <feDropShadow dx="0" dy="12" stdDeviation="12" flood-color="#173c30" flood-opacity=".14"/>
+    </filter>
+  </defs>
+  <rect width="960" height="540" fill="url(#wall)"/>
+  <circle cx="840" cy="92" r="48" fill="#d3e8dd"/>
+  <path d="M0 354h960v186H0z" fill="#c8d5cf"/>
+  <path d="M42 318h876c18 0 32 14 32 32v48H10v-48c0-18 14-32 32-32z" fill="#f8faf9" stroke="#aebdb6" stroke-width="4" filter="url(#shadow)"/>
+  <path d="M150 398v142M810 398v142" stroke="#83958d" stroke-width="22"/>
+
+  <g aria-label="robot arm" filter="url(#shadow)">
+    <rect x="92" y="244" width="142" height="74" rx="24" fill="#225f4c"/>
+    <circle cx="164" cy="242" r="42" fill="#2c7b61" stroke="#174b3b" stroke-width="8"/>
+    <path d="M164 236l92-96" stroke="#f2f5f3" stroke-width="42" stroke-linecap="round"/>
+    <circle cx="258" cy="138" r="28" fill="#2c7b61"/>
+    <path d="M267 132l100 60" stroke="#f2f5f3" stroke-width="34" stroke-linecap="round"/>
+    <circle cx="369" cy="194" r="22" fill="#2c7b61"/>
+    <path d="M369 194l38 55" stroke="#174b3b" stroke-width="15" stroke-linecap="round"/>
+    <path d="M399 246l-18 34M414 244l18 32" stroke="#174b3b" stroke-width="10" stroke-linecap="round"/>
+  </g>
+
+  <g aria-label="blue foam block" filter="url(#shadow)">
+    <rect x="396" y="259" width="112" height="59" rx="12" fill="#4d83c4" stroke="#285b98" stroke-width="5"/>
+    <path d="M409 274h86" stroke="#8eb5e4" stroke-width="6" stroke-linecap="round"/>
+  </g>
+
+  <g aria-label="movable board" filter="url(#shadow)">
+    <path d="M540 273l134-68 18 35-134 70z" fill="#d8a969" stroke="#9a6d33" stroke-width="5"/>
+    <circle cx="665" cy="230" r="8" fill="#b67e3d"/>
+  </g>
+
+  <g aria-label="green target tray" filter="url(#shadow)">
+    <path d="M724 268h154l-14 50H738z" fill="#c9eedc" stroke="#28785d" stroke-width="7"/>
+    <path d="M742 283h118" stroke="#72b89e" stroke-width="6" stroke-dasharray="10 10"/>
+    <text x="801" y="250" fill="#176b4f" font-family="Inter,system-ui,sans-serif" font-size="20" font-weight="700" text-anchor="middle">TARGET</text>
+  </g>
+
+  <g fill="#51645c" font-family="Inter,system-ui,sans-serif" font-size="18" font-weight="650">
+    <text x="452" y="348" text-anchor="middle">FOAM BLOCK</text>
+    <text x="615" y="348" text-anchor="middle">MOVABLE BOARD</text>
+  </g>
+</svg>

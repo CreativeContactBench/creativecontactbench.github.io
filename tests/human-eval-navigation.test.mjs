@@ -7,6 +7,7 @@ import {
   OVERALL_RANKING_SOURCE,
   STRATEGIES,
   deriveOverallRanking,
+  getOnboardingCtaLabel,
   getPrimaryTaskAction,
   getPrimaryTaskActionState,
   getTaskSubmitDestination,
@@ -15,6 +16,7 @@ import {
   studyIsComplete,
   writeStoredParticipantState,
 } from "../human-eval/study-navigation.mjs";
+import { TUTORIAL_DIMENSIONS, TUTORIAL_EXAMPLE } from "../human-eval/tutorial-example.mjs";
 
 const REVISION = "8d27ada2f16f1a90dfbf0cd7b7537c764cffa61d";
 
@@ -197,4 +199,44 @@ test("the participant UI contains no manual ranking controls", () => {
   const app = readFileSync(new URL("../human-eval/app.js", import.meta.url), "utf8");
   assert.doesNotMatch(html, /rank-selectors|name=["']rank-|Assign each strategy a rank/);
   assert.doesNotMatch(app, /rank-selectors|name=["']rank-|normalizeRanking/);
+});
+
+test("onboarding CTA distinguishes first-time and saved-progress states", () => {
+  assert.equal(getOnboardingCtaLabel(null), "Start Evaluation →");
+  assert.equal(getOnboardingCtaLabel(undefined), "Start Evaluation →");
+  assert.equal(
+    getOnboardingCtaLabel({ participant_id: "participant-1", responses: {} }),
+    "Resume Evaluation →",
+  );
+});
+
+test("tutorial example is display-only and structurally separate from study tasks", () => {
+  assert.equal(TUTORIAL_EXAMPLE.id, "tutorial-example");
+  assert.equal(TUTORIAL_EXAMPLE.displayOnly, true);
+  assert.doesNotMatch(TUTORIAL_EXAMPLE.id, /^task-\d+$/);
+  assert.deepEqual(Array.from(TUTORIAL_EXAMPLE.strategies, ({ label }) => label), STRATEGIES);
+
+  const dimensionKeys = Array.from(TUTORIAL_DIMENSIONS, ({ key }) => key);
+  assert.deepEqual(dimensionKeys, DIMENSION_KEYS);
+  for (const strategy of TUTORIAL_EXAMPLE.strategies) {
+    assert.deepEqual(Object.keys(strategy.ratings), DIMENSION_KEYS);
+    assert.ok(DIMENSION_KEYS.every((key) => Number.isInteger(strategy.ratings[key])));
+    assert.ok(DIMENSION_KEYS.every((key) => strategy.ratings[key] >= 1 && strategy.ratings[key] <= 5));
+  }
+
+  const html = readFileSync(new URL("../human-eval/index.html", import.meta.url), "utf8");
+  const app = readFileSync(new URL("../human-eval/app.js", import.meta.url), "utf8");
+  assert.match(html, /data-display-only="true"/);
+  assert.match(html, /<details class="tutorial-details">/);
+  assert.doesNotMatch(html, /<details class="tutorial-details" open>/);
+  assert.match(app, /studyTasks = PILOT \? allTasks\.slice\(0, 3\) : allTasks/);
+  assert.match(app, /return studyTasks\.map\(\(task\) =>/);
+});
+
+test("onboarding scene count is derived from the loaded study task set", () => {
+  const html = readFileSync(new URL("../human-eval/index.html", import.meta.url), "utf8");
+  const app = readFileSync(new URL("../human-eval/app.js", import.meta.url), "utf8");
+  assert.match(html, /id="welcome-task-count"/);
+  assert.match(app, /const taskCount = studyTasks\.length/);
+  assert.match(app, /welcome-task-count"\]\.textContent = String\(taskCount\)/);
 });

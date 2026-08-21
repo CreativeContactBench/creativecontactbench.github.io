@@ -6,6 +6,10 @@ export const DIMENSION_KEYS = [
 ];
 export const OVERALL_RANKING_SOURCE = "derived_equal_weight_dimension_sum";
 
+export function getOnboardingCtaLabel(participantState) {
+  return participantState ? "Resume Evaluation →" : "Start Evaluation →";
+}
+
 export function responseIsComplete(response) {
   return STRATEGIES.every(
     (label) => DIMENSION_KEYS.every((dimension) => {

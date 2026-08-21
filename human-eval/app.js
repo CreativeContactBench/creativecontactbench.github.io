@@ -4,6 +4,7 @@ import {
   OVERALL_RANKING_SOURCE,
   STRATEGIES,
   deriveOverallRanking,
+  getOnboardingCtaLabel,
   getPrimaryTaskActionState,
   getTaskSubmitDestination,
   readStoredParticipantState,
@@ -11,6 +12,7 @@ import {
   studyIsComplete,
   writeStoredParticipantState,
 } from "./study-navigation.mjs";
+import { TUTORIAL_DIMENSIONS, TUTORIAL_EXAMPLE } from "./tutorial-example.mjs";
 
 const CONFIG = window.CCB_CONFIG;
 const EXPECTED_REVISION = "8d27ada2f16f1a90dfbf0cd7b7537c764cffa61d";
@@ -56,8 +58,11 @@ const elements = Object.fromEntries(
     "retry-assets-button",
     "welcome-pilot-banner",
     "welcome-task-count",
-    "welcome-task-count-copy",
     "start-evaluation-button",
+    "tutorial-image",
+    "tutorial-task",
+    "tutorial-strategy-grid",
+    "tutorial-ratings-grid",
     "task-position",
     "task-total",
     "task-id",
@@ -97,6 +102,7 @@ let participantState = null;
 let currentImageUrl = null;
 let activeTaskStartedAt = null;
 let protectedLoadInProgress = false;
+let tutorialRendered = false;
 
 function assertConfiguration() {
   const required = [
@@ -280,13 +286,60 @@ function showWelcome() {
   }
   const taskCount = studyTasks.length;
   elements["welcome-task-count"].textContent = String(taskCount);
-  elements["welcome-task-count-copy"].textContent = String(taskCount);
   elements["welcome-pilot-banner"].hidden = !PILOT;
-  elements["start-evaluation-button"].textContent = participantState
-    ? "Resume Evaluation →"
-    : "Start Evaluation →";
+  elements["start-evaluation-button"].textContent = getOnboardingCtaLabel(participantState);
+  renderTutorialExample();
   setAuthenticatedHeader(true);
   showScreen("welcome-screen");
+}
+
+function renderTutorialExample() {
+  if (tutorialRendered) return;
+  elements["tutorial-image"].src = TUTORIAL_EXAMPLE.imagePath;
+  elements["tutorial-image"].alt = TUTORIAL_EXAMPLE.imageAlt;
+  elements["tutorial-task"].textContent = TUTORIAL_EXAMPLE.task;
+
+  for (const strategy of TUTORIAL_EXAMPLE.strategies) {
+    const card = document.createElement("article");
+    card.className = "strategy-card tutorial-strategy-card";
+    const badge = document.createElement("span");
+    badge.className = "strategy-label";
+    badge.textContent = strategy.label;
+    const text = document.createElement("p");
+    text.textContent = strategy.text;
+    card.append(badge, text);
+    elements["tutorial-strategy-grid"].append(card);
+
+    const ratingCard = document.createElement("article");
+    ratingCard.className = "tutorial-rating-card";
+    const heading = document.createElement("div");
+    heading.className = "tutorial-rating-heading";
+    const ratingBadge = document.createElement("span");
+    ratingBadge.className = "strategy-label";
+    ratingBadge.textContent = strategy.label;
+    const headingText = document.createElement("strong");
+    headingText.textContent = `Strategy ${strategy.label}`;
+    heading.append(ratingBadge, headingText);
+
+    const ratings = document.createElement("dl");
+    ratings.className = "tutorial-score-list";
+    for (const dimension of TUTORIAL_DIMENSIONS) {
+      const row = document.createElement("div");
+      const term = document.createElement("dt");
+      term.textContent = dimension.label;
+      const score = document.createElement("dd");
+      score.textContent = `${strategy.ratings[dimension.key]} / 5`;
+      row.append(term, score);
+      ratings.append(row);
+    }
+
+    const reasoning = document.createElement("p");
+    reasoning.className = "tutorial-reasoning";
+    reasoning.textContent = strategy.reasoning;
+    ratingCard.append(heading, ratings, reasoning);
+    elements["tutorial-ratings-grid"].append(ratingCard);
+  }
+  tutorialRendered = true;
 }
 
 function getTaskResponse(taskId) {

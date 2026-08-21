@@ -145,8 +145,7 @@ h3 { font-size: 17px; }
   place-items: center;
 }
 
-.login-layout,
-.welcome-layout {
+.login-layout {
   min-height: calc(100vh - 220px);
   display: grid;
   grid-template-columns: minmax(320px, 0.78fr) minmax(430px, 0.7fr);
@@ -160,7 +159,9 @@ h3 { font-size: 17px; }
 .login-intro .muted-copy { max-width: 540px; margin-top: 30px; }
 
 .login-card,
-.instruction-card,
+.onboarding-card,
+.worked-example-card,
+.onboarding-cta,
 .rating-section,
 .derived-ranking-summary,
 .status-card {
@@ -256,12 +257,219 @@ h3 { font-size: 17px; }
 .error-icon { color: var(--danger); background: var(--danger-soft); }
 .button-row { margin-top: 28px; display: flex; justify-content: center; gap: 12px; flex-wrap: wrap; }
 
-.welcome-hero { max-width: 620px; }
-.welcome-hero .lead { color: var(--muted); font-size: 20px; }
-.time-estimate { margin-top: 30px; color: var(--muted); font-size: 14px; }
-.time-estimate span { margin-right: 6px; color: var(--accent); font-size: 19px; }
-.instruction-card { width: 100%; padding: clamp(28px, 4vw, 44px); }
-.instruction-card h2:not(:first-child) { margin-top: 34px; }
+.onboarding-layout { display: grid; gap: 22px; }
+.onboarding-layout > *,
+.onboarding-guide-grid > *,
+.tutorial-task-layout > * { min-width: 0; }
+
+.onboarding-intro {
+  max-width: 940px;
+  padding: 5px 0 12px;
+}
+
+.onboarding-intro h1 {
+  margin-bottom: 10px;
+  font-size: clamp(41px, 5vw, 62px);
+  overflow-wrap: anywhere;
+}
+
+.onboarding-tagline {
+  margin-bottom: 14px;
+  color: var(--accent-dark);
+  font-size: clamp(22px, 2.8vw, 30px);
+  font-weight: 780;
+  letter-spacing: -0.025em;
+  line-height: 1.22;
+}
+
+.onboarding-purpose {
+  max-width: 850px;
+  margin-bottom: 17px;
+  color: var(--muted);
+  font-size: 17px;
+  line-height: 1.62;
+}
+
+.study-meta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.study-meta strong { color: var(--ink); }
+
+.onboarding-guide-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 18px;
+  align-items: stretch;
+}
+
+.onboarding-card { padding: clamp(24px, 3vw, 34px); }
+.onboarding-card h2 { margin-bottom: 22px; }
+.onboarding-card .eyebrow { margin-bottom: 6px; }
+
+.dimension-chips {
+  margin-top: 10px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+}
+
+.dimension-chips strong {
+  padding: 6px 9px;
+  color: var(--accent-dark);
+  background: var(--accent-soft);
+  border-radius: 7px;
+  font-size: 12px;
+  line-height: 1.25;
+}
+
+.keep-in-mind-card { box-shadow: 0 8px 24px rgba(26, 45, 37, 0.035); }
+
+.keep-in-mind-list {
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 10px;
+  list-style: none;
+}
+
+.keep-in-mind-list li {
+  position: relative;
+  padding-left: 21px;
+  color: #405049;
+  line-height: 1.45;
+}
+
+.keep-in-mind-list li::before {
+  content: "";
+  position: absolute;
+  top: 0.62em;
+  left: 2px;
+  width: 7px;
+  height: 7px;
+  background: #82ad9a;
+  border-radius: 50%;
+}
+
+.worked-example-card { padding: clamp(24px, 3.5vw, 40px); }
+
+.worked-example-header {
+  margin-bottom: 22px;
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: 28px;
+}
+
+.worked-example-header h2 { margin-bottom: 7px; }
+.worked-example-header p:not(.eyebrow) { max-width: 700px; margin-bottom: 0; color: var(--muted); }
+
+.tutorial-notice {
+  flex: 0 0 auto;
+  padding: 8px 11px;
+  color: var(--warning);
+  background: var(--warning-soft);
+  border-radius: 8px;
+  font-size: 12px;
+}
+
+.tutorial-task-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.25fr) minmax(340px, 0.95fr);
+  gap: 18px;
+  align-items: start;
+}
+
+.tutorial-image-region { min-height: 260px; }
+.tutorial-image { max-height: 300px; }
+.tutorial-scene-card .task-instruction-region h3 { margin: 0; font-size: clamp(22px, 2vw, 28px); }
+.tutorial-strategy-panel h3 { margin-bottom: 13px; font-size: 20px; }
+.tutorial-strategy-card { font-size: 14px; }
+
+.tutorial-details {
+  margin-top: 22px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--surface-soft);
+}
+
+.tutorial-details summary {
+  padding: 16px 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  color: var(--accent-dark);
+  cursor: pointer;
+  font-weight: 780;
+  list-style: none;
+}
+
+.tutorial-details summary::-webkit-details-marker { display: none; }
+.tutorial-details summary:focus-visible { outline: 3px solid #9bcdb9; outline-offset: 2px; }
+.tutorial-details summary span { transition: transform 180ms ease; }
+.tutorial-details[open] summary span { transform: rotate(180deg); }
+
+.tutorial-details-body {
+  padding: 0 18px 18px;
+  border-top: 1px solid var(--line);
+}
+
+.tutorial-ratings-note {
+  margin: 16px 0;
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.tutorial-ratings-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.tutorial-rating-card {
+  padding: 16px;
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+}
+
+.tutorial-rating-heading {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+}
+
+.tutorial-rating-heading .strategy-label { width: 32px; height: 32px; border-radius: 7px; }
+
+.tutorial-score-list { margin: 14px 0 12px; }
+.tutorial-score-list div {
+  padding: 7px 0;
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  border-top: 1px solid #e8eeeb;
+}
+.tutorial-score-list dt { color: var(--muted); font-size: 13px; }
+.tutorial-score-list dd { margin: 0; color: var(--accent-dark); font-size: 13px; font-weight: 800; white-space: nowrap; }
+.tutorial-reasoning { margin: 0; color: #42514b; font-size: 13px; line-height: 1.5; }
+
+.onboarding-cta {
+  padding: 22px 26px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  background: #f9fbfa;
+}
+
+.onboarding-cta .eyebrow { margin-bottom: 5px; }
+.onboarding-cta h2 { margin: 0; font-size: 21px; }
+.onboarding-start-button { min-width: 210px; }
 
 .pilot-banner-large {
   margin-bottom: 24px;
@@ -275,7 +483,7 @@ h3 { font-size: 17px; }
 }
 
 .workflow-list { margin: 0; padding: 0; display: grid; gap: 15px; list-style: none; }
-.workflow-list li { display: grid; grid-template-columns: 31px 1fr; gap: 13px; align-items: start; }
+.workflow-list li { display: grid; grid-template-columns: 31px minmax(0, 1fr); gap: 13px; align-items: start; }
 .workflow-list li > span {
   width: 29px;
   height: 29px;
@@ -478,8 +686,7 @@ h3 { font-size: 17px; }
 }
 
 @media (max-width: 1050px) {
-  .login-layout,
-  .welcome-layout { grid-template-columns: 1fr; gap: 28px; padding-top: 20px; }
+  .login-layout { grid-template-columns: 1fr; gap: 28px; padding-top: 20px; }
   .login-card { max-width: none; }
   .matrix-wrap { overflow-x: auto; padding-bottom: 8px; }
   .rating-matrix { min-width: 850px; }
@@ -488,7 +695,9 @@ h3 { font-size: 17px; }
 }
 
 @media (max-width: 860px) {
-  .task-context-layout { grid-template-columns: 1fr; }
+  .task-context-layout,
+  .tutorial-task-layout { grid-template-columns: 1fr; }
+  .tutorial-image-region { min-height: 0; }
 }
 
 @media (max-width: 680px) {
@@ -496,11 +705,26 @@ h3 { font-size: 17px; }
   .brand > span:last-child,
   .participant-label { display: none; }
   .page-shell { width: min(100% - 24px, 1240px); padding-top: 24px; }
-  .login-layout,
-  .welcome-layout { min-height: auto; }
-  .instruction-card,
+  .login-layout { min-height: auto; }
+  .onboarding-layout { gap: 15px; }
+  .onboarding-intro { padding-bottom: 6px; }
+  .onboarding-intro h1 { font-size: clamp(28px, 7.6vw, 34px); }
+  .onboarding-purpose { font-size: 15px; }
+  .study-meta { align-items: flex-start; flex-direction: column; gap: 3px; }
+  .study-meta > span[aria-hidden="true"] { display: none; }
+  .onboarding-guide-grid { grid-template-columns: 1fr; gap: 14px; }
+  .onboarding-card,
+  .worked-example-card,
+  .onboarding-cta,
   .rating-section,
   .derived-ranking-summary { padding: 20px; }
+  .worked-example-header { flex-direction: column; gap: 12px; }
+  .tutorial-notice { align-self: flex-start; }
+  .tutorial-ratings-grid { grid-template-columns: 1fr; }
+  .tutorial-details summary { padding: 15px; }
+  .tutorial-details-body { padding: 0 14px 14px; }
+  .onboarding-cta { align-items: stretch; flex-direction: column; gap: 16px; }
+  .onboarding-start-button { width: 100%; min-width: 0; }
   .task-context-layout { gap: 14px; }
   .scene-image-region { padding: 10px; }
   .task-image { max-height: 280px; }

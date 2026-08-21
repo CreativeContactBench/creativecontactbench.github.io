@@ -19,6 +19,12 @@ The browser client is the pinned ESM build of `@supabase/supabase-js` v2.57.4 fr
 
 The study password must be entered interactively. Never add it to this repository, configuration, documentation, tests, logs, or browser storage. Do not add privileged server credentials to a static site.
 
+## Onboarding example
+
+The worked example shown before the study is the static public image `worked-example-guide.png`. It is display-only
+HTML content: it is never added to the authenticated `studyTasks` array, participant LocalStorage responses, or the
+submission payload. Replace that file in place if the example artwork changes.
+
 ## Private asset layout
 
 The private package lives outside this repository at:

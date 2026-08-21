@@ -23,6 +23,7 @@ REQUIRED_PUBLIC_FILES = {
     "human-eval/human_eval_v0.1.json",
     "human-eval/human_eval_v0.2.json",
     "human-eval/study-navigation.mjs",
+    "human-eval/worked-example-guide.png",
     "human-eval/README.md",
     "tests/human-eval-navigation.test.mjs",
 }

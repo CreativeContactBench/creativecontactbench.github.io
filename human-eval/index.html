@@ -85,34 +85,78 @@
         </div>
       </section>
 
-      <section id="welcome-screen" class="welcome-layout" hidden>
-        <div class="welcome-hero">
+      <section id="welcome-screen" class="onboarding-layout" hidden>
+        <header class="onboarding-intro">
           <div id="welcome-pilot-banner" class="pilot-banner-large" hidden>
             <strong>Pilot mode</strong>
             <span>3 tasks · Marked separately from formal responses</span>
           </div>
-          <p class="eyebrow">Human study · <span id="welcome-task-count">18</span> scenes</p>
-          <h1>Human Strategy<br />Evaluation</h1>
-          <p class="lead">You will evaluate robot manipulation strategies across <span id="welcome-task-count-copy">18</span> scenes.</p>
-          <div class="time-estimate"><span aria-hidden="true">◷</span> Estimated time: 15–25 minutes</div>
+          <p class="eyebrow">Human research study</p>
+          <h1>CreativeContactBench</h1>
+          <p class="onboarding-tagline">Help us understand creativity in robot manipulation.</p>
+          <p class="onboarding-purpose">
+            In this study, you will evaluate different strategies a robot could use to complete everyday manipulation tasks. Your judgments will help us understand how humans and AI assess effective, feasible, and creative robot behavior.
+          </p>
+          <div class="study-meta" aria-label="Study length and estimated duration">
+            <span><strong id="welcome-task-count">18</strong> scenes</span>
+            <span aria-hidden="true">·</span>
+            <span>Estimated time: 15–25 minutes</span>
+          </div>
+        </header>
+
+        <div class="onboarding-guide-grid">
+          <section class="onboarding-card" aria-labelledby="how-it-works-title">
+            <p class="eyebrow">Study flow</p>
+            <h2 id="how-it-works-title">How it works</h2>
+            <ol class="workflow-list">
+              <li><span>1</span><p><strong>Review the scene, task, and four candidate strategies.</strong></p></li>
+              <li>
+                <span>2</span>
+                <div>
+                  <p><strong>Rate each strategy on three dimensions:</strong></p>
+                  <div class="dimension-chips" aria-label="Evaluation dimensions">
+                    <strong>Task Effectiveness</strong>
+                    <strong>Embodied Feasibility</strong>
+                    <strong>Functional Creativity</strong>
+                  </div>
+                </div>
+              </li>
+              <li><span>3</span><p><strong>An overall ranking is calculated automatically from your ratings.</strong></p></li>
+            </ol>
+          </section>
+
+          <section class="onboarding-card keep-in-mind-card" aria-labelledby="keep-in-mind-title">
+            <p class="eyebrow">Evaluation guidance</p>
+            <h2 id="keep-in-mind-title">Keep in mind</h2>
+            <ul class="keep-in-mind-list">
+              <li><strong>Judge the robot and scene exactly as shown.</strong></li>
+              <li><strong>Visible objects may be used if helpful.</strong></li>
+              <li><strong>Do not assume tools, objects, or robot capabilities that are not shown.</strong></li>
+              <li><strong>Evaluate each strategy as written.</strong></li>
+              <li><strong>Rate the three dimensions independently.</strong></li>
+              <li>A strategy can be effective without being creative, and a creative strategy may not always be the most feasible.</li>
+            </ul>
+          </section>
         </div>
-        <div class="instruction-card">
-          <h2>What you’ll do</h2>
-          <ol class="workflow-list">
-            <li><span>1</span><p>Review the scene, task, and four strategies.</p></li>
-            <li><span>2</span><p>Rate Task Effectiveness, Embodied Feasibility, and Functional Creativity.</p></li>
-            <li><span>3</span><p>An overall ranking is calculated automatically from your ratings.</p></li>
-          </ol>
-          <h2>Before you begin</h2>
-          <ul class="instruction-list">
-            <li>Judge the robot shown in the image.</li>
-            <li>Do not assume tools, objects, or robot capabilities that are not shown.</li>
-            <li>Evaluate each strategy as written.</li>
-            <li>A strategy may score high on one dimension and low on another.</li>
-            <li>A direct strategy may be effective but not creative.</li>
-          </ul>
-          <button id="start-evaluation-button" class="button button-primary button-full" type="button">Start Evaluation <span aria-hidden="true">→</span></button>
-        </div>
+
+        <section class="worked-example-card" aria-labelledby="worked-example-title" data-display-only="true">
+          <div class="worked-example-header">
+            <h2 id="worked-example-title">Worked Example</h2>
+          </div>
+          <figure class="worked-example-figure">
+            <img
+              src="./worked-example-guide.png"
+              alt="Illustrative evaluation screen showing a robot manipulation scene, four candidate strategies, example one-to-five ratings, an automatically calculated ranking, and the Save and Next action."
+              width="1382"
+              height="1138"
+              decoding="async"
+            />
+          </figure>
+        </section>
+
+        <footer class="onboarding-cta">
+          <button id="start-evaluation-button" class="button button-primary onboarding-start-button" type="button">I understand — let’s get started! →</button>
+        </footer>
       </section>
 
       <section id="task-screen" class="task-screen" hidden>

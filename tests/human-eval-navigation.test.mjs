@@ -7,6 +7,7 @@ import {
   OVERALL_RANKING_SOURCE,
   STRATEGIES,
   deriveOverallRanking,
+  getOnboardingCtaLabel,
   getPrimaryTaskAction,
   getPrimaryTaskActionState,
   getTaskSubmitDestination,
@@ -197,4 +198,36 @@ test("the participant UI contains no manual ranking controls", () => {
   const app = readFileSync(new URL("../human-eval/app.js", import.meta.url), "utf8");
   assert.doesNotMatch(html, /rank-selectors|name=["']rank-|Assign each strategy a rank/);
   assert.doesNotMatch(app, /rank-selectors|name=["']rank-|normalizeRanking/);
+});
+
+test("onboarding CTA distinguishes first-time and saved-progress states", () => {
+  const app = readFileSync(new URL("../human-eval/app.js", import.meta.url), "utf8");
+  assert.equal(getOnboardingCtaLabel(null), "I understand — let’s get started! →");
+  assert.equal(getOnboardingCtaLabel(undefined), "I understand — let’s get started! →");
+  assert.equal(
+    getOnboardingCtaLabel({ participant_id: "participant-1", responses: {} }),
+    "Resume Evaluation →",
+  );
+  assert.match(
+    app,
+    /start-evaluation-button"\]\.addEventListener\("click", \(\) => \{\s+participantState \|\|= createParticipantState\(\);\s+saveParticipantState\(\);\s+renderTask\(\);/,
+  );
+});
+
+test("static worked example is display-only and structurally separate from study tasks", () => {
+  const html = readFileSync(new URL("../human-eval/index.html", import.meta.url), "utf8");
+  const app = readFileSync(new URL("../human-eval/app.js", import.meta.url), "utf8");
+  assert.match(html, /data-display-only="true"/);
+  assert.match(html, /src="\.\/worked-example-guide\.png"/);
+  assert.doesNotMatch(app, /worked-example-guide|tutorial/i);
+  assert.match(app, /studyTasks = PILOT \? allTasks\.slice\(0, 3\) : allTasks/);
+  assert.match(app, /return studyTasks\.map\(\(task\) =>/);
+});
+
+test("onboarding scene count is derived from the loaded study task set", () => {
+  const html = readFileSync(new URL("../human-eval/index.html", import.meta.url), "utf8");
+  const app = readFileSync(new URL("../human-eval/app.js", import.meta.url), "utf8");
+  assert.match(html, /id="welcome-task-count"/);
+  assert.match(app, /const taskCount = studyTasks\.length/);
+  assert.match(app, /welcome-task-count"\]\.textContent = String\(taskCount\)/);
 });

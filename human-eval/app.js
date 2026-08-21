@@ -4,6 +4,7 @@ import {
   OVERALL_RANKING_SOURCE,
   STRATEGIES,
   deriveOverallRanking,
+  getOnboardingCtaLabel,
   getPrimaryTaskActionState,
   getTaskSubmitDestination,
   readStoredParticipantState,
@@ -56,7 +57,6 @@ const elements = Object.fromEntries(
     "retry-assets-button",
     "welcome-pilot-banner",
     "welcome-task-count",
-    "welcome-task-count-copy",
     "start-evaluation-button",
     "task-position",
     "task-total",
@@ -280,11 +280,8 @@ function showWelcome() {
   }
   const taskCount = studyTasks.length;
   elements["welcome-task-count"].textContent = String(taskCount);
-  elements["welcome-task-count-copy"].textContent = String(taskCount);
   elements["welcome-pilot-banner"].hidden = !PILOT;
-  elements["start-evaluation-button"].textContent = participantState
-    ? "Resume Evaluation →"
-    : "Start Evaluation →";
+  elements["start-evaluation-button"].textContent = getOnboardingCtaLabel(participantState);
   setAuthenticatedHeader(true);
   showScreen("welcome-screen");
 }

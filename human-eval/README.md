@@ -7,7 +7,7 @@ This directory contains only the public static study interface. Protected benchm
 1. An unauthenticated visitor sees only the username/password screen.
 2. The participant-facing username is checked locally and mapped to the study Auth email from `config.js`.
 3. Supabase Auth performs the password sign-in. The site does not compare, log, or save the entered password.
-4. After authentication, the browser downloads `tasks.json` and the current task image from the private `human-eval-assets` bucket using the authenticated session.
+4. After authentication, the browser downloads `tasks.json` and the current task image from a pinned revision directory in the private `human-eval-assets` bucket using the authenticated session.
 5. Anonymous ratings and timing are saved locally for refresh recovery. Protected task metadata, image blobs, and object URLs are not written to local storage.
 6. Final submission inserts one authenticated row into `human_eval_submissions` and does not read it back.
 
@@ -33,18 +33,18 @@ The private package lives outside this repository at:
 /home/gechengs/projects/vlmeval/human_eval_private_assets/
 ```
 
-The researcher uploads `tasks.json` and `images/` to the existing private bucket with an authenticated, linked Supabase CLI session. Do not use privileged credentials in browser code or shell history. This repository must never contain those files.
+The researcher uploads `tasks.json` and `images/` to `revisions/<dataset-revision>/` in the existing private bucket with an authenticated, linked Supabase CLI session. Revision-specific paths make the client switch atomic and prevent old and new study assets from being mixed. Do not use privileged credentials in browser code or shell history. This repository must never contain those files.
 
 From a trusted administrator workspace, validate the private package, confirm the linked project and private bucket, then copy only the validated files:
 
 ```bash
 python /home/gechengs/projects/vlmeval/human_eval_private_assets/validate_assets.py
 npx --yes supabase projects list
-npx --yes supabase storage cp /home/gechengs/projects/vlmeval/human_eval_private_assets/tasks.json ss:///human-eval-assets/tasks.json --linked --experimental --content-type application/json
-npx --yes supabase storage cp /home/gechengs/projects/vlmeval/human_eval_private_assets/images ss:///human-eval-assets/images --recursive --linked --experimental --content-type image/jpeg
+npx --yes supabase storage cp /home/gechengs/projects/vlmeval/human_eval_private_assets/tasks.json ss:///human-eval-assets/revisions/df731a3352f1ea13aab4304c84dc504a854a5e90/tasks.json --linked --experimental --content-type application/json
+npx --yes supabase storage cp /home/gechengs/projects/vlmeval/human_eval_private_assets/images ss:///human-eval-assets/revisions/df731a3352f1ea13aab4304c84dc504a854a5e90/images --recursive --linked --experimental --content-type image/jpeg --jobs 4
 ```
 
-After upload, list the bucket recursively and confirm it contains exactly `tasks.json` plus the 18 expected images (task-01 through task-12 and task-14 through task-19). Never pass a service-role key on the command line.
+After upload, recursively list that revision directory and confirm it contains exactly `tasks.json` plus the 19 expected images (task-01 through task-19). Never pass a service-role key on the command line.
 
 ## Local preview
 

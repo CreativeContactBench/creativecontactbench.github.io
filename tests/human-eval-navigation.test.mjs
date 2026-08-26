@@ -17,7 +17,7 @@ import {
   writeStoredParticipantState,
 } from "../human-eval/study-navigation.mjs";
 
-const REVISION = "8d27ada2f16f1a90dfbf0cd7b7537c764cffa61d";
+const REVISION = "df731a3352f1ea13aab4304c84dc504a854a5e90";
 
 function ratingsWithTotals(totals) {
   return Object.fromEntries(
@@ -104,9 +104,9 @@ test("pilot navigation labels tasks 1–2 as next and task 3 as finish", () => {
   assert.deepEqual(getPrimaryTaskAction(2, 3), { isFinal: true, label: "Save & Finish" });
 });
 
-test("formal navigation labels task 17 as next and task 18 as finish", () => {
-  assert.deepEqual(getPrimaryTaskAction(16, 18), { isFinal: false, label: "Save & Next" });
-  assert.deepEqual(getPrimaryTaskAction(17, 18), { isFinal: true, label: "Save & Finish" });
+test("formal navigation labels task 18 as next and task 19 as finish", () => {
+  assert.deepEqual(getPrimaryTaskAction(17, 19), { isFinal: false, label: "Save & Next" });
+  assert.deepEqual(getPrimaryTaskAction(18, 19), { isFinal: true, label: "Save & Finish" });
 });
 
 test("complete pilot responses carry derived scores, ranking, and provenance", () => {
@@ -166,6 +166,24 @@ test("v0.2 local state is isolated from v0.1 state", () => {
   }), state);
 });
 
+test("saved responses from the previous dataset revision are isolated", () => {
+  const storage = memoryStorage();
+  const storageKey = "ccb-human-eval-0.2-formal";
+  const oldState = {
+    participant_id: "participant-old-revision",
+    protocol_version: "0.2",
+    dataset_revision: "8d27ada2f16f1a90dfbf0cd7b7537c764cffa61d",
+    pilot: false,
+    current_task_index: 0,
+    responses: { "task-01": completeResponse("task-01") },
+  };
+  storage.setItem(storageKey, JSON.stringify(oldState));
+
+  assert.equal(readStoredParticipantState(storage, storageKey, {
+    protocolVersion: "0.2", datasetRevision: REVISION, pilot: false,
+  }), null);
+});
+
 test("reviewing the last task restores all ratings and derived values", () => {
   const storage = memoryStorage();
   const storageKey = "ccb-human-eval-0.2-pilot";
@@ -222,6 +240,13 @@ test("static worked example is display-only and structurally separate from study
   assert.doesNotMatch(app, /worked-example-guide|tutorial/i);
   assert.match(app, /studyTasks = PILOT \? allTasks\.slice\(0, 3\) : allTasks/);
   assert.match(app, /return studyTasks\.map\(\(task\) =>/);
+});
+
+test("protected task metadata and images are pinned to the dataset revision", () => {
+  const app = readFileSync(new URL("../human-eval/app.js", import.meta.url), "utf8");
+  assert.match(app, /const ASSET_REVISION_ROOT = `revisions\/\$\{EXPECTED_REVISION\}`/);
+  assert.match(app, /download\(`\$\{ASSET_REVISION_ROOT\}\/tasks\.json`\)/);
+  assert.match(app, /download\(`\$\{ASSET_REVISION_ROOT\}\/\$\{task\.image_path\}`\)/);
 });
 
 test("onboarding scene count is derived from the loaded study task set", () => {

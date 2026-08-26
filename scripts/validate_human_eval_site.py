@@ -59,7 +59,7 @@ def validate(root: Path, private_assets: Path) -> None:
         if path.exists():
             errors.append(f"Protected benchmark content remains in the public tree: {path.relative_to(root)}")
 
-    task_image_pattern = re.compile(r"task-(?:0[1-9]|1[0-24-9])\.(?:jpg|jpeg|png|webp)$", re.I)
+    task_image_pattern = re.compile(r"task-(?:0[1-9]|1[0-9])\.(?:jpg|jpeg|png|webp)$", re.I)
     for path in iter_public_files(root):
         relative = path.relative_to(root)
         if task_image_pattern.fullmatch(path.name) and relative.parts[0] != "videos":
@@ -111,7 +111,13 @@ def validate(root: Path, private_assets: Path) -> None:
             errors.append(f"Possible hard-coded study password in {path.relative_to(root)}")
 
     app_source = (root / "human-eval" / "app.js").read_text(encoding="utf-8")
-    required_security_calls = ["signInWithPassword", '.download("tasks.json")', ".insert(payload)"]
+    required_security_calls = [
+        "signInWithPassword",
+        "ASSET_REVISION_ROOT",
+        ".download(`${ASSET_REVISION_ROOT}/tasks.json`)",
+        ".download(`${ASSET_REVISION_ROOT}/${task.image_path}`)",
+        ".insert(payload)",
+    ]
     for call in required_security_calls:
         if call not in app_source:
             errors.append(f"Required authenticated runtime behavior is missing: {call}")
@@ -138,8 +144,10 @@ def validate(root: Path, private_assets: Path) -> None:
     protocol_v02 = json.loads((root / "human-eval" / "human_eval_v0.2.json").read_text(encoding="utf-8"))
     if protocol_v02.get("human_protocol_version") != "0.2":
         errors.append("Human v0.2 protocol version is invalid")
-    if protocol_v02.get("dataset_revision") != "8d27ada2f16f1a90dfbf0cd7b7537c764cffa61d":
+    if protocol_v02.get("dataset_revision") != "df731a3352f1ea13aab4304c84dc504a854a5e90":
         errors.append("Human v0.2 dataset revision is invalid")
+    if protocol_v02.get("task_count") != 19:
+        errors.append("Human v0.2 task count is invalid")
     if protocol_v02.get("manual_overall_ranking_required") is not False:
         errors.append("Human v0.2 must not require manual overall ranking")
     expected_ranking_metadata = {

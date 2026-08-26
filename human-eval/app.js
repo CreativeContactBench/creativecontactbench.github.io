@@ -14,12 +14,13 @@ import {
 } from "./study-navigation.mjs";
 
 const CONFIG = window.CCB_CONFIG;
-const EXPECTED_REVISION = "8d27ada2f16f1a90dfbf0cd7b7537c764cffa61d";
+const EXPECTED_REVISION = "df731a3352f1ea13aab4304c84dc504a854a5e90";
+const ASSET_REVISION_ROOT = `revisions/${EXPECTED_REVISION}`;
 const PROTOCOL_VERSION = "0.2";
-const EXPECTED_TASK_IDS = [
-  ...Array.from({ length: 12 }, (_, index) => `task-${String(index + 1).padStart(2, "0")}`),
-  ...Array.from({ length: 6 }, (_, index) => `task-${String(index + 14).padStart(2, "0")}`),
-];
+const EXPECTED_TASK_IDS = Array.from(
+  { length: 19 },
+  (_, index) => `task-${String(index + 1).padStart(2, "0")}`,
+);
 const TASK_FIELDS = [
   "task_id",
   "task_instruction",
@@ -197,7 +198,7 @@ function validateProtocol(candidate) {
   if (
     candidate?.human_protocol_version !== PROTOCOL_VERSION ||
     candidate?.dataset_revision !== EXPECTED_REVISION ||
-    candidate?.task_count !== 18 ||
+    candidate?.task_count !== 19 ||
     candidate?.canonical_order_only !== true ||
     candidate?.vlm_balanced_permutations_used !== false ||
     candidate?.manual_overall_ranking_required !== false ||
@@ -229,7 +230,7 @@ function validatePrivateTasks(payload) {
     Object.keys(payload).sort().join(",") !== "dataset_revision,tasks" ||
     payload.dataset_revision !== EXPECTED_REVISION ||
     !Array.isArray(payload.tasks) ||
-    payload.tasks.length !== 18
+    payload.tasks.length !== 19
   ) {
     throw new Error("Protected task metadata failed validation.");
   }
@@ -237,7 +238,6 @@ function validatePrivateTasks(payload) {
     if (
       Object.keys(task).sort().join(",") !== [...TASK_FIELDS].sort().join(",") ||
       task.task_id !== EXPECTED_TASK_IDS[index] ||
-      task.task_id === "task-13" ||
       task.image_path !== `images/${task.task_id}.jpg` ||
       TASK_FIELDS.some((key) => typeof task[key] !== "string" || !task[key].trim())
     ) {
@@ -258,7 +258,9 @@ async function loadProtectedStudy() {
       if (!protocolResponse.ok) throw new Error("Protocol metadata is unavailable.");
       protocol = validateProtocol(await protocolResponse.json());
     }
-    const { data, error } = await supabase.storage.from(CONFIG.assetBucket).download("tasks.json");
+    const { data, error } = await supabase.storage
+      .from(CONFIG.assetBucket)
+      .download(`${ASSET_REVISION_ROOT}/tasks.json`);
     if (error || !data) throw new Error("Protected task metadata is unavailable.");
     const payload = JSON.parse(await data.text());
     allTasks = validatePrivateTasks(payload);
@@ -422,7 +424,9 @@ async function loadCurrentPrivateImage(task, renderIndex) {
   revokeCurrentImage();
   elements["image-loading"].hidden = false;
   elements["image-loading"].textContent = "Loading protected image…";
-  const { data, error } = await supabase.storage.from(CONFIG.assetBucket).download(task.image_path);
+  const { data, error } = await supabase.storage
+    .from(CONFIG.assetBucket)
+    .download(`${ASSET_REVISION_ROOT}/${task.image_path}`);
   if (error || !data) {
     showAssetError();
     return;
@@ -518,7 +522,7 @@ function showCompletion() {
 }
 
 function showSubmitted() {
-  const count = PILOT ? 3 : 18;
+  const count = studyTasks.length;
   elements["submitted-count"].textContent = `${count} / ${count}`;
   elements["submitted-participant-id"].textContent = participantState.participant_id;
   setAuthenticatedHeader(true);

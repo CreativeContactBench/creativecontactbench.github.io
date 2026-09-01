@@ -165,11 +165,18 @@
             <p class="eyebrow">Task <span id="task-position">1</span> of <span id="task-total">67</span></p>
             <h1 id="task-id">Task</h1>
           </div>
-          <p id="saved-count" class="saved-count">0 saved</p>
+          <div class="task-navigation-tools">
+            <p id="saved-count" class="saved-count">0 of 67 complete</p>
+            <label class="task-jump-label" for="task-jump">
+              <span>Jump to task</span>
+              <select id="task-jump" class="task-jump"></select>
+            </label>
+          </div>
         </div>
         <div class="progress-track" role="progressbar" aria-label="Study progress" aria-valuemin="0" aria-valuemax="67" aria-valuenow="0">
           <div id="progress-fill" class="progress-fill"></div>
         </div>
+        <p id="task-navigation-notice" class="form-error task-navigation-notice" role="status" aria-live="polite" hidden></p>
 
         <section class="task-context-layout" aria-label="Task scene and candidate strategies">
           <article class="scene-task-card" aria-labelledby="task-instruction">
@@ -194,9 +201,9 @@
             <div class="section-heading-row">
               <div>
                 <h2 id="ratings-heading">Rate each strategy</h2>
-                <p>Choose one score from 1 to 5 for every dimension.</p>
+                <p>Choose one score from 1 to 5 for every dimension. You may skip this task and return later.</p>
               </div>
-              <span class="required-note">12 ratings required</span>
+              <span class="required-note">Required before final submission</span>
             </div>
             <div class="matrix-wrap">
               <table class="rating-matrix">
@@ -238,10 +245,9 @@
             <ol id="derived-ranking-list" class="derived-ranking-list"></ol>
           </section>
 
-          <p id="task-form-error" class="form-error task-form-error" role="alert" hidden>Please complete all 12 ratings before continuing.</p>
           <nav class="task-actions" aria-label="Task navigation">
             <button id="previous-button" class="button button-secondary" type="button">← Previous</button>
-            <button id="next-button" class="button button-primary" type="submit" disabled>Save &amp; Next <span aria-hidden="true">→</span></button>
+            <button id="next-button" class="button button-primary" type="submit">Save &amp; Next <span aria-hidden="true">→</span></button>
           </nav>
         </form>
       </section>
@@ -273,6 +279,6 @@
       </section>
     </main>
 
-    <footer class="site-footer">Human protocol v0.2 · Canonical order only</footer>
+    <footer class="site-footer">Human protocol v0.2 · Flexible task navigation</footer>
   </body>
 </html>

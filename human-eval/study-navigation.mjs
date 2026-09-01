@@ -55,11 +55,13 @@ export function getPrimaryTaskAction(currentTaskIndex, taskCount) {
   };
 }
 
-export function getPrimaryTaskActionState(currentTaskIndex, taskCount, currentComplete) {
+export function getPrimaryTaskActionState(currentTaskIndex, taskCount, allComplete) {
+  const action = getPrimaryTaskAction(currentTaskIndex, taskCount);
   return {
-    ...getPrimaryTaskAction(currentTaskIndex, taskCount),
+    ...action,
+    label: action.isFinal && !allComplete ? "Save & Review" : action.label,
     visible: true,
-    disabled: !currentComplete,
+    disabled: false,
   };
 }
 
@@ -67,11 +69,10 @@ export function studyIsComplete(tasks, responses) {
   return tasks.length > 0 && tasks.every((task) => responseIsComplete(responses?.[task.task_id]));
 }
 
-export function getTaskSubmitDestination(currentTaskIndex, taskCount, currentComplete, allComplete) {
-  if (!currentComplete) return "incomplete";
+export function getTaskSubmitDestination(currentTaskIndex, taskCount, allComplete) {
   const { isFinal } = getPrimaryTaskAction(currentTaskIndex, taskCount);
   if (!isFinal) return "next";
-  return allComplete ? "completion" : "incomplete";
+  return allComplete ? "completion" : "review-incomplete";
 }
 
 export function readStoredParticipantState(storage, storageKey, expected) {

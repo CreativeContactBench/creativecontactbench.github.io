@@ -431,9 +431,24 @@ h3 { font-size: 17px; }
 .task-screen { padding-top: 0; }
 .task-topline { display: flex; align-items: end; justify-content: space-between; gap: 20px; }
 .task-topline h1 { margin: 0; font-size: 25px; }
-.saved-count { margin-bottom: 2px; color: var(--muted); font-size: 13px; }
+.task-navigation-tools { display: flex; align-items: end; justify-content: end; gap: 14px; }
+.saved-count { margin: 0 0 11px; color: var(--muted); font-size: 13px; white-space: nowrap; }
+.task-jump-label { display: grid; gap: 5px; color: var(--muted); font-size: 12px; font-weight: 700; }
+.task-jump {
+  min-width: 218px;
+  min-height: 42px;
+  padding: 8px 34px 8px 11px;
+  color: var(--ink);
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  font: inherit;
+  cursor: pointer;
+}
+.task-jump:focus-visible { outline: 3px solid #9bcdb9; outline-offset: 2px; }
 .progress-track { height: 7px; margin: 12px 0 18px; overflow: hidden; background: #d6dfda; border-radius: 99px; }
 .progress-fill { width: 0; height: 100%; background: var(--accent); border-radius: inherit; }
+.task-navigation-notice { width: 100%; margin: -6px 0 18px; padding: 11px 13px; }
 
 .task-context-layout {
   display: grid;
@@ -503,14 +518,15 @@ h3 { font-size: 17px; }
   font-weight: 850;
 }
 
-.rating-section { position: relative; margin-top: 18px; padding: 20px 22px; }
+#evaluation-form { width: 100%; min-width: 0; max-width: 100%; }
+.rating-section { position: relative; min-width: 0; margin-top: 18px; padding: 20px 22px; }
 .section-heading-row { margin-bottom: 14px; display: flex; justify-content: space-between; gap: 20px; align-items: start; }
 .section-heading-row h2,
 .derived-ranking-summary h2 { margin-bottom: 5px; }
 .section-heading-row p,
 .derived-ranking-summary p { margin-bottom: 0; color: var(--muted); font-size: 14px; }
 .required-note { padding-top: 8px; color: var(--muted); font-size: 12px; white-space: nowrap; }
-.matrix-wrap { overflow: visible; }
+.matrix-wrap { width: 100%; max-width: 100%; overflow: visible; }
 .rating-matrix { width: 100%; border-collapse: separate; border-spacing: 0; }
 .rating-matrix th,
 .rating-matrix td { padding: 12px 10px; text-align: center; border-top: 1px solid var(--line); }
@@ -586,7 +602,6 @@ h3 { font-size: 17px; }
 .derived-ranking-list { margin: 0; padding: 0; display: flex; gap: 8px; list-style: none; flex-wrap: wrap; justify-content: end; }
 .derived-ranking-list li { min-height: 38px; padding: 7px 11px; display: flex; align-items: center; gap: 8px; background: var(--surface-soft); border-radius: 9px; font-size: 13px; font-weight: 700; }
 .derived-rank-number { width: 24px; height: 24px; display: grid; place-items: center; color: #fff; background: var(--accent); border-radius: 7px; font-size: 12px; }
-.task-form-error { width: fit-content; margin-left: auto; }
 .task-actions {
   margin-top: 18px;
   display: grid;
@@ -631,6 +646,11 @@ h3 { font-size: 17px; }
   .brand > span:last-child,
   .participant-label { display: none; }
   .page-shell { width: min(100% - 24px, 1240px); padding-top: 24px; }
+  .task-topline { align-items: start; flex-direction: column; gap: 12px; }
+  .task-navigation-tools { width: 100%; align-items: stretch; flex-direction: column; gap: 8px; }
+  .saved-count { margin: 0; }
+  .task-jump-label { width: 100%; min-width: 0; }
+  .task-jump { width: 100%; min-width: 0; max-width: 100%; }
   .login-layout { min-height: auto; }
   .onboarding-layout { margin-top: -8px; gap: 12px; }
   .onboarding-intro { padding-bottom: 2px; }
@@ -660,7 +680,8 @@ h3 { font-size: 17px; }
   .strategy-panel { padding: 16px; }
   .strategy-card { padding: 12px; }
   .section-heading-row { flex-direction: column; gap: 4px; }
-  .task-actions .button { padding-inline: 14px; }
+  .task-actions { width: 100%; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+  .task-actions .button { width: 100%; min-width: 0; padding-inline: 14px; }
 }
 
 @media (prefers-reduced-motion: reduce) {

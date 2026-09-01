@@ -64,6 +64,8 @@ const elements = Object.fromEntries(
     "task-total",
     "task-id",
     "saved-count",
+    "task-jump",
+    "task-navigation-notice",
     "progress-fill",
     "task-image",
     "image-loading",
@@ -78,7 +80,6 @@ const elements = Object.fromEntries(
     "close-help-button",
     "derived-ranking",
     "derived-ranking-list",
-    "task-form-error",
     "previous-button",
     "next-button",
     "completion-count",
@@ -345,18 +346,51 @@ function completeResponseCount() {
   return studyTasks.filter((task) => responseIsComplete(participantState.responses[task.task_id])).length;
 }
 
+function responseHasAnyRating(response) {
+  return STRATEGIES.some((label) => DIMENSION_KEYS.some((dimension) => {
+    const value = response?.ratings?.[label]?.[dimension];
+    return Number.isInteger(value) && value >= 1 && value <= 5;
+  }));
+}
+
+function renderTaskNavigator() {
+  const completeCount = completeResponseCount();
+  elements["saved-count"].textContent = `${completeCount} of ${studyTasks.length} complete`;
+  elements["progress-fill"].style.width = `${(completeCount / studyTasks.length) * 100}%`;
+  const progress = document.querySelector(".progress-track");
+  progress.setAttribute("aria-valuemax", String(studyTasks.length));
+  progress.setAttribute("aria-valuenow", String(completeCount));
+  elements["task-jump"].replaceChildren();
+  studyTasks.forEach((task, index) => {
+    const response = participantState.responses[task.task_id];
+    const status = responseIsComplete(response)
+      ? "Complete"
+      : responseHasAnyRating(response)
+        ? "In progress"
+        : "Not started";
+    const option = document.createElement("option");
+    option.value = String(index);
+    option.textContent = `Task ${task.task_id.slice(5)} — ${status}`;
+    option.selected = index === participantState.current_task_index;
+    elements["task-jump"].append(option);
+  });
+  return completeCount;
+}
+
+function showNavigationNotice(message) {
+  elements["task-navigation-notice"].textContent = message;
+  elements["task-navigation-notice"].hidden = false;
+}
+
 function updateNextButton() {
-  const task = studyTasks[participantState.current_task_index];
-  const complete = responseIsComplete(participantState.responses[task.task_id]);
   const action = getPrimaryTaskActionState(
     participantState.current_task_index,
     studyTasks.length,
-    complete,
+    studyIsComplete(studyTasks, participantState.responses),
   );
   elements["next-button"].textContent = `${action.label} →`;
   elements["next-button"].hidden = !action.visible;
   elements["next-button"].disabled = action.disabled;
-  elements["task-form-error"].hidden = true;
 }
 
 function makeRatingControl(label, dimension, selectedValue) {
@@ -453,11 +487,8 @@ function renderTask() {
   elements["task-position"].textContent = String(index + 1);
   elements["task-total"].textContent = String(studyTasks.length);
   elements["task-id"].textContent = task.task_id;
-  elements["saved-count"].textContent = `${completeResponseCount()} saved`;
-  elements["progress-fill"].style.width = `${(index / studyTasks.length) * 100}%`;
-  const progress = document.querySelector(".progress-track");
-  progress.setAttribute("aria-valuemax", String(studyTasks.length));
-  progress.setAttribute("aria-valuenow", String(index));
+  renderTaskNavigator();
+  elements["task-navigation-notice"].hidden = true;
   elements["task-instruction"].textContent = task.task_instruction;
 
   elements["strategy-grid"].replaceChildren();
@@ -511,7 +542,7 @@ function buildSubmissionResponses() {
 
 function showCompletion() {
   if (!studyIsComplete(studyTasks, participantState.responses)) {
-    elements["task-form-error"].hidden = false;
+    showNavigationNotice("Some tasks are still incomplete. Use the task navigator to finish them before submitting.");
     return;
   }
   activeTaskStartedAt = null;
@@ -644,24 +675,36 @@ function bindEvents() {
   elements["evaluation-form"].addEventListener("input", () => {
     const response = readCurrentForm();
     renderDerivedRanking(response);
+    renderTaskNavigator();
     updateNextButton();
   });
   elements["evaluation-form"].addEventListener("change", () => {
     const response = readCurrentForm();
     renderDerivedRanking(response);
+    renderTaskNavigator();
     updateNextButton();
   });
   elements["evaluation-form"].addEventListener("submit", (event) => {
     event.preventDefault();
-    const response = readCurrentForm();
+    readCurrentForm();
+    const allComplete = studyIsComplete(studyTasks, participantState.responses);
     const destination = getTaskSubmitDestination(
       participantState.current_task_index,
       studyTasks.length,
-      responseIsComplete(response),
-      studyIsComplete(studyTasks, participantState.responses),
+      allComplete,
     );
-    if (destination === "incomplete") {
-      elements["task-form-error"].hidden = false;
+    if (destination === "review-incomplete") {
+      const firstIncompleteIndex = studyTasks.findIndex(
+        (task) => !responseIsComplete(participantState.responses[task.task_id]),
+      );
+      const incompleteCount = studyTasks.length - completeResponseCount();
+      participantState.current_task_index = Math.max(0, firstIncompleteIndex);
+      saveParticipantState();
+      renderTask();
+      showNavigationNotice(
+        `${incompleteCount} ${incompleteCount === 1 ? "task is" : "tasks are"} still incomplete. `
+        + "You can finish them in any order before final submission.",
+      );
       return;
     }
     if (destination === "completion") {
@@ -669,6 +712,16 @@ function bindEvents() {
       return;
     }
     participantState.current_task_index += 1;
+    saveParticipantState();
+    renderTask();
+  });
+  elements["task-jump"].addEventListener("change", (event) => {
+    const requestedIndex = Number(event.target.value);
+    if (!Number.isInteger(requestedIndex) || requestedIndex < 0 || requestedIndex >= studyTasks.length) {
+      return;
+    }
+    readCurrentForm();
+    participantState.current_task_index = requestedIndex;
     saveParticipantState();
     renderTask();
   });

@@ -84,13 +84,18 @@ test("derived ranking handles a four-way tie as one group", () => {
   });
 });
 
-test("11 ratings are incomplete and 12 ratings enable the task action", () => {
+test("11 ratings remain incomplete but do not block task navigation", () => {
   const response = completeResponse("task-03");
   const missingRating = response.ratings.D.functional_creativity;
   delete response.ratings.D.functional_creativity;
   assert.equal(responseIsComplete(response), false);
   assert.throws(() => deriveOverallRanking(response.ratings), /All 12 dimension ratings/);
-  assert.equal(getPrimaryTaskActionState(2, 3, false).disabled, true);
+  assert.deepEqual(getPrimaryTaskActionState(1, 3, false), {
+    isFinal: false,
+    label: "Save & Next",
+    visible: true,
+    disabled: false,
+  });
 
   response.ratings.D.functional_creativity = missingRating;
   assert.equal(responseIsComplete(response), true);
@@ -125,19 +130,20 @@ test("complete pilot responses carry derived scores, ranking, and provenance", (
     assert.ok(Array.isArray(response.overall_ranking));
     assert.equal(response.overall_ranking_source, OVERALL_RANKING_SOURCE);
   }
-  assert.equal(getTaskSubmitDestination(2, 3, true, true), "completion");
+  assert.equal(getTaskSubmitDestination(2, 3, true), "completion");
 });
 
-test("incomplete final task keeps its finish action but cannot continue", () => {
+test("an incomplete study can advance and the final action starts review", () => {
   const incomplete = completeResponse("task-03");
   delete incomplete.ratings.D.functional_creativity;
   assert.deepEqual(getPrimaryTaskActionState(2, 3, false), {
     isFinal: true,
-    label: "Save & Finish",
+    label: "Save & Review",
     visible: true,
-    disabled: true,
+    disabled: false,
   });
-  assert.equal(getTaskSubmitDestination(2, 3, false, false), "incomplete");
+  assert.equal(getTaskSubmitDestination(1, 3, false), "next");
+  assert.equal(getTaskSubmitDestination(2, 3, false), "review-incomplete");
 });
 
 test("v0.2 local state is isolated from v0.1 state", () => {
@@ -184,6 +190,31 @@ test("saved responses from the previous dataset revision are isolated", () => {
   }), null);
 });
 
+test("partial ratings survive local progress persistence", () => {
+  const storage = memoryStorage();
+  const storageKey = "ccb-human-eval-0.2-formal";
+  const partial = completeResponse("task-12");
+  delete partial.ratings.C.embodied_feasibility;
+  delete partial.overall_scores;
+  delete partial.overall_ranking;
+  delete partial.overall_ranking_source;
+  const state = {
+    participant_id: "participant-partial",
+    protocol_version: "0.2",
+    dataset_revision: REVISION,
+    pilot: false,
+    current_task_index: 11,
+    responses: { "task-12": partial },
+  };
+
+  writeStoredParticipantState(storage, storageKey, state);
+  const restored = readStoredParticipantState(storage, storageKey, {
+    protocolVersion: "0.2", datasetRevision: REVISION, pilot: false,
+  });
+  assert.deepEqual(restored, state);
+  assert.equal(responseIsComplete(restored.responses["task-12"]), false);
+});
+
 test("reviewing the last task restores all ratings and derived values", () => {
   const storage = memoryStorage();
   const storageKey = "ccb-human-eval-0.2-pilot";
@@ -208,7 +239,18 @@ test("reviewing the last task restores all ratings and derived values", () => {
   const afterReview = readStoredParticipantState(storage, storageKey, expected);
 
   assert.deepEqual(afterReview.responses["task-03"], completeResponse("task-03"));
-  assert.equal(getTaskSubmitDestination(2, 3, true, studyIsComplete(tasks, afterReview.responses)), "completion");
+  assert.equal(getTaskSubmitDestination(2, 3, studyIsComplete(tasks, afterReview.responses)), "completion");
+});
+
+test("task UI supports jumping and saving partial answers", () => {
+  const html = readFileSync(new URL("../human-eval/index.html", import.meta.url), "utf8");
+  const app = readFileSync(new URL("../human-eval/app.js", import.meta.url), "utf8");
+  assert.match(html, /id="task-jump"/);
+  assert.match(html, /You may skip this task and return later/);
+  assert.doesNotMatch(html, /id="next-button"[^>]*disabled/);
+  assert.match(app, /task-jump"\]\.addEventListener\("change"/);
+  assert.match(app, /Task \$\{task\.task_id\.slice\(5\)\} — \$\{status\}/);
+  assert.match(app, /You can finish them in any order before final submission/);
 });
 
 test("the participant UI contains no manual ranking controls", () => {

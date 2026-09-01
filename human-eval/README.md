@@ -76,6 +76,10 @@ The browser stores only:
 
 Signing out clears protected task content and image object URLs from memory while leaving the anonymous answer draft recoverable on that device.
 
+## Flexible task navigation
+
+Participants may save a partial task, continue forward, move backward, or jump directly to any task from the task navigator. The navigator marks each task as Not started, In progress, or Complete, and the progress bar reflects completed tasks rather than the current task position. Partial ratings remain in the existing local participant state. Final submission is still unavailable until every study task has all 12 required ratings and a derived ranking, and the submission payload remains in canonical task order.
+
 ## Validation
 
 Run from the website repository root:

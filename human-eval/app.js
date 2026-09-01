@@ -14,11 +14,11 @@ import {
 } from "./study-navigation.mjs";
 
 const CONFIG = window.CCB_CONFIG;
-const EXPECTED_REVISION = "df731a3352f1ea13aab4304c84dc504a854a5e90";
+const EXPECTED_REVISION = "d8fc98ae30bf1233518330215a6e57f990565d94";
 const ASSET_REVISION_ROOT = `revisions/${EXPECTED_REVISION}`;
 const PROTOCOL_VERSION = "0.2";
 const EXPECTED_TASK_IDS = Array.from(
-  { length: 19 },
+  { length: 67 },
   (_, index) => `task-${String(index + 1).padStart(2, "0")}`,
 );
 const TASK_FIELDS = [
@@ -58,6 +58,7 @@ const elements = Object.fromEntries(
     "retry-assets-button",
     "welcome-pilot-banner",
     "welcome-task-count",
+    "welcome-time-estimate",
     "start-evaluation-button",
     "task-position",
     "task-total",
@@ -198,7 +199,7 @@ function validateProtocol(candidate) {
   if (
     candidate?.human_protocol_version !== PROTOCOL_VERSION ||
     candidate?.dataset_revision !== EXPECTED_REVISION ||
-    candidate?.task_count !== 19 ||
+    candidate?.task_count !== 67 ||
     candidate?.canonical_order_only !== true ||
     candidate?.vlm_balanced_permutations_used !== false ||
     candidate?.manual_overall_ranking_required !== false ||
@@ -230,7 +231,7 @@ function validatePrivateTasks(payload) {
     Object.keys(payload).sort().join(",") !== "dataset_revision,tasks" ||
     payload.dataset_revision !== EXPECTED_REVISION ||
     !Array.isArray(payload.tasks) ||
-    payload.tasks.length !== 19
+    payload.tasks.length !== 67
   ) {
     throw new Error("Protected task metadata failed validation.");
   }
@@ -282,6 +283,9 @@ function showWelcome() {
   }
   const taskCount = studyTasks.length;
   elements["welcome-task-count"].textContent = String(taskCount);
+  const lowerMinutes = taskCount <= 3 ? 3 : Math.ceil(((taskCount * 15) / 19) / 5) * 5;
+  const upperMinutes = taskCount <= 3 ? 5 : Math.ceil(((taskCount * 25) / 19) / 5) * 5;
+  elements["welcome-time-estimate"].textContent = `${lowerMinutes}–${upperMinutes} minutes`;
   elements["welcome-pilot-banner"].hidden = !PILOT;
   elements["start-evaluation-button"].textContent = getOnboardingCtaLabel(participantState);
   setAuthenticatedHeader(true);

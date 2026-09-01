@@ -17,7 +17,7 @@ import {
   writeStoredParticipantState,
 } from "../human-eval/study-navigation.mjs";
 
-const REVISION = "df731a3352f1ea13aab4304c84dc504a854a5e90";
+const REVISION = "d8fc98ae30bf1233518330215a6e57f990565d94";
 
 function ratingsWithTotals(totals) {
   return Object.fromEntries(
@@ -104,9 +104,9 @@ test("pilot navigation labels tasks 1–2 as next and task 3 as finish", () => {
   assert.deepEqual(getPrimaryTaskAction(2, 3), { isFinal: true, label: "Save & Finish" });
 });
 
-test("formal navigation labels task 18 as next and task 19 as finish", () => {
-  assert.deepEqual(getPrimaryTaskAction(17, 19), { isFinal: false, label: "Save & Next" });
-  assert.deepEqual(getPrimaryTaskAction(18, 19), { isFinal: true, label: "Save & Finish" });
+test("formal navigation labels task 66 as next and task 67 as finish", () => {
+  assert.deepEqual(getPrimaryTaskAction(65, 67), { isFinal: false, label: "Save & Next" });
+  assert.deepEqual(getPrimaryTaskAction(66, 67), { isFinal: true, label: "Save & Finish" });
 });
 
 test("complete pilot responses carry derived scores, ranking, and provenance", () => {
@@ -172,7 +172,7 @@ test("saved responses from the previous dataset revision are isolated", () => {
   const oldState = {
     participant_id: "participant-old-revision",
     protocol_version: "0.2",
-    dataset_revision: "8d27ada2f16f1a90dfbf0cd7b7537c764cffa61d",
+    dataset_revision: "df731a3352f1ea13aab4304c84dc504a854a5e90",
     pilot: false,
     current_task_index: 0,
     responses: { "task-01": completeResponse("task-01") },
@@ -253,6 +253,8 @@ test("onboarding scene count is derived from the loaded study task set", () => {
   const html = readFileSync(new URL("../human-eval/index.html", import.meta.url), "utf8");
   const app = readFileSync(new URL("../human-eval/app.js", import.meta.url), "utf8");
   assert.match(html, /id="welcome-task-count"/);
+  assert.match(html, /id="welcome-time-estimate"/);
   assert.match(app, /const taskCount = studyTasks\.length/);
   assert.match(app, /welcome-task-count"\]\.textContent = String\(taskCount\)/);
+  assert.match(app, /welcome-time-estimate"\]\.textContent/);
 });

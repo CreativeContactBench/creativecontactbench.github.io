@@ -1,8 +1,8 @@
 {
   "human_protocol_version": "0.2",
   "dataset_repo_id": "chengshengge/CreativeContactBench-pilot",
-  "dataset_revision": "df731a3352f1ea13aab4304c84dc504a854a5e90",
-  "task_count": 19,
+  "dataset_revision": "d8fc98ae30bf1233518330215a6e57f990565d94",
+  "task_count": 67,
   "canonical_order_only": true,
   "vlm_balanced_permutations_used": false,
   "pilot_task_ids": ["task-01", "task-02", "task-03"],

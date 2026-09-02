@@ -144,7 +144,7 @@ def validate(root: Path, private_assets: Path) -> None:
     protocol_v02 = json.loads((root / "human-eval" / "human_eval_v0.2.json").read_text(encoding="utf-8"))
     if protocol_v02.get("human_protocol_version") != "0.2":
         errors.append("Human v0.2 protocol version is invalid")
-    if protocol_v02.get("dataset_revision") != "d8fc98ae30bf1233518330215a6e57f990565d94":
+    if protocol_v02.get("dataset_revision") != "b14ae69caecbeb062eb60c9189ee879a2514229b":
         errors.append("Human v0.2 dataset revision is invalid")
     if protocol_v02.get("task_count") != 67:
         errors.append("Human v0.2 task count is invalid")

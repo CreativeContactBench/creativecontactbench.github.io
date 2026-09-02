@@ -17,7 +17,7 @@ import {
   writeStoredParticipantState,
 } from "../human-eval/study-navigation.mjs";
 
-const REVISION = "d8fc98ae30bf1233518330215a6e57f990565d94";
+const REVISION = "b14ae69caecbeb062eb60c9189ee879a2514229b";
 
 function ratingsWithTotals(totals) {
   return Object.fromEntries(

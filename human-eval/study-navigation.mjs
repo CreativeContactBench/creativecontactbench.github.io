@@ -4,13 +4,13 @@ export const DIMENSION_KEYS = [
   "embodied_feasibility",
   "functional_creativity",
 ];
-export const OVERALL_RANKING_SOURCE = "derived_equal_weight_dimension_sum";
+export const OVERALL_RANKING_SOURCE = "participant_overall_preference";
 
 export function getOnboardingCtaLabel(participantState) {
   return participantState ? "Resume Evaluation →" : "I understand — let’s get started! →";
 }
 
-export function responseIsComplete(response) {
+export function ratingsAreComplete(response) {
   return STRATEGIES.every(
     (label) => DIMENSION_KEYS.every((dimension) => {
       const value = response?.ratings?.[label]?.[dimension];
@@ -19,29 +19,25 @@ export function responseIsComplete(response) {
   );
 }
 
-export function deriveOverallRanking(ratings) {
-  if (!responseIsComplete({ ratings })) {
-    throw new TypeError("All 12 dimension ratings are required to derive an overall ranking.");
+export function overallRankingIsComplete(response) {
+  return STRATEGIES.every((label) => {
+    const value = response?.rankings?.[label];
+    return Number.isInteger(value) && value >= 1 && value <= 4;
+  });
+}
+
+export function responseIsComplete(response) {
+  return overallRankingIsComplete(response) && ratingsAreComplete(response);
+}
+
+export function normalizeOverallRanking(rankings) {
+  if (!overallRankingIsComplete({ rankings })) {
+    throw new TypeError("An overall preference rank is required for all four strategies.");
   }
 
-  const overall_scores = Object.fromEntries(
-    STRATEGIES.map((label) => [
-      label,
-      DIMENSION_KEYS.reduce((total, dimension) => total + ratings[label][dimension], 0),
-    ]),
-  );
-  const labelsByScore = new Map();
-  for (const label of STRATEGIES) {
-    const score = overall_scores[label];
-    const group = labelsByScore.get(score) || [];
-    group.push(label);
-    labelsByScore.set(score, group);
-  }
-  const overall_ranking = [...labelsByScore.keys()]
-    .sort((left, right) => right - left)
-    .map((score) => [...labelsByScore.get(score)].sort());
-
-  return { overall_scores, overall_ranking };
+  const distinctRanks = [...new Set(STRATEGIES.map((label) => rankings[label]))]
+    .sort((left, right) => left - right);
+  return distinctRanks.map((rank) => STRATEGIES.filter((label) => rankings[label] === rank));
 }
 
 export function getPrimaryTaskAction(currentTaskIndex, taskCount) {

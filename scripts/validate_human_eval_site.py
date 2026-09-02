@@ -22,12 +22,14 @@ REQUIRED_PUBLIC_FILES = {
     "human-eval/config.example.js",
     "human-eval/human_eval_v0.1.json",
     "human-eval/human_eval_v0.2.json",
+    "human-eval/human_eval_v0.3.json",
     "human-eval/study-navigation.mjs",
     "human-eval/worked-example-guide.png",
+    "human-eval/worked-example-guide-v03.svg",
     "human-eval/README.md",
     "tests/human-eval-navigation.test.mjs",
 }
-TEXT_SUFFIXES = {".html", ".js", ".mjs", ".css", ".json", ".md", ".py", ".txt", ".yml", ".yaml"}
+TEXT_SUFFIXES = {".html", ".js", ".mjs", ".css", ".json", ".md", ".py", ".svg", ".txt", ".yml", ".yaml"}
 
 
 def sha256(path: Path) -> str:
@@ -124,22 +126,25 @@ def validate(root: Path, private_assets: Path) -> None:
     for unsafe_call in ("getPublicUrl", "createSignedUrl", "console.log", ".select("):
         if unsafe_call in app_source:
             errors.append(f"Unsafe or disallowed runtime behavior found: {unsafe_call}")
-    for required_v02_source in (
-        'const PROTOCOL_VERSION = "0.2"',
-        'fetch("./human_eval_v0.2.json"',
-        "deriveOverallRanking",
+    for required_v03_source in (
+        'const PROTOCOL_VERSION = "0.3"',
+        'fetch("./human_eval_v0.3.json"',
+        "normalizeOverallRanking",
         "overall_ranking_source",
     ):
-        if required_v02_source not in app_source:
-            errors.append(f"Required Human v0.2 behavior is missing: {required_v02_source}")
+        if required_v03_source not in app_source:
+            errors.append(f"Required Human v0.3 behavior is missing: {required_v03_source}")
 
     index_source = (root / "human-eval" / "index.html").read_text(encoding="utf-8")
     navigation_source = (root / "human-eval" / "study-navigation.mjs").read_text(encoding="utf-8")
-    for removed_manual_control in ("rank-selectors", 'name="rank-', "Assign each strategy a rank"):
-        if removed_manual_control in index_source or removed_manual_control in app_source:
-            errors.append(f"Manual overall-ranking control remains: {removed_manual_control}")
-    if "derived_equal_weight_dimension_sum" not in navigation_source:
-        errors.append("Derived-ranking provenance constant is missing")
+    for required_manual_control in ("rank-selectors", "Overall preference", "4 ranks required"):
+        if required_manual_control not in index_source and required_manual_control not in app_source:
+            errors.append(f"Manual overall-preference control is missing: {required_manual_control}")
+    for removed_derived_ui in ("derived-ranking", "derived-ranking-list", "Calculated automatically from the three ratings"):
+        if removed_derived_ui in index_source or removed_derived_ui in app_source:
+            errors.append(f"Participant-facing derived ranking remains: {removed_derived_ui}")
+    if "participant_overall_preference" not in navigation_source:
+        errors.append("Manual overall-ranking provenance constant is missing")
 
     protocol_v02 = json.loads((root / "human-eval" / "human_eval_v0.2.json").read_text(encoding="utf-8"))
     if protocol_v02.get("human_protocol_version") != "0.2":
@@ -161,6 +166,39 @@ def validate(root: Path, private_assets: Path) -> None:
     }
     if protocol_v02.get("overall_ranking") != expected_ranking_metadata:
         errors.append("Human v0.2 derived-ranking metadata is invalid")
+
+    protocol_v03 = json.loads((root / "human-eval" / "human_eval_v0.3.json").read_text(encoding="utf-8"))
+    if protocol_v03.get("human_protocol_version") != "0.3":
+        errors.append("Human v0.3 protocol version is invalid")
+    if protocol_v03.get("dataset_revision") != "b14ae69caecbeb062eb60c9189ee879a2514229b":
+        errors.append("Human v0.3 dataset revision is invalid")
+    if protocol_v03.get("task_count") != 67:
+        errors.append("Human v0.3 task count is invalid")
+    if protocol_v03.get("manual_overall_ranking_required") is not True:
+        errors.append("Human v0.3 must require manual overall preference")
+    expected_manual_ranking_metadata = {
+        "source": "participant_overall_preference",
+        "collected_before_dimension_ratings": True,
+        "all_strategies_required": True,
+        "ties_allowed": True,
+        "ranking_style": "dense",
+    }
+    if protocol_v03.get("overall_ranking") != expected_manual_ranking_metadata:
+        errors.append("Human v0.3 manual-ranking metadata is invalid")
+    expected_analysis_ranking_metadata = {
+        "source": "derived_from_dimension_ratings",
+        "computed_at": "analysis",
+        "displayed_to_participant": False,
+        "submitted_by_client": False,
+        "weighting": "equal",
+        "formula": "effectiveness + feasibility + creativity",
+        "sort": "descending",
+        "ties_allowed": True,
+        "tie_method": "group_equal_total_scores",
+        "ranking_style": "dense",
+    }
+    if protocol_v03.get("dimension_derived_ranking") != expected_analysis_ranking_metadata:
+        errors.append("Human v0.3 analysis-ranking metadata is invalid")
 
     config_source = (root / "human-eval" / "config.js").read_text(encoding="utf-8")
     email_match = re.search(r"authEmail:\s*['\"]([^'\"]+)['\"]", config_source)

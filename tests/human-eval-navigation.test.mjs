@@ -6,11 +6,13 @@ import {
   DIMENSION_KEYS,
   OVERALL_RANKING_SOURCE,
   STRATEGIES,
-  deriveOverallRanking,
   getOnboardingCtaLabel,
   getPrimaryTaskAction,
   getPrimaryTaskActionState,
   getTaskSubmitDestination,
+  normalizeOverallRanking,
+  overallRankingIsComplete,
+  ratingsAreComplete,
   readStoredParticipantState,
   responseIsComplete,
   studyIsComplete,
@@ -19,31 +21,22 @@ import {
 
 const REVISION = "b14ae69caecbeb062eb60c9189ee879a2514229b";
 
-function ratingsWithTotals(totals) {
+function completeRatings(value = 3) {
   return Object.fromEntries(
-    STRATEGIES.map((label) => {
-      let remainder = totals[label] - DIMENSION_KEYS.length;
-      const values = DIMENSION_KEYS.map(() => {
-        const increment = Math.min(4, remainder);
-        remainder -= increment;
-        return 1 + increment;
-      });
-      assert.equal(remainder, 0, `Total for strategy ${label} must be between 3 and 15.`);
-      return [label, Object.fromEntries(DIMENSION_KEYS.map((dimension, index) => [dimension, values[index]]))];
-    }),
+    STRATEGIES.map((label) => [
+      label,
+      Object.fromEntries(DIMENSION_KEYS.map((dimension) => [dimension, value])),
+    ]),
   );
 }
 
-function completeResponse(taskId, totals = { A: 9, B: 9, C: 9, D: 9 }) {
-  const ratings = ratingsWithTotals(totals);
-  const derived = deriveOverallRanking(ratings);
+function completeResponse(taskId, rankings = { A: 1, B: 2, C: 3, D: 4 }) {
   return {
     task_id: taskId,
-    ratings,
-    ...derived,
-    overall_ranking_source: OVERALL_RANKING_SOURCE,
-    first_viewed_at: "2026-08-18T00:00:00.000Z",
-    last_saved_at: "2026-08-18T00:01:00.000Z",
+    ratings: completeRatings(),
+    rankings,
+    first_viewed_at: "2026-09-02T00:00:00.000Z",
+    last_saved_at: "2026-09-02T00:01:00.000Z",
     duration_seconds: 60,
   };
 }
@@ -56,50 +49,43 @@ function memoryStorage() {
   };
 }
 
-test("derived ranking orders unique totals from highest to lowest", () => {
-  assert.deepEqual(deriveOverallRanking(ratingsWithTotals({ A: 15, B: 12, C: 9, D: 6 })), {
-    overall_scores: { A: 15, B: 12, C: 9, D: 6 },
-    overall_ranking: [["A"], ["B"], ["C"], ["D"]],
-  });
+test("overall preference normalizes unique ranks from most to least preferred", () => {
+  assert.deepEqual(normalizeOverallRanking({ A: 4, B: 1, C: 3, D: 2 }), [
+    ["B"], ["D"], ["C"], ["A"],
+  ]);
 });
 
-test("derived ranking groups two-way ties and sorts labels alphabetically", () => {
-  assert.deepEqual(deriveOverallRanking(ratingsWithTotals({ A: 13, B: 10, C: 13, D: 7 })), {
-    overall_scores: { A: 13, B: 10, C: 13, D: 7 },
-    overall_ranking: [["A", "C"], ["B"], ["D"]],
-  });
+test("overall preference preserves genuine ties as dense rank groups", () => {
+  assert.deepEqual(normalizeOverallRanking({ A: 1, B: 3, C: 1, D: 4 }), [
+    ["A", "C"], ["B"], ["D"],
+  ]);
+  assert.equal(OVERALL_RANKING_SOURCE, "participant_overall_preference");
 });
 
-test("derived ranking uses dense groups for a three-way tie", () => {
-  assert.deepEqual(deriveOverallRanking(ratingsWithTotals({ A: 10, B: 10, C: 10, D: 8 })), {
-    overall_scores: { A: 10, B: 10, C: 10, D: 8 },
-    overall_ranking: [["A", "B", "C"], ["D"]],
-  });
-});
-
-test("derived ranking handles a four-way tie as one group", () => {
-  assert.deepEqual(deriveOverallRanking(ratingsWithTotals({ A: 11, B: 11, C: 11, D: 11 })), {
-    overall_scores: { A: 11, B: 11, C: 11, D: 11 },
-    overall_ranking: [["A", "B", "C", "D"]],
-  });
-});
-
-test("11 ratings remain incomplete but do not block task navigation", () => {
+test("a response requires both the overall preference and all 12 ratings", () => {
   const response = completeResponse("task-03");
-  const missingRating = response.ratings.D.functional_creativity;
-  delete response.ratings.D.functional_creativity;
+  assert.equal(overallRankingIsComplete(response), true);
+  assert.equal(ratingsAreComplete(response), true);
+  assert.equal(responseIsComplete(response), true);
+
+  delete response.rankings.D;
+  assert.equal(overallRankingIsComplete(response), false);
   assert.equal(responseIsComplete(response), false);
-  assert.throws(() => deriveOverallRanking(response.ratings), /All 12 dimension ratings/);
+  assert.throws(() => normalizeOverallRanking(response.rankings), /rank is required/);
+
+  response.rankings.D = 4;
+  delete response.ratings.D.functional_creativity;
+  assert.equal(ratingsAreComplete(response), false);
+  assert.equal(responseIsComplete(response), false);
+});
+
+test("an incomplete response does not block flexible task navigation", () => {
   assert.deepEqual(getPrimaryTaskActionState(1, 3, false), {
     isFinal: false,
     label: "Save & Next",
     visible: true,
     disabled: false,
   });
-
-  response.ratings.D.functional_creativity = missingRating;
-  assert.equal(responseIsComplete(response), true);
-  assert.deepEqual(deriveOverallRanking(response.ratings).overall_ranking, [["A", "B", "C", "D"]]);
   assert.equal(getPrimaryTaskActionState(2, 3, true).disabled, false);
 });
 
@@ -114,28 +100,26 @@ test("formal navigation labels task 66 as next and task 67 as finish", () => {
   assert.deepEqual(getPrimaryTaskAction(66, 67), { isFinal: true, label: "Save & Finish" });
 });
 
-test("complete pilot responses carry derived scores, ranking, and provenance", () => {
+test("complete pilot responses carry manual overall preferences", () => {
   const tasks = ["task-01", "task-02", "task-03"].map((task_id) => ({ task_id }));
   const responses = Object.fromEntries(
     tasks.map(({ task_id }, index) => [task_id, completeResponse(task_id, {
-      A: 15 - index,
-      B: 12,
-      C: 9 + index,
-      D: 6,
+      A: 1 + index,
+      B: 2,
+      C: 3,
+      D: 4,
     })]),
   );
   assert.equal(studyIsComplete(tasks, responses), true);
   for (const response of Object.values(responses)) {
-    assert.deepEqual(Object.keys(response.overall_scores), STRATEGIES);
-    assert.ok(Array.isArray(response.overall_ranking));
-    assert.equal(response.overall_ranking_source, OVERALL_RANKING_SOURCE);
+    assert.ok(Array.isArray(normalizeOverallRanking(response.rankings)));
   }
   assert.equal(getTaskSubmitDestination(2, 3, true), "completion");
 });
 
 test("an incomplete study can advance and the final action starts review", () => {
   const incomplete = completeResponse("task-03");
-  delete incomplete.ratings.D.functional_creativity;
+  delete incomplete.rankings.D;
   assert.deepEqual(getPrimaryTaskActionState(2, 3, false), {
     isFinal: true,
     label: "Save & Review",
@@ -146,16 +130,16 @@ test("an incomplete study can advance and the final action starts review", () =>
   assert.equal(getTaskSubmitDestination(2, 3, false), "review-incomplete");
 });
 
-test("v0.2 local state is isolated from v0.1 state", () => {
+test("v0.3 local state is isolated from v0.2 state", () => {
   const storage = memoryStorage();
-  const oldKey = "ccb-human-eval-0.1-pilot";
-  const newKey = "ccb-human-eval-0.2-pilot";
-  const oldState = { protocol_version: "0.1", marker: "untouched" };
+  const oldKey = "ccb-human-eval-0.2-pilot";
+  const newKey = "ccb-human-eval-0.3-pilot";
+  const oldState = { protocol_version: "0.2", marker: "untouched" };
   storage.setItem(oldKey, JSON.stringify(oldState));
 
   const state = {
     participant_id: "participant-1",
-    protocol_version: "0.2",
+    protocol_version: "0.3",
     dataset_revision: REVISION,
     pilot: true,
     current_task_index: 0,
@@ -165,42 +149,39 @@ test("v0.2 local state is isolated from v0.1 state", () => {
 
   assert.deepEqual(JSON.parse(storage.getItem(oldKey)), oldState);
   assert.equal(readStoredParticipantState(storage, oldKey, {
-    protocolVersion: "0.2", datasetRevision: REVISION, pilot: true,
+    protocolVersion: "0.3", datasetRevision: REVISION, pilot: true,
   }), null);
   assert.deepEqual(readStoredParticipantState(storage, newKey, {
-    protocolVersion: "0.2", datasetRevision: REVISION, pilot: true,
+    protocolVersion: "0.3", datasetRevision: REVISION, pilot: true,
   }), state);
 });
 
-test("saved responses from the previous dataset revision are isolated", () => {
+test("saved responses from a previous dataset revision are isolated", () => {
   const storage = memoryStorage();
-  const storageKey = "ccb-human-eval-0.2-formal";
-  const oldState = {
+  const storageKey = "ccb-human-eval-0.3-formal";
+  storage.setItem(storageKey, JSON.stringify({
     participant_id: "participant-old-revision",
-    protocol_version: "0.2",
-    dataset_revision: "df731a3352f1ea13aab4304c84dc504a854a5e90",
+    protocol_version: "0.3",
+    dataset_revision: "d8fc98ae30bf1233518330215a6e57f990565d94",
     pilot: false,
     current_task_index: 0,
     responses: { "task-01": completeResponse("task-01") },
-  };
-  storage.setItem(storageKey, JSON.stringify(oldState));
+  }));
 
   assert.equal(readStoredParticipantState(storage, storageKey, {
-    protocolVersion: "0.2", datasetRevision: REVISION, pilot: false,
+    protocolVersion: "0.3", datasetRevision: REVISION, pilot: false,
   }), null);
 });
 
-test("partial ratings survive local progress persistence", () => {
+test("partial overall preference and ratings survive local persistence", () => {
   const storage = memoryStorage();
-  const storageKey = "ccb-human-eval-0.2-formal";
+  const storageKey = "ccb-human-eval-0.3-formal";
   const partial = completeResponse("task-12");
+  delete partial.rankings.D;
   delete partial.ratings.C.embodied_feasibility;
-  delete partial.overall_scores;
-  delete partial.overall_ranking;
-  delete partial.overall_ranking_source;
   const state = {
     participant_id: "participant-partial",
-    protocol_version: "0.2",
+    protocol_version: "0.3",
     dataset_revision: REVISION,
     pilot: false,
     current_task_index: 11,
@@ -209,25 +190,25 @@ test("partial ratings survive local progress persistence", () => {
 
   writeStoredParticipantState(storage, storageKey, state);
   const restored = readStoredParticipantState(storage, storageKey, {
-    protocolVersion: "0.2", datasetRevision: REVISION, pilot: false,
+    protocolVersion: "0.3", datasetRevision: REVISION, pilot: false,
   });
   assert.deepEqual(restored, state);
   assert.equal(responseIsComplete(restored.responses["task-12"]), false);
 });
 
-test("reviewing the last task restores all ratings and derived values", () => {
+test("reviewing the last task restores the overall preference and ratings", () => {
   const storage = memoryStorage();
-  const storageKey = "ccb-human-eval-0.2-pilot";
+  const storageKey = "ccb-human-eval-0.3-pilot";
   const tasks = ["task-01", "task-02", "task-03"].map((task_id) => ({ task_id }));
   const state = {
     participant_id: "participant-1",
-    protocol_version: "0.2",
+    protocol_version: "0.3",
     dataset_revision: REVISION,
     pilot: true,
     current_task_index: 2,
     responses: Object.fromEntries(tasks.map(({ task_id }) => [task_id, completeResponse(task_id)])),
   };
-  const expected = { protocolVersion: "0.2", datasetRevision: REVISION, pilot: true };
+  const expected = { protocolVersion: "0.3", datasetRevision: REVISION, pilot: true };
 
   writeStoredParticipantState(storage, storageKey, state);
   const refreshed = readStoredParticipantState(storage, storageKey, expected);
@@ -249,15 +230,34 @@ test("task UI supports jumping and saving partial answers", () => {
   assert.match(html, /You may skip this task and return later/);
   assert.doesNotMatch(html, /id="next-button"[^>]*disabled/);
   assert.match(app, /task-jump"\]\.addEventListener\("change"/);
-  assert.match(app, /Task \$\{task\.task_id\.slice\(5\)\} — \$\{status\}/);
+  assert.match(app, /responseHasAnyAnswer/);
   assert.match(app, /You can finish them in any order before final submission/);
 });
 
-test("the participant UI contains no manual ranking controls", () => {
+test("overall preference is collected before ratings and derived ranking is not displayed", () => {
   const html = readFileSync(new URL("../human-eval/index.html", import.meta.url), "utf8");
   const app = readFileSync(new URL("../human-eval/app.js", import.meta.url), "utf8");
-  assert.doesNotMatch(html, /rank-selectors|name=["']rank-|Assign each strategy a rank/);
-  assert.doesNotMatch(app, /rank-selectors|name=["']rank-|normalizeRanking/);
+  assert.ok(html.indexOf('id="ranking-section"') < html.indexOf('id="rating-section"'));
+  assert.match(html, /id="rating-section"[^>]*hidden/);
+  assert.match(html, /Use the same rank only for a genuine tie/);
+  assert.match(app, /overallRankingIsComplete\(response\)/);
+  assert.match(app, /overall_ranking: normalizeOverallRanking\(response\.rankings\)/);
+  assert.match(app, /overall_ranking_source: OVERALL_RANKING_SOURCE/);
+  assert.doesNotMatch(html, /derived-ranking|Calculated automatically from the three ratings/);
+  assert.doesNotMatch(app, /deriveOverallRanking|overall_scores|derived-ranking/);
+});
+
+test("v0.3 protocol distinguishes direct preference from analysis-derived ranking", () => {
+  const protocol = JSON.parse(readFileSync(
+    new URL("../human-eval/human_eval_v0.3.json", import.meta.url),
+    "utf8",
+  ));
+  assert.equal(protocol.manual_overall_ranking_required, true);
+  assert.equal(protocol.overall_ranking.source, "participant_overall_preference");
+  assert.equal(protocol.overall_ranking.collected_before_dimension_ratings, true);
+  assert.equal(protocol.dimension_derived_ranking.computed_at, "analysis");
+  assert.equal(protocol.dimension_derived_ranking.displayed_to_participant, false);
+  assert.equal(protocol.dimension_derived_ranking.submitted_by_client, false);
 });
 
 test("onboarding CTA distinguishes first-time and saved-progress states", () => {
@@ -274,17 +274,17 @@ test("onboarding CTA distinguishes first-time and saved-progress states", () => 
   );
 });
 
-test("static worked example is display-only and structurally separate from study tasks", () => {
+test("static worked example remains display-only and separate from study tasks", () => {
   const html = readFileSync(new URL("../human-eval/index.html", import.meta.url), "utf8");
   const app = readFileSync(new URL("../human-eval/app.js", import.meta.url), "utf8");
   assert.match(html, /data-display-only="true"/);
-  assert.match(html, /src="\.\/worked-example-guide\.png"/);
+  assert.match(html, /src="\.\/worked-example-guide-v03\.svg"/);
   assert.doesNotMatch(app, /worked-example-guide|tutorial/i);
   assert.match(app, /studyTasks = PILOT \? allTasks\.slice\(0, 3\) : allTasks/);
   assert.match(app, /return studyTasks\.map\(\(task\) =>/);
 });
 
-test("protected task metadata and images are pinned to the dataset revision", () => {
+test("protected task metadata and images remain pinned to the dataset revision", () => {
   const app = readFileSync(new URL("../human-eval/app.js", import.meta.url), "utf8");
   assert.match(app, /const ASSET_REVISION_ROOT = `revisions\/\$\{EXPECTED_REVISION\}`/);
   assert.match(app, /download\(`\$\{ASSET_REVISION_ROOT\}\/tasks\.json`\)/);

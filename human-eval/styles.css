@@ -162,8 +162,8 @@ h3 { font-size: 17px; }
 .onboarding-card,
 .worked-example-card,
 .onboarding-cta,
+.ranking-section,
 .rating-section,
-.derived-ranking-summary,
 .status-card {
   background: var(--surface);
   border: 1px solid var(--line);
@@ -519,12 +519,44 @@ h3 { font-size: 17px; }
 }
 
 #evaluation-form { width: 100%; min-width: 0; max-width: 100%; }
+.ranking-section {
+  margin-top: 18px;
+  padding: 20px 22px;
+  display: grid;
+  grid-template-columns: minmax(260px, 0.75fr) minmax(540px, 1.25fr);
+  align-items: center;
+  gap: 28px;
+}
+.ranking-copy .eyebrow,
+.rating-section .eyebrow { margin-bottom: 5px; }
+.ranking-copy h2 { margin-bottom: 6px; }
+.ranking-copy > p:last-child { margin-bottom: 0; color: var(--muted); font-size: 14px; }
+.ranking-controls { min-width: 0; }
+.ranking-controls > .required-note { display: block; padding: 0 0 7px; text-align: right; }
+.rank-selectors { display: grid; grid-template-columns: repeat(4, minmax(112px, 1fr)); gap: 10px; }
+.rank-selectors label > span { display: block; margin-bottom: 5px; color: var(--muted); font-size: 12px; font-weight: 650; }
+.rank-selectors strong { color: var(--ink); }
+.rank-selectors select {
+  width: 100%;
+  min-width: 0;
+  padding: 10px 28px 10px 10px;
+  color: var(--ink);
+  background: #fff;
+  border: 1px solid #b8c3bd;
+  border-radius: 8px;
+}
+.rank-selectors select:focus { border-color: var(--accent); outline: 3px solid var(--accent-soft); }
+.preference-complete-note {
+  margin: 9px 0 0;
+  color: var(--accent-dark);
+  font-size: 13px;
+  font-weight: 700;
+  text-align: right;
+}
 .rating-section { position: relative; min-width: 0; margin-top: 18px; padding: 20px 22px; }
 .section-heading-row { margin-bottom: 14px; display: flex; justify-content: space-between; gap: 20px; align-items: start; }
-.section-heading-row h2,
-.derived-ranking-summary h2 { margin-bottom: 5px; }
-.section-heading-row p,
-.derived-ranking-summary p { margin-bottom: 0; color: var(--muted); font-size: 14px; }
+.section-heading-row h2 { margin-bottom: 5px; }
+.section-heading-row p { margin-bottom: 0; color: var(--muted); font-size: 14px; }
 .required-note { padding-top: 8px; color: var(--muted); font-size: 12px; white-space: nowrap; }
 .matrix-wrap { width: 100%; max-width: 100%; overflow: visible; }
 .rating-matrix { width: 100%; border-collapse: separate; border-spacing: 0; }
@@ -591,17 +623,6 @@ h3 { font-size: 17px; }
 .segmented-rating input:checked + label { z-index: 1; color: #fff; background: var(--accent); border-color: var(--accent); }
 .segmented-rating input:focus-visible + label { z-index: 2; outline: 3px solid #9bcdb9; outline-offset: 1px; }
 
-.derived-ranking-summary {
-  margin-top: 18px;
-  padding: 18px 22px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 24px;
-}
-.derived-ranking-list { margin: 0; padding: 0; display: flex; gap: 8px; list-style: none; flex-wrap: wrap; justify-content: end; }
-.derived-ranking-list li { min-height: 38px; padding: 7px 11px; display: flex; align-items: center; gap: 8px; background: var(--surface-soft); border-radius: 9px; font-size: 13px; font-weight: 700; }
-.derived-rank-number { width: 24px; height: 24px; display: grid; place-items: center; color: #fff; background: var(--accent); border-radius: 7px; font-size: 12px; }
 .task-actions {
   margin-top: 18px;
   display: grid;
@@ -633,8 +654,8 @@ h3 { font-size: 17px; }
   .login-card { max-width: none; }
   .matrix-wrap { overflow-x: auto; padding-bottom: 8px; }
   .rating-matrix { min-width: 850px; }
-  .derived-ranking-summary { align-items: start; flex-direction: column; }
-  .derived-ranking-list { justify-content: start; }
+  .ranking-section { grid-template-columns: 1fr; align-items: start; gap: 16px; }
+  .ranking-controls { width: 100%; }
 }
 
 @media (max-width: 860px) {
@@ -661,8 +682,8 @@ h3 { font-size: 17px; }
   .onboarding-guide-grid { grid-template-columns: 1fr; gap: 12px; }
   .onboarding-card,
   .worked-example-card,
-  .rating-section,
-  .derived-ranking-summary { padding: 16px; }
+  .ranking-section,
+  .rating-section { padding: 16px; }
   .worked-example-figure { padding: 5px; }
   .worked-example-figure img {
     width: 121%;
@@ -679,6 +700,9 @@ h3 { font-size: 17px; }
   .task-instruction-region h2 { font-size: clamp(24px, 7vw, 28px); }
   .strategy-panel { padding: 16px; }
   .strategy-card { padding: 12px; }
+  .rank-selectors { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .ranking-controls > .required-note,
+  .preference-complete-note { text-align: left; }
   .section-heading-row { flex-direction: column; gap: 4px; }
   .task-actions { width: 100%; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
   .task-actions .button { width: 100%; min-width: 0; padding-inline: 14px; }

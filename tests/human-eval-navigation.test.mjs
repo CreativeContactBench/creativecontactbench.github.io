@@ -238,11 +238,23 @@ test("task UI supports jumping and saving partial answers", () => {
 test("participant UI shows presentation positions without internal task IDs", () => {
   const html = readFileSync(new URL("../human-eval/index.html", import.meta.url), "utf8");
   const app = readFileSync(new URL("../human-eval/app.js", import.meta.url), "utf8");
-  assert.doesNotMatch(html, /id="task-id"/);
+  assert.match(html, /<span id="task-id" hidden aria-hidden="true"><\/span>/);
+  assert.doesNotMatch(html, /<h1 id="task-id"/);
+  assert.doesNotMatch(app, /elements\["task-id"\]\.textContent/);
   assert.match(app, /option\.textContent = `Task \$\{index \+ 1\} — \$\{status\}`/);
   assert.doesNotMatch(app, /option\.textContent = `Task \$\{task\.task_id\.slice/);
   assert.match(app, /Robot manipulation scene for task \$\{renderIndex \+ 1\} of \$\{studyTasks\.length\}/);
   assert.match(app, /task_id: task\.task_id/);
+});
+
+test("human-evaluation assets are cache-busted as one compatible release", () => {
+  const html = readFileSync(new URL("../human-eval/index.html", import.meta.url), "utf8");
+  const app = readFileSync(new URL("../human-eval/app.js", import.meta.url), "utf8");
+  const version = "human-eval-v05-cache-fix-1";
+  assert.match(html, new RegExp(`styles\\.css\\?v=${version}`));
+  assert.match(html, new RegExp(`config\\.js\\?v=${version}`));
+  assert.match(html, new RegExp(`app\\.js\\?v=${version}`));
+  assert.match(app, new RegExp(`study-navigation\\.mjs\\?v=${version}`));
 });
 
 test("overall preference is presented before ratings while both sections stay visible", () => {

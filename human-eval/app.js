@@ -12,7 +12,7 @@ import {
   responseIsComplete,
   studyIsComplete,
   writeStoredParticipantState,
-} from "./study-navigation.mjs";
+} from "./study-navigation.mjs?v=human-eval-v05-cache-fix-1";
 
 const CONFIG = window.CCB_CONFIG;
 const EXPECTED_REVISION = "b14ae69caecbeb062eb60c9189ee879a2514229b";

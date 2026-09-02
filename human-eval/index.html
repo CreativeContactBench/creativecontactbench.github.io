@@ -15,9 +15,9 @@
       content="Password-gated CreativeContactBench human strategy evaluation."
     />
     <link rel="icon" href="data:," />
-    <link rel="stylesheet" href="./styles.css" />
-    <script src="./config.js" defer></script>
-    <script type="module" src="./app.js"></script>
+    <link rel="stylesheet" href="./styles.css?v=human-eval-v05-cache-fix-1" />
+    <script src="./config.js?v=human-eval-v05-cache-fix-1" defer></script>
+    <script type="module" src="./app.js?v=human-eval-v05-cache-fix-1"></script>
   </head>
   <body>
     <header class="site-header">
@@ -164,6 +164,8 @@
         <div class="task-topline">
           <div>
             <p class="eyebrow">Task <span id="task-position">1</span> of <span id="task-total">30</span></p>
+            <!-- Compatibility target for pre-v0.5 cached scripts. Never participant-visible. -->
+            <span id="task-id" hidden aria-hidden="true"></span>
           </div>
           <div class="task-navigation-tools">
             <p id="saved-count" class="saved-count">0 of 30 complete</p>

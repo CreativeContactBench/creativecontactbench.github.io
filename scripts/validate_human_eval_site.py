@@ -23,6 +23,7 @@ REQUIRED_PUBLIC_FILES = {
     "human-eval/human_eval_v0.1.json",
     "human-eval/human_eval_v0.2.json",
     "human-eval/human_eval_v0.3.json",
+    "human-eval/human_eval_v0.4.json",
     "human-eval/study-navigation.mjs",
     "human-eval/worked-example-guide.png",
     "human-eval/worked-example-guide-v03.svg",
@@ -127,13 +128,13 @@ def validate(root: Path, private_assets: Path) -> None:
         if unsafe_call in app_source:
             errors.append(f"Unsafe or disallowed runtime behavior found: {unsafe_call}")
     for required_v03_source in (
-        'const PROTOCOL_VERSION = "0.3"',
-        'fetch("./human_eval_v0.3.json"',
+        'const PROTOCOL_VERSION = "0.4"',
+        'fetch("./human_eval_v0.4.json"',
         "normalizeOverallRanking",
         "overall_ranking_source",
     ):
         if required_v03_source not in app_source:
-            errors.append(f"Required Human v0.3 behavior is missing: {required_v03_source}")
+            errors.append(f"Required current Human behavior is missing: {required_v03_source}")
 
     index_source = (root / "human-eval" / "index.html").read_text(encoding="utf-8")
     navigation_source = (root / "human-eval" / "study-navigation.mjs").read_text(encoding="utf-8")
@@ -199,6 +200,25 @@ def validate(root: Path, private_assets: Path) -> None:
     }
     if protocol_v03.get("dimension_derived_ranking") != expected_analysis_ranking_metadata:
         errors.append("Human v0.3 analysis-ranking metadata is invalid")
+
+    protocol_v04 = json.loads((root / "human-eval" / "human_eval_v0.4.json").read_text(encoding="utf-8"))
+    if protocol_v04.get("human_protocol_version") != "0.4":
+        errors.append("Human v0.4 protocol version is invalid")
+    if protocol_v04.get("dataset_revision") != "b14ae69caecbeb062eb60c9189ee879a2514229b":
+        errors.append("Human v0.4 dataset revision is invalid")
+    if protocol_v04.get("source_task_count") != 67:
+        errors.append("Human v0.4 source task count is invalid")
+    if protocol_v04.get("task_count") != 30:
+        errors.append("Human v0.4 questionnaire task count is invalid")
+    expected_formal_ids = [f"task-{index:02d}" for index in range(1, 31)]
+    if protocol_v04.get("formal_task_ids") != expected_formal_ids:
+        errors.append("Human v0.4 formal questionnaire must contain task-01 through task-30")
+    if protocol_v04.get("manual_overall_ranking_required") is not True:
+        errors.append("Human v0.4 must require manual overall preference")
+    if protocol_v04.get("overall_ranking") != expected_manual_ranking_metadata:
+        errors.append("Human v0.4 manual-ranking metadata is invalid")
+    if protocol_v04.get("dimension_derived_ranking") != expected_analysis_ranking_metadata:
+        errors.append("Human v0.4 analysis-ranking metadata is invalid")
 
     config_source = (root / "human-eval" / "config.js").read_text(encoding="utf-8")
     email_match = re.search(r"authEmail:\s*['\"]([^'\"]+)['\"]", config_source)

@@ -18,11 +18,11 @@
   <rect width="1382" height="1180" fill="#fbfcfb"/>
 
   <g class="ui blue">
-    <rect x="20" y="152" width="136" height="184" rx="10" fill="#fff" stroke="#155eef" stroke-width="2"/>
-    <text x="42" y="199" class="step">Step 1:</text>
-    <text x="42" y="239" font-size="22">Read the task</text>
-    <text x="42" y="272" font-size="22">and strategies.</text>
-    <path d="M156 246H208M197 235l12 11-12 11" fill="none" stroke="#155eef" stroke-width="3"/>
+    <rect x="10" y="152" width="174" height="184" rx="10" fill="#fff" stroke="#155eef" stroke-width="2"/>
+    <text x="26" y="199" class="step">Step 1:</text>
+    <text x="26" y="239" font-size="20">Read the task</text>
+    <text x="26" y="272" font-size="20">and strategies.</text>
+    <path d="M184 246H208M197 235l12 11-12 11" fill="none" stroke="#155eef" stroke-width="3"/>
   </g>
 
   <rect x="217" y="10" width="1146" height="478" rx="12" fill="#fff" stroke="#155eef" stroke-width="2"/>
@@ -51,11 +51,11 @@
   </g>
 
   <g class="ui blue">
-    <rect x="20" y="510" width="136" height="124" rx="10" fill="#fff" stroke="#155eef" stroke-width="2"/>
-    <text x="42" y="550" class="step">Step 2:</text>
-    <text x="42" y="585" font-size="21">Rank overall</text>
-    <text x="42" y="616" font-size="21">preference.</text>
-    <path d="M156 571H208M197 560l12 11-12 11" fill="none" stroke="#155eef" stroke-width="3"/>
+    <rect x="10" y="510" width="174" height="124" rx="10" fill="#fff" stroke="#155eef" stroke-width="2"/>
+    <text x="26" y="550" class="step">Step 2:</text>
+    <text x="26" y="585" font-size="20">Rank overall</text>
+    <text x="26" y="616" font-size="20">preference.</text>
+    <path d="M184 571H208M197 560l12 11-12 11" fill="none" stroke="#155eef" stroke-width="3"/>
   </g>
   <rect x="217" y="503" width="1146" height="137" rx="12" class="card" stroke="#155eef" stroke-width="2"/>
   <text x="242" y="540" class="ui heading">Overall preference</text>
@@ -68,11 +68,11 @@
   </g>
 
   <g class="ui blue">
-    <rect x="20" y="782" width="136" height="154" rx="10" fill="#fff" stroke="#155eef" stroke-width="2"/>
-    <text x="42" y="826" class="step">Step 3:</text>
-    <text x="42" y="863" font-size="22">Rate each</text>
-    <text x="42" y="895" font-size="22">strategy.</text>
-    <path d="M156 857H208M197 846l12 11-12 11" fill="none" stroke="#155eef" stroke-width="3"/>
+    <rect x="10" y="782" width="174" height="154" rx="10" fill="#fff" stroke="#155eef" stroke-width="2"/>
+    <text x="26" y="826" class="step">Step 3:</text>
+    <text x="26" y="863" font-size="20">Rate each</text>
+    <text x="26" y="895" font-size="20">strategy.</text>
+    <path d="M184 857H208M197 846l12 11-12 11" fill="none" stroke="#155eef" stroke-width="3"/>
   </g>
   <rect x="217" y="655" width="1146" height="444" rx="12" class="card" stroke="#155eef" stroke-width="2"/>
   <text x="242" y="699" class="ui heading">Rate each strategy</text>

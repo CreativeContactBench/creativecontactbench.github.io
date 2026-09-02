@@ -17,9 +17,11 @@ import {
 const CONFIG = window.CCB_CONFIG;
 const EXPECTED_REVISION = "b14ae69caecbeb062eb60c9189ee879a2514229b";
 const ASSET_REVISION_ROOT = `revisions/${EXPECTED_REVISION}`;
-const PROTOCOL_VERSION = "0.3";
+const PROTOCOL_VERSION = "0.4";
+const SOURCE_TASK_COUNT = 67;
+const QUESTIONNAIRE_TASK_COUNT = 30;
 const EXPECTED_TASK_IDS = Array.from(
-  { length: 67 },
+  { length: SOURCE_TASK_COUNT },
   (_, index) => `task-${String(index + 1).padStart(2, "0")}`,
 );
 const TASK_FIELDS = [
@@ -203,7 +205,8 @@ function validateProtocol(candidate) {
   if (
     candidate?.human_protocol_version !== PROTOCOL_VERSION ||
     candidate?.dataset_revision !== EXPECTED_REVISION ||
-    candidate?.task_count !== 67 ||
+    candidate?.source_task_count !== SOURCE_TASK_COUNT ||
+    candidate?.task_count !== QUESTIONNAIRE_TASK_COUNT ||
     candidate?.canonical_order_only !== true ||
     candidate?.vlm_balanced_permutations_used !== false ||
     candidate?.manual_overall_ranking_required !== true ||
@@ -225,6 +228,12 @@ function validateProtocol(candidate) {
   ) {
     throw new Error("Public protocol metadata is invalid.");
   }
+  if (
+    JSON.stringify(candidate.formal_task_ids)
+    !== JSON.stringify(EXPECTED_TASK_IDS.slice(0, QUESTIONNAIRE_TASK_COUNT))
+  ) {
+    throw new Error("Formal questionnaire task set is invalid.");
+  }
   if (JSON.stringify(candidate.pilot_task_ids) !== JSON.stringify(EXPECTED_TASK_IDS.slice(0, 3))) {
     throw new Error("Pilot task set is invalid.");
   }
@@ -243,7 +252,7 @@ function validatePrivateTasks(payload) {
     Object.keys(payload).sort().join(",") !== "dataset_revision,tasks" ||
     payload.dataset_revision !== EXPECTED_REVISION ||
     !Array.isArray(payload.tasks) ||
-    payload.tasks.length !== 67
+    payload.tasks.length !== SOURCE_TASK_COUNT
   ) {
     throw new Error("Protected task metadata failed validation.");
   }
@@ -267,7 +276,7 @@ async function loadProtectedStudy() {
   showScreen("asset-loading-screen");
   try {
     if (!protocol) {
-      const protocolResponse = await fetch("./human_eval_v0.3.json", { cache: "no-store" });
+      const protocolResponse = await fetch("./human_eval_v0.4.json", { cache: "no-store" });
       if (!protocolResponse.ok) throw new Error("Protocol metadata is unavailable.");
       protocol = validateProtocol(await protocolResponse.json());
     }
@@ -277,7 +286,9 @@ async function loadProtectedStudy() {
     if (error || !data) throw new Error("Protected task metadata is unavailable.");
     const payload = JSON.parse(await data.text());
     allTasks = validatePrivateTasks(payload);
-    studyTasks = PILOT ? allTasks.slice(0, 3) : allTasks;
+    studyTasks = PILOT
+      ? allTasks.slice(0, 3)
+      : allTasks.slice(0, QUESTIONNAIRE_TASK_COUNT);
     participantState = loadParticipantState();
     showWelcome();
   } catch {
@@ -488,7 +499,7 @@ function renderRankSelectors(response) {
 
 function updateRatingStage(response) {
   const rankingComplete = overallRankingIsComplete(response);
-  elements["rating-section"].hidden = !rankingComplete;
+  elements["rating-section"].hidden = false;
   elements["preference-complete-note"].hidden = !rankingComplete;
 }
 

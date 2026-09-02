@@ -22,7 +22,7 @@ The study password must be entered interactively. Never add it to this repositor
 ## Onboarding example
 
 The worked example shown before the study is the self-contained static public image `worked-example-guide-v03.svg`.
-It illustrates the v0.3 preference-first flow without loading private runtime data. It is display-only HTML content: it
+It illustrates the preference-first flow without loading private runtime data. It is display-only HTML content: it
 is never added to the authenticated `studyTasks` array, participant LocalStorage responses, or the submission payload.
 
 ## Private asset layout
@@ -91,4 +91,4 @@ node tests/human-eval-navigation.test.mjs
 
 The validation fails if protected task assets, exact task/strategy text, pinned image hashes, or privileged credential patterns appear in the public tree. It also checks that the authenticated sign-in, private download, and INSERT-only submission paths remain present.
 
-Human protocol v0.3 preserves canonical A/B/C/D order and the three 1–5 dimensions. It first collects a participant-entered overall preference, with rank 1 meaning most preferred and equal ranks representing genuine ties. Once all four overall ranks are present, the dimension-rating matrix is shown. Submissions store the raw ratings, grouped `overall_ranking`, and `overall_ranking_source = participant_overall_preference`; they do not store or display a ranking derived from dimension totals. The equal-weight dimension-derived ranking is computed later during analysis so it remains distinct from the participant's holistic preference. The v0.1 and v0.2 metadata remain available for provenance, and the v0.3 LocalStorage key is separate. Pilot mode continues to use task-01 through task-03 and is marked separately in submissions.
+Human protocol v0.4 preserves canonical A/B/C/D order and the three 1–5 dimensions. The formal questionnaire uses only canonical `task-01` through `task-30` from the pinned 67-task source dataset. The overall-preference section appears before the dimension-rating matrix, but both sections are visible together. Rank 1 means most preferred and equal ranks represent genuine ties. Submissions store the raw ratings, grouped `overall_ranking`, and `overall_ranking_source = participant_overall_preference`; they do not store or display a ranking derived from dimension totals. The equal-weight dimension-derived ranking is computed later during analysis so it remains distinct from the participant's holistic preference. Earlier protocol metadata remains available for provenance, and the v0.4 LocalStorage key is separate. Pilot mode continues to use task-01 through task-03 and is marked separately in submissions.

@@ -17,9 +17,74 @@ import {
 const CONFIG = window.CCB_CONFIG;
 const EXPECTED_REVISION = "b14ae69caecbeb062eb60c9189ee879a2514229b";
 const ASSET_REVISION_ROOT = `revisions/${EXPECTED_REVISION}`;
-const PROTOCOL_VERSION = "0.4";
+const PROTOCOL_VERSION = "0.5";
 const SOURCE_TASK_COUNT = 67;
 const QUESTIONNAIRE_TASK_COUNT = 30;
+const REQUIRED_CORE_TASK_IDS = Array.from(
+  { length: 19 },
+  (_, index) => `task-${String(index + 1).padStart(2, "0")}`,
+);
+const RANDOM_SAMPLE_SEED = "CreativeContactBench-human-v0.5-representative-30-2026-09-02";
+const FIXED_PRESENTATION_SEED = "CreativeContactBench-human-v0.5-fixed-presentation-2026-09-02";
+const RANDOM_SAMPLE_DRAW_ORDER = [
+  "task-27",
+  "task-47",
+  "task-38",
+  "task-24",
+  "task-32",
+  "task-37",
+  "task-63",
+  "task-43",
+  "task-25",
+  "task-64",
+  "task-42",
+];
+const EXPECTED_FORMAL_TASK_IDS = [
+  ...REQUIRED_CORE_TASK_IDS,
+  "task-24",
+  "task-25",
+  "task-27",
+  "task-32",
+  "task-37",
+  "task-38",
+  "task-42",
+  "task-43",
+  "task-47",
+  "task-63",
+  "task-64",
+];
+const EXPECTED_PRESENTATION_TASK_IDS = [
+  "task-03",
+  "task-08",
+  "task-24",
+  "task-37",
+  "task-11",
+  "task-01",
+  "task-63",
+  "task-17",
+  "task-09",
+  "task-43",
+  "task-42",
+  "task-15",
+  "task-12",
+  "task-13",
+  "task-25",
+  "task-19",
+  "task-07",
+  "task-64",
+  "task-27",
+  "task-32",
+  "task-06",
+  "task-05",
+  "task-18",
+  "task-14",
+  "task-04",
+  "task-02",
+  "task-38",
+  "task-47",
+  "task-10",
+  "task-16",
+];
 const EXPECTED_TASK_IDS = Array.from(
   { length: SOURCE_TASK_COUNT },
   (_, index) => `task-${String(index + 1).padStart(2, "0")}`,
@@ -100,6 +165,7 @@ let supabase;
 let authSession = null;
 let protocol = null;
 let allTasks = [];
+let canonicalStudyTasks = [];
 let studyTasks = [];
 let participantState = null;
 let currentImageUrl = null;
@@ -145,6 +211,7 @@ function revokeCurrentImage() {
 function clearProtectedContent() {
   revokeCurrentImage();
   allTasks = [];
+  canonicalStudyTasks = [];
   studyTasks = [];
   elements["task-instruction"].textContent = "";
   elements["strategy-grid"].replaceChildren();
@@ -207,7 +274,7 @@ function validateProtocol(candidate) {
     candidate?.dataset_revision !== EXPECTED_REVISION ||
     candidate?.source_task_count !== SOURCE_TASK_COUNT ||
     candidate?.task_count !== QUESTIONNAIRE_TASK_COUNT ||
-    candidate?.canonical_order_only !== true ||
+    candidate?.canonical_order_only !== false ||
     candidate?.vlm_balanced_permutations_used !== false ||
     candidate?.manual_overall_ranking_required !== true ||
     candidate?.overall_ranking?.source !== OVERALL_RANKING_SOURCE ||
@@ -230,9 +297,29 @@ function validateProtocol(candidate) {
   }
   if (
     JSON.stringify(candidate.formal_task_ids)
-    !== JSON.stringify(EXPECTED_TASK_IDS.slice(0, QUESTIONNAIRE_TASK_COUNT))
+    !== JSON.stringify(EXPECTED_FORMAL_TASK_IDS)
   ) {
     throw new Error("Formal questionnaire task set is invalid.");
+  }
+  if (
+    candidate.questionnaire_selection?.method !== "sha256_seeded_sort" ||
+    candidate.questionnaire_selection?.seed !== RANDOM_SAMPLE_SEED ||
+    candidate.questionnaire_selection?.sample_size !== 11 ||
+    candidate.questionnaire_selection?.candidate_pool?.first_task_id !== "task-20" ||
+    candidate.questionnaire_selection?.candidate_pool?.last_task_id !== "task-67" ||
+    candidate.questionnaire_selection?.candidate_pool?.task_count !== 48 ||
+    JSON.stringify(candidate.questionnaire_selection?.always_included_task_ids)
+      !== JSON.stringify(REQUIRED_CORE_TASK_IDS) ||
+    JSON.stringify(candidate.questionnaire_selection?.sampled_task_ids)
+      !== JSON.stringify(RANDOM_SAMPLE_DRAW_ORDER) ||
+    candidate.presentation_order?.scope !== "all_formal_participants" ||
+    candidate.presentation_order?.method !== "sha256_seeded_sort" ||
+    candidate.presentation_order?.seed !== FIXED_PRESENTATION_SEED ||
+    JSON.stringify(candidate.presentation_order?.task_ids)
+      !== JSON.stringify(EXPECTED_PRESENTATION_TASK_IDS) ||
+    candidate.presentation_order?.submission_response_order !== "canonical_task_id_ascending"
+  ) {
+    throw new Error("Questionnaire selection or presentation-order metadata is invalid.");
   }
   if (JSON.stringify(candidate.pilot_task_ids) !== JSON.stringify(EXPECTED_TASK_IDS.slice(0, 3))) {
     throw new Error("Pilot task set is invalid.");
@@ -276,7 +363,7 @@ async function loadProtectedStudy() {
   showScreen("asset-loading-screen");
   try {
     if (!protocol) {
-      const protocolResponse = await fetch("./human_eval_v0.4.json", { cache: "no-store" });
+      const protocolResponse = await fetch("./human_eval_v0.5.json", { cache: "no-store" });
       if (!protocolResponse.ok) throw new Error("Protocol metadata is unavailable.");
       protocol = validateProtocol(await protocolResponse.json());
     }
@@ -286,9 +373,13 @@ async function loadProtectedStudy() {
     if (error || !data) throw new Error("Protected task metadata is unavailable.");
     const payload = JSON.parse(await data.text());
     allTasks = validatePrivateTasks(payload);
-    studyTasks = PILOT
-      ? allTasks.slice(0, 3)
-      : allTasks.slice(0, QUESTIONNAIRE_TASK_COUNT);
+    const taskById = new Map(allTasks.map((task) => [task.task_id, task]));
+    const selectedTaskIds = PILOT ? protocol.pilot_task_ids : protocol.formal_task_ids;
+    canonicalStudyTasks = selectedTaskIds.map((taskId) => taskById.get(taskId));
+    const presentationTaskIds = PILOT
+      ? protocol.pilot_task_ids
+      : protocol.presentation_order.task_ids;
+    studyTasks = presentationTaskIds.map((taskId) => taskById.get(taskId));
     participantState = loadParticipantState();
     showWelcome();
   } catch {
@@ -562,7 +653,7 @@ function renderTask() {
 }
 
 function buildSubmissionResponses() {
-  return studyTasks.map((task) => {
+  return canonicalStudyTasks.map((task) => {
     const response = participantState.responses[task.task_id];
     if (!responseIsComplete(response)) throw new Error("A required task response is incomplete.");
     return {
@@ -577,6 +668,7 @@ function buildSubmissionResponses() {
       ),
       overall_ranking: normalizeOverallRanking(response.rankings),
       overall_ranking_source: OVERALL_RANKING_SOURCE,
+      presentation_position: studyTasks.findIndex(({ task_id: taskId }) => taskId === task.task_id) + 1,
       first_viewed_at: response.first_viewed_at,
       last_saved_at: response.last_saved_at,
       duration_seconds: Number(response.duration_seconds.toFixed(3)),

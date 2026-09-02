@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { createHash } from "node:crypto";
 import { readFileSync } from "node:fs";
 import test from "node:test";
 
@@ -130,16 +131,16 @@ test("an incomplete study can advance and the final action starts review", () =>
   assert.equal(getTaskSubmitDestination(2, 3, false), "review-incomplete");
 });
 
-test("v0.4 local state is isolated from v0.3 state", () => {
+test("v0.5 local state is isolated from v0.4 state", () => {
   const storage = memoryStorage();
-  const oldKey = "ccb-human-eval-0.3-pilot";
-  const newKey = "ccb-human-eval-0.4-pilot";
-  const oldState = { protocol_version: "0.3", marker: "untouched" };
+  const oldKey = "ccb-human-eval-0.4-pilot";
+  const newKey = "ccb-human-eval-0.5-pilot";
+  const oldState = { protocol_version: "0.4", marker: "untouched" };
   storage.setItem(oldKey, JSON.stringify(oldState));
 
   const state = {
     participant_id: "participant-1",
-    protocol_version: "0.4",
+    protocol_version: "0.5",
     dataset_revision: REVISION,
     pilot: true,
     current_task_index: 0,
@@ -149,19 +150,19 @@ test("v0.4 local state is isolated from v0.3 state", () => {
 
   assert.deepEqual(JSON.parse(storage.getItem(oldKey)), oldState);
   assert.equal(readStoredParticipantState(storage, oldKey, {
-    protocolVersion: "0.4", datasetRevision: REVISION, pilot: true,
+    protocolVersion: "0.5", datasetRevision: REVISION, pilot: true,
   }), null);
   assert.deepEqual(readStoredParticipantState(storage, newKey, {
-    protocolVersion: "0.4", datasetRevision: REVISION, pilot: true,
+    protocolVersion: "0.5", datasetRevision: REVISION, pilot: true,
   }), state);
 });
 
 test("saved responses from a previous dataset revision are isolated", () => {
   const storage = memoryStorage();
-  const storageKey = "ccb-human-eval-0.4-formal";
+  const storageKey = "ccb-human-eval-0.5-formal";
   storage.setItem(storageKey, JSON.stringify({
     participant_id: "participant-old-revision",
-    protocol_version: "0.4",
+    protocol_version: "0.5",
     dataset_revision: "d8fc98ae30bf1233518330215a6e57f990565d94",
     pilot: false,
     current_task_index: 0,
@@ -169,19 +170,19 @@ test("saved responses from a previous dataset revision are isolated", () => {
   }));
 
   assert.equal(readStoredParticipantState(storage, storageKey, {
-    protocolVersion: "0.4", datasetRevision: REVISION, pilot: false,
+    protocolVersion: "0.5", datasetRevision: REVISION, pilot: false,
   }), null);
 });
 
 test("partial overall preference and ratings survive local persistence", () => {
   const storage = memoryStorage();
-  const storageKey = "ccb-human-eval-0.4-formal";
+  const storageKey = "ccb-human-eval-0.5-formal";
   const partial = completeResponse("task-12");
   delete partial.rankings.D;
   delete partial.ratings.C.embodied_feasibility;
   const state = {
     participant_id: "participant-partial",
-    protocol_version: "0.4",
+    protocol_version: "0.5",
     dataset_revision: REVISION,
     pilot: false,
     current_task_index: 11,
@@ -190,7 +191,7 @@ test("partial overall preference and ratings survive local persistence", () => {
 
   writeStoredParticipantState(storage, storageKey, state);
   const restored = readStoredParticipantState(storage, storageKey, {
-    protocolVersion: "0.4", datasetRevision: REVISION, pilot: false,
+    protocolVersion: "0.5", datasetRevision: REVISION, pilot: false,
   });
   assert.deepEqual(restored, state);
   assert.equal(responseIsComplete(restored.responses["task-12"]), false);
@@ -198,17 +199,17 @@ test("partial overall preference and ratings survive local persistence", () => {
 
 test("reviewing the last task restores the overall preference and ratings", () => {
   const storage = memoryStorage();
-  const storageKey = "ccb-human-eval-0.4-pilot";
+  const storageKey = "ccb-human-eval-0.5-pilot";
   const tasks = ["task-01", "task-02", "task-03"].map((task_id) => ({ task_id }));
   const state = {
     participant_id: "participant-1",
-    protocol_version: "0.4",
+    protocol_version: "0.5",
     dataset_revision: REVISION,
     pilot: true,
     current_task_index: 2,
     responses: Object.fromEntries(tasks.map(({ task_id }) => [task_id, completeResponse(task_id)])),
   };
-  const expected = { protocolVersion: "0.4", datasetRevision: REVISION, pilot: true };
+  const expected = { protocolVersion: "0.5", datasetRevision: REVISION, pilot: true };
 
   writeStoredParticipantState(storage, storageKey, state);
   const refreshed = readStoredParticipantState(storage, storageKey, expected);
@@ -248,18 +249,39 @@ test("overall preference is presented before ratings while both sections stay vi
   assert.doesNotMatch(app, /deriveOverallRanking|overall_scores|derived-ranking/);
 });
 
-test("v0.4 protocol selects the first 30 tasks and distinguishes both rankings", () => {
+test("v0.5 protocol includes tasks 1–19 plus a reproducible random sample of 11", () => {
   const protocol = JSON.parse(readFileSync(
-    new URL("../human-eval/human_eval_v0.4.json", import.meta.url),
+    new URL("../human-eval/human_eval_v0.5.json", import.meta.url),
     "utf8",
   ));
-  assert.equal(protocol.human_protocol_version, "0.4");
+  assert.equal(protocol.human_protocol_version, "0.5");
   assert.equal(protocol.source_task_count, 67);
   assert.equal(protocol.task_count, 30);
-  assert.deepEqual(protocol.formal_task_ids, Array.from(
-    { length: 30 },
-    (_, index) => `task-${String(index + 1).padStart(2, "0")}`,
-  ));
+  const core = Array.from({ length: 19 }, (_, index) => `task-${String(index + 1).padStart(2, "0")}`);
+  assert.deepEqual(protocol.formal_task_ids.slice(0, 19), core);
+  assert.equal(new Set(protocol.formal_task_ids).size, 30);
+
+  const pool = Array.from({ length: 48 }, (_, index) => `task-${String(index + 20).padStart(2, "0")}`);
+  const seed = protocol.questionnaire_selection.seed;
+  const reproducedSample = pool
+    .sort((left, right) => createHash("sha256").update(`${seed}:${left}`).digest("hex")
+      .localeCompare(createHash("sha256").update(`${seed}:${right}`).digest("hex")))
+    .slice(0, 11);
+  assert.deepEqual(protocol.questionnaire_selection.sampled_task_ids, reproducedSample);
+  assert.deepEqual(
+    protocol.formal_task_ids.slice(19),
+    [...reproducedSample].sort((left, right) => left.localeCompare(right)),
+  );
+  assert.equal(protocol.canonical_order_only, false);
+  assert.equal(protocol.presentation_order.scope, "all_formal_participants");
+  assert.equal(protocol.presentation_order.method, "sha256_seeded_sort");
+  const presentationSeed = protocol.presentation_order.seed;
+  const reproducedPresentationOrder = [...protocol.formal_task_ids]
+    .sort((left, right) => createHash("sha256").update(`${presentationSeed}:${left}`).digest("hex")
+      .localeCompare(createHash("sha256").update(`${presentationSeed}:${right}`).digest("hex")));
+  assert.deepEqual(protocol.presentation_order.task_ids, reproducedPresentationOrder);
+  assert.notDeepEqual(protocol.presentation_order.task_ids, protocol.formal_task_ids);
+  assert.equal(protocol.presentation_order.submission_response_order, "canonical_task_id_ascending");
   assert.equal(protocol.manual_overall_ranking_required, true);
   assert.equal(protocol.overall_ranking.source, "participant_overall_preference");
   assert.equal(protocol.overall_ranking.collected_before_dimension_ratings, true);
@@ -288,8 +310,9 @@ test("static worked example remains display-only and separate from study tasks",
   assert.match(html, /data-display-only="true"/);
   assert.match(html, /src="\.\/worked-example-guide-v03\.svg"/);
   assert.doesNotMatch(app, /worked-example-guide|tutorial/i);
-  assert.match(app, /allTasks\.slice\(0, QUESTIONNAIRE_TASK_COUNT\)/);
-  assert.match(app, /return studyTasks\.map\(\(task\) =>/);
+  assert.match(app, /const selectedTaskIds = PILOT \? protocol\.pilot_task_ids : protocol\.formal_task_ids/);
+  assert.match(app, /return canonicalStudyTasks\.map\(\(task\) =>/);
+  assert.match(app, /presentation_position: studyTasks\.findIndex\(\(\{ task_id: taskId \}\) => taskId === task\.task_id\) \+ 1/);
 });
 
 test("protected task metadata and images remain pinned to the dataset revision", () => {

@@ -1,0 +1,111 @@
+{
+  "human_protocol_version": "0.5",
+  "dataset_repo_id": "chengshengge/CreativeContactBench-pilot",
+  "dataset_revision": "b14ae69caecbeb062eb60c9189ee879a2514229b",
+  "source_task_count": 67,
+  "task_count": 30,
+  "formal_task_ids": [
+    "task-01", "task-02", "task-03", "task-04", "task-05", "task-06",
+    "task-07", "task-08", "task-09", "task-10", "task-11", "task-12",
+    "task-13", "task-14", "task-15", "task-16", "task-17", "task-18",
+    "task-19", "task-24", "task-25", "task-27", "task-32", "task-37",
+    "task-38", "task-42", "task-43", "task-47", "task-63", "task-64"
+  ],
+  "questionnaire_selection": {
+    "method": "sha256_seeded_sort",
+    "seed": "CreativeContactBench-human-v0.5-representative-30-2026-09-02",
+    "always_included_task_ids": [
+      "task-01", "task-02", "task-03", "task-04", "task-05", "task-06",
+      "task-07", "task-08", "task-09", "task-10", "task-11", "task-12",
+      "task-13", "task-14", "task-15", "task-16", "task-17", "task-18",
+      "task-19"
+    ],
+    "candidate_pool": {
+      "first_task_id": "task-20",
+      "last_task_id": "task-67",
+      "task_count": 48
+    },
+    "sample_size": 11,
+    "sampled_task_ids": [
+      "task-27", "task-47", "task-38", "task-24", "task-32", "task-37",
+      "task-63", "task-43", "task-25", "task-64", "task-42"
+    ]
+  },
+  "presentation_order": {
+    "scope": "all_formal_participants",
+    "method": "sha256_seeded_sort",
+    "seed": "CreativeContactBench-human-v0.5-fixed-presentation-2026-09-02",
+    "task_ids": [
+      "task-03", "task-08", "task-24", "task-37", "task-11", "task-01",
+      "task-63", "task-17", "task-09", "task-43", "task-42", "task-15",
+      "task-12", "task-13", "task-25", "task-19", "task-07", "task-64",
+      "task-27", "task-32", "task-06", "task-05", "task-18", "task-14",
+      "task-04", "task-02", "task-38", "task-47", "task-10", "task-16"
+    ],
+    "submission_response_order": "canonical_task_id_ascending"
+  },
+  "canonical_order_only": false,
+  "vlm_balanced_permutations_used": false,
+  "pilot_task_ids": ["task-01", "task-02", "task-03"],
+  "dimensions": {
+    "expected_task_effectiveness": {
+      "title": "Expected Task Effectiveness",
+      "short_title": "Effectiveness",
+      "question": "How likely is this strategy to fully accomplish the task in the shown scene?",
+      "anchors": {
+        "1": "Very unlikely to succeed",
+        "2": "Unlikely / major problems",
+        "3": "Plausible, but with noticeable risks",
+        "4": "Likely to succeed",
+        "5": "Very likely to fully succeed"
+      }
+    },
+    "embodied_feasibility": {
+      "title": "Embodied Feasibility",
+      "short_title": "Feasibility",
+      "question": "How realistically can the robot shown in the image execute this strategy?",
+      "anchors": {
+        "1": "Effectively infeasible",
+        "2": "Very difficult",
+        "3": "Possible but challenging",
+        "4": "Realistically executable",
+        "5": "Straightforward for this robot"
+      }
+    },
+    "functional_creativity": {
+      "title": "Functional Creativity",
+      "short_title": "Creativity",
+      "question": "Does this strategy use available objects, the environment, or physical properties in a non-obvious but useful way?",
+      "anchors": {
+        "1": "Direct / conventional",
+        "2": "Slightly non-standard",
+        "3": "Meaningful adaptation",
+        "4": "Clearly non-obvious and useful",
+        "5": "Especially clever and functionally important"
+      }
+    }
+  },
+  "rating_scale": { "minimum": 1, "maximum": 5 },
+  "manual_overall_ranking_required": true,
+  "overall_ranking": {
+    "source": "participant_overall_preference",
+    "collected_before_dimension_ratings": true,
+    "all_strategies_required": true,
+    "ties_allowed": true,
+    "ranking_style": "dense"
+  },
+  "dimension_derived_ranking": {
+    "source": "derived_from_dimension_ratings",
+    "computed_at": "analysis",
+    "displayed_to_participant": false,
+    "submitted_by_client": false,
+    "weighting": "equal",
+    "formula": "effectiveness + feasibility + creativity",
+    "sort": "descending",
+    "ties_allowed": true,
+    "tie_method": "group_equal_total_scores",
+    "ranking_style": "dense"
+  },
+  "confidence_required": false,
+  "rationale_required": false
+}

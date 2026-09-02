@@ -14,7 +14,7 @@ import {
 } from "./study-navigation.mjs";
 
 const CONFIG = window.CCB_CONFIG;
-const EXPECTED_REVISION = "d8fc98ae30bf1233518330215a6e57f990565d94";
+const EXPECTED_REVISION = "b14ae69caecbeb062eb60c9189ee879a2514229b";
 const ASSET_REVISION_ROOT = `revisions/${EXPECTED_REVISION}`;
 const PROTOCOL_VERSION = "0.2";
 const EXPECTED_TASK_IDS = Array.from(

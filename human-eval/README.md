@@ -40,8 +40,8 @@ From a trusted administrator workspace, validate the private package, confirm th
 ```bash
 python /home/gechengs/projects/vlmeval/human_eval_private_assets/validate_assets.py
 npx --yes supabase projects list
-npx --yes supabase storage cp /home/gechengs/projects/vlmeval/human_eval_private_assets/tasks.json ss:///human-eval-assets/revisions/d8fc98ae30bf1233518330215a6e57f990565d94/tasks.json --linked --experimental --content-type application/json
-npx --yes supabase storage cp /home/gechengs/projects/vlmeval/human_eval_private_assets/images ss:///human-eval-assets/revisions/d8fc98ae30bf1233518330215a6e57f990565d94/images --recursive --linked --experimental --content-type image/jpeg --jobs 4
+npx --yes supabase storage cp /home/gechengs/projects/vlmeval/human_eval_private_assets/tasks.json ss:///human-eval-assets/revisions/b14ae69caecbeb062eb60c9189ee879a2514229b/tasks.json --linked --experimental --content-type application/json
+npx --yes supabase storage cp /home/gechengs/projects/vlmeval/human_eval_private_assets/images ss:///human-eval-assets/revisions/b14ae69caecbeb062eb60c9189ee879a2514229b/images --recursive --linked --experimental --content-type image/jpeg --jobs 4
 ```
 
 After upload, recursively list that revision directory and confirm it contains exactly `tasks.json` plus the 67 expected images (task-01 through task-67). Never pass a service-role key on the command line.

@@ -10,6 +10,7 @@ This directory contains only the public static study interface. Protected benchm
 4. After authentication, the browser downloads `tasks.json` and the current task image from a pinned revision directory in the private `human-eval-assets` bucket using the authenticated session.
 5. Anonymous ratings and timing are saved locally for refresh recovery. Protected task metadata, image blobs, and object URLs are not written to local storage.
 6. Final submission inserts one authenticated row into `human_eval_submissions` and does not read it back.
+7. A failed image request refreshes the current Auth session and retries once. Signing out uses local scope so one participant cannot terminate other participants' sessions.
 
 The browser client is the pinned ESM build of `@supabase/supabase-js` v2.57.4 from jsDelivr. No Node build or backend server is required.
 

@@ -19,6 +19,9 @@ import {
   studyIsComplete,
   writeStoredParticipantState,
 } from "../human-eval/study-navigation.mjs";
+import {
+  downloadProtectedAssetWithRetry,
+} from "../human-eval/protected-asset-loader.mjs";
 
 const REVISION = "b14ae69caecbeb062eb60c9189ee879a2514229b";
 
@@ -250,11 +253,85 @@ test("participant UI shows presentation positions without internal task IDs", ()
 test("human-evaluation assets are cache-busted as one compatible release", () => {
   const html = readFileSync(new URL("../human-eval/index.html", import.meta.url), "utf8");
   const app = readFileSync(new URL("../human-eval/app.js", import.meta.url), "utf8");
-  const version = "human-eval-v05-cache-fix-1";
+  const version = "human-eval-v05-session-protection-1";
   assert.match(html, new RegExp(`styles\\.css\\?v=${version}`));
   assert.match(html, new RegExp(`config\\.js\\?v=${version}`));
   assert.match(html, new RegExp(`app\\.js\\?v=${version}`));
   assert.match(app, new RegExp(`study-navigation\\.mjs\\?v=${version}`));
+  assert.match(app, new RegExp(`protected-asset-loader\\.mjs\\?v=${version}`));
+});
+
+test("protected image download refreshes the session and retries once", async () => {
+  const image = { type: "image/jpeg" };
+  const refreshedSession = { access_token: "refreshed" };
+  let downloadAttempts = 0;
+  let refreshAttempts = 0;
+  const result = await downloadProtectedAssetWithRetry({
+    download: async () => {
+      downloadAttempts += 1;
+      return downloadAttempts === 1
+        ? { data: null, error: new Error("temporary failure") }
+        : { data: image, error: null };
+    },
+    refreshSession: async () => {
+      refreshAttempts += 1;
+      return { data: { session: refreshedSession }, error: null };
+    },
+  });
+
+  assert.equal(downloadAttempts, 2);
+  assert.equal(refreshAttempts, 1);
+  assert.equal(result.data, image);
+  assert.equal(result.error, null);
+  assert.equal(result.session, refreshedSession);
+  assert.equal(result.attempts, 2);
+  assert.equal(result.cancelled, false);
+});
+
+test("protected image download does not refresh or retry after immediate success", async () => {
+  let downloadAttempts = 0;
+  let refreshAttempts = 0;
+  const result = await downloadProtectedAssetWithRetry({
+    download: async () => {
+      downloadAttempts += 1;
+      return { data: { type: "image/jpeg" }, error: null };
+    },
+    refreshSession: async () => {
+      refreshAttempts += 1;
+      return { data: { session: {} }, error: null };
+    },
+  });
+
+  assert.equal(downloadAttempts, 1);
+  assert.equal(refreshAttempts, 0);
+  assert.equal(result.attempts, 1);
+});
+
+test("protected image download stops after one retry", async () => {
+  let downloadAttempts = 0;
+  let refreshAttempts = 0;
+  const result = await downloadProtectedAssetWithRetry({
+    download: async () => {
+      downloadAttempts += 1;
+      return { data: null, error: new Error(`failure ${downloadAttempts}`) };
+    },
+    refreshSession: async () => {
+      refreshAttempts += 1;
+      return { data: { session: { access_token: "refreshed" } }, error: null };
+    },
+  });
+
+  assert.equal(downloadAttempts, 2);
+  assert.equal(refreshAttempts, 1);
+  assert.equal(result.data, null);
+  assert.match(result.error.message, /failure 2/);
+  assert.equal(result.attempts, 2);
+});
+
+test("sign out is restricted to the current participant session", () => {
+  const app = readFileSync(new URL("../human-eval/app.js", import.meta.url), "utf8");
+  assert.match(app, /supabase\.auth\.signOut\(\{ scope: "local" \}\)/);
+  assert.doesNotMatch(app, /supabase\.auth\.signOut\(\)/);
 });
 
 test("overall preference is presented before ratings while both sections stay visible", () => {

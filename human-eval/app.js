@@ -12,7 +12,10 @@ import {
   responseIsComplete,
   studyIsComplete,
   writeStoredParticipantState,
-} from "./study-navigation.mjs?v=human-eval-v05-cache-fix-1";
+} from "./study-navigation.mjs?v=human-eval-v05-session-protection-1";
+import {
+  downloadProtectedAssetWithRetry,
+} from "./protected-asset-loader.mjs?v=human-eval-v05-session-protection-1";
 
 const CONFIG = window.CCB_CONFIG;
 const EXPECTED_REVISION = "b14ae69caecbeb062eb60c9189ee879a2514229b";
@@ -168,6 +171,7 @@ let canonicalStudyTasks = [];
 let studyTasks = [];
 let participantState = null;
 let currentImageUrl = null;
+let currentImageRequestGeneration = 0;
 let activeTaskStartedAt = null;
 let protectedLoadInProgress = false;
 
@@ -201,6 +205,7 @@ function setAuthenticatedHeader(authenticated) {
 }
 
 function revokeCurrentImage() {
+  currentImageRequestGeneration += 1;
   if (currentImageUrl) URL.revokeObjectURL(currentImageUrl);
   currentImageUrl = null;
   elements["task-image"].removeAttribute("src");
@@ -230,9 +235,10 @@ function showLogin() {
   elements.username.focus();
 }
 
-function showAssetError() {
-  elements["asset-error-detail"].textContent =
-    "Ask the researcher to confirm that the private study files have been uploaded, then retry.";
+function showAssetError(
+  detail = "Ask the researcher to confirm that the private study files have been uploaded, then retry.",
+) {
+  elements["asset-error-detail"].textContent = detail;
   setAuthenticatedHeader(true);
   showScreen("asset-error-screen");
 }
@@ -595,16 +601,35 @@ function updateRatingStage(response) {
 
 async function loadCurrentPrivateImage(task, renderIndex) {
   revokeCurrentImage();
+  const requestGeneration = currentImageRequestGeneration;
+  const requestIsCurrent = () => (
+    currentImageRequestGeneration === requestGeneration
+    && participantState?.current_task_index === renderIndex
+    && Boolean(authSession)
+  );
   elements["image-loading"].hidden = false;
   elements["image-loading"].textContent = "Loading protected image…";
-  const { data, error } = await supabase.storage
-    .from(CONFIG.assetBucket)
-    .download(`${ASSET_REVISION_ROOT}/${task.image_path}`);
+  const {
+    data,
+    error,
+    session: refreshedSession,
+    cancelled,
+  } = await downloadProtectedAssetWithRetry({
+    download: () => supabase.storage
+      .from(CONFIG.assetBucket)
+      .download(`${ASSET_REVISION_ROOT}/${task.image_path}`),
+    refreshSession: () => supabase.auth.refreshSession(),
+    isCurrent: requestIsCurrent,
+  });
+  if (refreshedSession) authSession = refreshedSession;
+  if (cancelled || !requestIsCurrent()) return;
   if (error || !data) {
-    showAssetError();
+    showAssetError(
+      "The current image could not be retrieved after an automatic retry. "
+      + "Your saved answers remain on this browser; please retry.",
+    );
     return;
   }
-  if (participantState.current_task_index !== renderIndex || !authSession) return;
   currentImageUrl = URL.createObjectURL(data);
   elements["task-image"].src = currentImageUrl;
   elements["task-image"].alt = `Robot manipulation scene for task ${renderIndex + 1} of ${studyTasks.length}`;
@@ -766,7 +791,7 @@ async function signOut() {
   saveActiveTaskDuration();
   saveParticipantState();
   clearProtectedContent();
-  await supabase.auth.signOut();
+  await supabase.auth.signOut({ scope: "local" });
   showLogin();
 }
 

@@ -130,7 +130,6 @@ const elements = Object.fromEntries(
     "start-evaluation-button",
     "task-position",
     "task-total",
-    "task-id",
     "saved-count",
     "task-jump",
     "task-navigation-notice",
@@ -483,7 +482,7 @@ function renderTaskNavigator() {
         : "Not started";
     const option = document.createElement("option");
     option.value = String(index);
-    option.textContent = `Task ${task.task_id.slice(5)} — ${status}`;
+    option.textContent = `Task ${index + 1} — ${status}`;
     option.selected = index === participantState.current_task_index;
     elements["task-jump"].append(option);
   });
@@ -608,7 +607,7 @@ async function loadCurrentPrivateImage(task, renderIndex) {
   if (participantState.current_task_index !== renderIndex || !authSession) return;
   currentImageUrl = URL.createObjectURL(data);
   elements["task-image"].src = currentImageUrl;
-  elements["task-image"].alt = `Robot manipulation scene for ${task.task_id}`;
+  elements["task-image"].alt = `Robot manipulation scene for task ${renderIndex + 1} of ${studyTasks.length}`;
   elements["task-image"].hidden = false;
   elements["image-loading"].hidden = true;
 }
@@ -622,7 +621,6 @@ function renderTask() {
 
   elements["task-position"].textContent = String(index + 1);
   elements["task-total"].textContent = String(studyTasks.length);
-  elements["task-id"].textContent = task.task_id;
   renderTaskNavigator();
   elements["task-navigation-notice"].hidden = true;
   elements["task-instruction"].textContent = task.task_instruction;

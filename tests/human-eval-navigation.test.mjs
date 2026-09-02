@@ -16,9 +16,7 @@ import {
   ratingsAreComplete,
   readStoredParticipantState,
   responseIsComplete,
-  shuffleTaskIds,
   studyIsComplete,
-  taskOrderIsValid,
   writeStoredParticipantState,
 } from "../human-eval/study-navigation.mjs";
 
@@ -103,16 +101,6 @@ test("formal navigation labels task 29 as next and task 30 as finish", () => {
   assert.deepEqual(getPrimaryTaskAction(29, 30), { isFinal: true, label: "Save & Finish" });
 });
 
-test("participant task order is a shuffled copy and remains a valid permutation", () => {
-  const canonical = ["task-01", "task-02", "task-03", "task-04"];
-  const randomValues = [0.1, 0.8, 0.3];
-  const shuffled = shuffleTaskIds(canonical, () => randomValues.shift());
-  assert.deepEqual(canonical, ["task-01", "task-02", "task-03", "task-04"]);
-  assert.notDeepEqual(shuffled, canonical);
-  assert.equal(taskOrderIsValid(shuffled, canonical), true);
-  assert.equal(taskOrderIsValid(["task-01", "task-01", "task-03", "task-04"], canonical), false);
-});
-
 test("complete pilot responses carry manual overall preferences", () => {
   const tasks = ["task-01", "task-02", "task-03"].map((task_id) => ({ task_id }));
   const responses = Object.fromEntries(
@@ -143,7 +131,7 @@ test("an incomplete study can advance and the final action starts review", () =>
   assert.equal(getTaskSubmitDestination(2, 3, false), "review-incomplete");
 });
 
-test("v0.5 local state is isolated from v0.4 state and validates its task order", () => {
+test("v0.5 local state is isolated from v0.4 state", () => {
   const storage = memoryStorage();
   const oldKey = "ccb-human-eval-0.4-pilot";
   const newKey = "ccb-human-eval-0.5-pilot";
@@ -156,7 +144,6 @@ test("v0.5 local state is isolated from v0.4 state and validates its task order"
     dataset_revision: REVISION,
     pilot: true,
     current_task_index: 0,
-    task_order: ["task-02", "task-03", "task-01"],
     responses: { "task-01": completeResponse("task-01") },
   };
   writeStoredParticipantState(storage, newKey, state);
@@ -164,19 +151,10 @@ test("v0.5 local state is isolated from v0.4 state and validates its task order"
   assert.deepEqual(JSON.parse(storage.getItem(oldKey)), oldState);
   assert.equal(readStoredParticipantState(storage, oldKey, {
     protocolVersion: "0.5", datasetRevision: REVISION, pilot: true,
-    taskIds: ["task-01", "task-02", "task-03"],
   }), null);
   assert.deepEqual(readStoredParticipantState(storage, newKey, {
     protocolVersion: "0.5", datasetRevision: REVISION, pilot: true,
-    taskIds: ["task-01", "task-02", "task-03"],
   }), state);
-
-  state.task_order = ["task-01", "task-01", "task-03"];
-  writeStoredParticipantState(storage, newKey, state);
-  assert.equal(readStoredParticipantState(storage, newKey, {
-    protocolVersion: "0.5", datasetRevision: REVISION, pilot: true,
-    taskIds: ["task-01", "task-02", "task-03"],
-  }), null);
 });
 
 test("saved responses from a previous dataset revision are isolated", () => {
@@ -295,8 +273,14 @@ test("v0.5 protocol includes tasks 1–19 plus a reproducible random sample of 1
     [...reproducedSample].sort((left, right) => left.localeCompare(right)),
   );
   assert.equal(protocol.canonical_order_only, false);
-  assert.equal(protocol.presentation_order.scope, "per_participant");
-  assert.equal(protocol.presentation_order.persisted_with_progress, true);
+  assert.equal(protocol.presentation_order.scope, "all_formal_participants");
+  assert.equal(protocol.presentation_order.method, "sha256_seeded_sort");
+  const presentationSeed = protocol.presentation_order.seed;
+  const reproducedPresentationOrder = [...protocol.formal_task_ids]
+    .sort((left, right) => createHash("sha256").update(`${presentationSeed}:${left}`).digest("hex")
+      .localeCompare(createHash("sha256").update(`${presentationSeed}:${right}`).digest("hex")));
+  assert.deepEqual(protocol.presentation_order.task_ids, reproducedPresentationOrder);
+  assert.notDeepEqual(protocol.presentation_order.task_ids, protocol.formal_task_ids);
   assert.equal(protocol.presentation_order.submission_response_order, "canonical_task_id_ascending");
   assert.equal(protocol.manual_overall_ranking_required, true);
   assert.equal(protocol.overall_ranking.source, "participant_overall_preference");
@@ -316,7 +300,7 @@ test("onboarding CTA distinguishes first-time and saved-progress states", () => 
   );
   assert.match(
     app,
-    /start-evaluation-button"\]\.addEventListener\("click", \(\) => \{\s+participantState \|\|= createParticipantState\(\);\s+applyParticipantTaskOrder\(\);\s+saveParticipantState\(\);\s+renderTask\(\);/,
+    /start-evaluation-button"\]\.addEventListener\("click", \(\) => \{\s+participantState \|\|= createParticipantState\(\);\s+saveParticipantState\(\);\s+renderTask\(\);/,
   );
 });
 
@@ -328,7 +312,7 @@ test("static worked example remains display-only and separate from study tasks",
   assert.doesNotMatch(app, /worked-example-guide|tutorial/i);
   assert.match(app, /const selectedTaskIds = PILOT \? protocol\.pilot_task_ids : protocol\.formal_task_ids/);
   assert.match(app, /return canonicalStudyTasks\.map\(\(task\) =>/);
-  assert.match(app, /presentation_position: participantState\.task_order\.indexOf\(task\.task_id\) \+ 1/);
+  assert.match(app, /presentation_position: studyTasks\.findIndex\(\(\{ task_id: taskId \}\) => taskId === task\.task_id\) \+ 1/);
 });
 
 test("protected task metadata and images remain pinned to the dataset revision", () => {

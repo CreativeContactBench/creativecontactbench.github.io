@@ -32,9 +32,16 @@
     ]
   },
   "presentation_order": {
-    "scope": "per_participant",
-    "method": "fisher_yates",
-    "persisted_with_progress": true,
+    "scope": "all_formal_participants",
+    "method": "sha256_seeded_sort",
+    "seed": "CreativeContactBench-human-v0.5-fixed-presentation-2026-09-02",
+    "task_ids": [
+      "task-03", "task-08", "task-24", "task-37", "task-11", "task-01",
+      "task-63", "task-17", "task-09", "task-43", "task-42", "task-15",
+      "task-12", "task-13", "task-25", "task-19", "task-07", "task-64",
+      "task-27", "task-32", "task-06", "task-05", "task-18", "task-14",
+      "task-04", "task-02", "task-38", "task-47", "task-10", "task-16"
+    ],
     "submission_response_order": "canonical_task_id_ascending"
   },
   "canonical_order_only": false,

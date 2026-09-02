@@ -10,7 +10,6 @@ import {
   overallRankingIsComplete,
   readStoredParticipantState,
   responseIsComplete,
-  shuffleTaskIds,
   studyIsComplete,
   writeStoredParticipantState,
 } from "./study-navigation.mjs";
@@ -26,6 +25,7 @@ const REQUIRED_CORE_TASK_IDS = Array.from(
   (_, index) => `task-${String(index + 1).padStart(2, "0")}`,
 );
 const RANDOM_SAMPLE_SEED = "CreativeContactBench-human-v0.5-representative-30-2026-09-02";
+const FIXED_PRESENTATION_SEED = "CreativeContactBench-human-v0.5-fixed-presentation-2026-09-02";
 const RANDOM_SAMPLE_DRAW_ORDER = [
   "task-27",
   "task-47",
@@ -52,6 +52,38 @@ const EXPECTED_FORMAL_TASK_IDS = [
   "task-47",
   "task-63",
   "task-64",
+];
+const EXPECTED_PRESENTATION_TASK_IDS = [
+  "task-03",
+  "task-08",
+  "task-24",
+  "task-37",
+  "task-11",
+  "task-01",
+  "task-63",
+  "task-17",
+  "task-09",
+  "task-43",
+  "task-42",
+  "task-15",
+  "task-12",
+  "task-13",
+  "task-25",
+  "task-19",
+  "task-07",
+  "task-64",
+  "task-27",
+  "task-32",
+  "task-06",
+  "task-05",
+  "task-18",
+  "task-14",
+  "task-04",
+  "task-02",
+  "task-38",
+  "task-47",
+  "task-10",
+  "task-16",
 ];
 const EXPECTED_TASK_IDS = Array.from(
   { length: SOURCE_TASK_COUNT },
@@ -211,7 +243,6 @@ function loadParticipantState() {
     protocolVersion: PROTOCOL_VERSION,
     datasetRevision: EXPECTED_REVISION,
     pilot: PILOT,
-    taskIds: canonicalStudyTasks.map((task) => task.task_id),
   });
 }
 
@@ -221,18 +252,8 @@ function saveParticipantState() {
   setAuthenticatedHeader(Boolean(authSession));
 }
 
-function secureRandomValue() {
-  const value = new Uint32Array(1);
-  crypto.getRandomValues(value);
-  return value[0] / 2 ** 32;
-}
-
 function createParticipantState() {
   const now = new Date().toISOString();
-  const taskOrder = shuffleTaskIds(
-    canonicalStudyTasks.map((task) => task.task_id),
-    secureRandomValue,
-  );
   return {
     participant_id: crypto.randomUUID(),
     protocol_version: PROTOCOL_VERSION,
@@ -242,19 +263,9 @@ function createParticipantState() {
     study_completed_at: null,
     duration_seconds: null,
     current_task_index: 0,
-    task_order: taskOrder,
     responses: {},
     submission_state: "draft",
   };
-}
-
-function applyParticipantTaskOrder() {
-  if (!participantState) {
-    studyTasks = [...canonicalStudyTasks];
-    return;
-  }
-  const taskById = new Map(canonicalStudyTasks.map((task) => [task.task_id, task]));
-  studyTasks = participantState.task_order.map((taskId) => taskById.get(taskId));
 }
 
 function validateProtocol(candidate) {
@@ -301,9 +312,11 @@ function validateProtocol(candidate) {
       !== JSON.stringify(REQUIRED_CORE_TASK_IDS) ||
     JSON.stringify(candidate.questionnaire_selection?.sampled_task_ids)
       !== JSON.stringify(RANDOM_SAMPLE_DRAW_ORDER) ||
-    candidate.presentation_order?.scope !== "per_participant" ||
-    candidate.presentation_order?.method !== "fisher_yates" ||
-    candidate.presentation_order?.persisted_with_progress !== true ||
+    candidate.presentation_order?.scope !== "all_formal_participants" ||
+    candidate.presentation_order?.method !== "sha256_seeded_sort" ||
+    candidate.presentation_order?.seed !== FIXED_PRESENTATION_SEED ||
+    JSON.stringify(candidate.presentation_order?.task_ids)
+      !== JSON.stringify(EXPECTED_PRESENTATION_TASK_IDS) ||
     candidate.presentation_order?.submission_response_order !== "canonical_task_id_ascending"
   ) {
     throw new Error("Questionnaire selection or presentation-order metadata is invalid.");
@@ -363,9 +376,11 @@ async function loadProtectedStudy() {
     const taskById = new Map(allTasks.map((task) => [task.task_id, task]));
     const selectedTaskIds = PILOT ? protocol.pilot_task_ids : protocol.formal_task_ids;
     canonicalStudyTasks = selectedTaskIds.map((taskId) => taskById.get(taskId));
-    studyTasks = [...canonicalStudyTasks];
+    const presentationTaskIds = PILOT
+      ? protocol.pilot_task_ids
+      : protocol.presentation_order.task_ids;
+    studyTasks = presentationTaskIds.map((taskId) => taskById.get(taskId));
     participantState = loadParticipantState();
-    applyParticipantTaskOrder();
     showWelcome();
   } catch {
     clearProtectedContent();
@@ -653,7 +668,7 @@ function buildSubmissionResponses() {
       ),
       overall_ranking: normalizeOverallRanking(response.rankings),
       overall_ranking_source: OVERALL_RANKING_SOURCE,
-      presentation_position: participantState.task_order.indexOf(task.task_id) + 1,
+      presentation_position: studyTasks.findIndex(({ task_id: taskId }) => taskId === task.task_id) + 1,
       first_viewed_at: response.first_viewed_at,
       last_saved_at: response.last_saved_at,
       duration_seconds: Number(response.duration_seconds.toFixed(3)),
@@ -789,7 +804,6 @@ function bindEvents() {
   elements["retry-assets-button"].addEventListener("click", loadProtectedStudy);
   elements["start-evaluation-button"].addEventListener("click", () => {
     participantState ||= createParticipantState();
-    applyParticipantTaskOrder();
     saveParticipantState();
     renderTask();
   });

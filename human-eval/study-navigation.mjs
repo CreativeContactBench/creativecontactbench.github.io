@@ -10,31 +10,6 @@ export function getOnboardingCtaLabel(participantState) {
   return participantState ? "Resume Evaluation →" : "I understand — let’s get started! →";
 }
 
-export function taskOrderIsValid(taskOrder, expectedTaskIds) {
-  if (!Array.isArray(taskOrder) || !Array.isArray(expectedTaskIds)) return false;
-  if (taskOrder.length !== expectedTaskIds.length || new Set(taskOrder).size !== taskOrder.length) {
-    return false;
-  }
-  const expected = new Set(expectedTaskIds);
-  return taskOrder.every((taskId) => expected.has(taskId));
-}
-
-export function shuffleTaskIds(taskIds, random = Math.random) {
-  if (!Array.isArray(taskIds) || typeof random !== "function") {
-    throw new TypeError("Task IDs and a random-number function are required.");
-  }
-  const shuffled = [...taskIds];
-  for (let index = shuffled.length - 1; index > 0; index -= 1) {
-    const randomValue = random();
-    if (!Number.isFinite(randomValue) || randomValue < 0 || randomValue >= 1) {
-      throw new RangeError("Random values must be between 0 (inclusive) and 1 (exclusive).");
-    }
-    const swapIndex = Math.floor(randomValue * (index + 1));
-    [shuffled[index], shuffled[swapIndex]] = [shuffled[swapIndex], shuffled[index]];
-  }
-  return shuffled;
-}
-
 export function ratingsAreComplete(response) {
   return STRATEGIES.every(
     (label) => DIMENSION_KEYS.every((dimension) => {
@@ -106,8 +81,7 @@ export function readStoredParticipantState(storage, storageKey, expected) {
       stored.pilot !== expected.pilot ||
       typeof stored.participant_id !== "string" ||
       !stored.responses ||
-      typeof stored.responses !== "object" ||
-      (expected.taskIds && !taskOrderIsValid(stored.task_order, expected.taskIds))
+      typeof stored.responses !== "object"
     ) {
       return null;
     }

@@ -253,10 +253,16 @@ def validate(root: Path, private_assets: Path) -> None:
         errors.append("Human v0.5 formal task set or canonical order is invalid")
     if protocol_v05.get("canonical_order_only") is not False:
         errors.append("Human v0.5 must use participant-randomized presentation order")
+    presentation_seed = "CreativeContactBench-human-v0.5-fixed-presentation-2026-09-02"
+    expected_presentation_order = sorted(
+        expected_formal_ids,
+        key=lambda task_id: hashlib.sha256(f"{presentation_seed}:{task_id}".encode()).hexdigest(),
+    )
     expected_presentation = {
-        "scope": "per_participant",
-        "method": "fisher_yates",
-        "persisted_with_progress": True,
+        "scope": "all_formal_participants",
+        "method": "sha256_seeded_sort",
+        "seed": presentation_seed,
+        "task_ids": expected_presentation_order,
         "submission_response_order": "canonical_task_id_ascending",
     }
     if protocol_v05.get("presentation_order") != expected_presentation:

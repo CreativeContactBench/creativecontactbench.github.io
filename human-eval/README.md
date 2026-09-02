@@ -21,9 +21,9 @@ The study password must be entered interactively. Never add it to this repositor
 
 ## Onboarding example
 
-The worked example shown before the study is the static public image `worked-example-guide.png`. It is display-only
-HTML content: it is never added to the authenticated `studyTasks` array, participant LocalStorage responses, or the
-submission payload. Replace that file in place if the example artwork changes.
+The worked example shown before the study is the self-contained static public image `worked-example-guide-v03.svg`.
+It illustrates the v0.3 preference-first flow without loading private runtime data. It is display-only HTML content: it
+is never added to the authenticated `studyTasks` array, participant LocalStorage responses, or the submission payload.
 
 ## Private asset layout
 
@@ -70,7 +70,7 @@ The browser stores only:
 - random anonymous participant UUID;
 - protocol and dataset revision identifiers;
 - pilot flag and current task index;
-- the 12 dimension ratings and their deterministic derived totals/ranking;
+- the participant's overall preference ranks and the 12 dimension ratings;
 - study/task timestamps and durations;
 - submission state.
 
@@ -78,7 +78,7 @@ Signing out clears protected task content and image object URLs from memory whil
 
 ## Flexible task navigation
 
-Participants may save a partial task, continue forward, move backward, or jump directly to any task from the task navigator. The navigator marks each task as Not started, In progress, or Complete, and the progress bar reflects completed tasks rather than the current task position. Partial ratings remain in the existing local participant state. Final submission is still unavailable until every study task has all 12 required ratings and a derived ranking, and the submission payload remains in canonical task order.
+Participants may save a partial task, continue forward, move backward, or jump directly to any task from the task navigator. The navigator marks each task as Not started, In progress, or Complete, and the progress bar reflects completed tasks rather than the current task position. Partial preference ranks and ratings remain in the existing local participant state. Final submission is still unavailable until every study task has an overall rank for A–D and all 12 required ratings, and the submission payload remains in canonical task order.
 
 ## Validation
 
@@ -91,4 +91,4 @@ node tests/human-eval-navigation.test.mjs
 
 The validation fails if protected task assets, exact task/strategy text, pinned image hashes, or privileged credential patterns appear in the public tree. It also checks that the authenticated sign-in, private download, and INSERT-only submission paths remain present.
 
-Human protocol v0.2 preserves canonical A/B/C/D order and the three 1–5 dimensions, but removes participant-entered ranking. Each strategy's overall score is the equal-weight sum of Effectiveness, Feasibility, and Creativity (range 3–15). Unique totals are sorted descending and equal totals are preserved as dense tied groups. Submissions store the raw ratings, `overall_scores`, grouped `overall_ranking`, and `overall_ranking_source = derived_equal_weight_dimension_sum`. The v0.1 metadata remains available for provenance; the v0.2 LocalStorage key is separate. Pilot mode continues to use task-01 through task-03 and is marked separately in submissions.
+Human protocol v0.3 preserves canonical A/B/C/D order and the three 1–5 dimensions. It first collects a participant-entered overall preference, with rank 1 meaning most preferred and equal ranks representing genuine ties. Once all four overall ranks are present, the dimension-rating matrix is shown. Submissions store the raw ratings, grouped `overall_ranking`, and `overall_ranking_source = participant_overall_preference`; they do not store or display a ranking derived from dimension totals. The equal-weight dimension-derived ranking is computed later during analysis so it remains distinct from the participant's holistic preference. The v0.1 and v0.2 metadata remain available for provenance, and the v0.3 LocalStorage key is separate. Pilot mode continues to use task-01 through task-03 and is marked separately in submissions.

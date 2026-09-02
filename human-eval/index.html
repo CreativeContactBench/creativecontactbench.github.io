@@ -110,10 +110,11 @@
             <h2 id="how-it-works-title">How it works</h2>
             <ol class="workflow-list">
               <li><span>1</span><p><strong>Review the scene, task, and four candidate strategies.</strong></p></li>
+              <li><span>2</span><p><strong>Rank the four strategies by your overall preference.</strong></p></li>
               <li>
-                <span>2</span>
+                <span>3</span>
                 <div>
-                  <p><strong>Rate each strategy on three dimensions:</strong></p>
+                  <p><strong>Then rate each strategy on three dimensions:</strong></p>
                   <div class="dimension-chips" aria-label="Evaluation dimensions">
                     <strong>Task Effectiveness</strong>
                     <strong>Embodied Feasibility</strong>
@@ -121,7 +122,6 @@
                   </div>
                 </div>
               </li>
-              <li><span>3</span><p><strong>An overall ranking is calculated automatically from your ratings.</strong></p></li>
             </ol>
           </section>
 
@@ -133,6 +133,7 @@
               <li><strong>Visible objects may be used if helpful.</strong></li>
               <li><strong>Do not assume tools, objects, or robot capabilities that are not shown.</strong></li>
               <li><strong>Evaluate each strategy as written.</strong></li>
+              <li><strong>Give your overall preference before assigning dimension scores.</strong></li>
               <li><strong>Rate the three dimensions independently.</strong></li>
               <li>A strategy can be effective without being creative, and a creative strategy may not always be the most feasible.</li>
             </ul>
@@ -145,10 +146,10 @@
           </div>
           <figure class="worked-example-figure">
             <img
-              src="./worked-example-guide.png"
-              alt="Illustrative evaluation screen showing a robot manipulation scene, four candidate strategies, example one-to-five ratings, an automatically calculated ranking, and the Save and Next action."
+              src="./worked-example-guide-v03.svg"
+              alt="Illustrative evaluation screen showing a robot manipulation scene, four candidate strategies, an overall preference ranking, example one-to-five ratings, and the Save and Next action."
               width="1382"
-              height="1138"
+              height="1180"
               decoding="async"
             />
           </figure>
@@ -197,9 +198,23 @@
         </section>
 
         <form id="evaluation-form" novalidate>
-          <section class="rating-section" aria-labelledby="ratings-heading">
+          <section id="ranking-section" class="ranking-section preference-section" aria-labelledby="ranking-heading">
+            <div class="ranking-copy">
+              <p class="eyebrow">Step 1</p>
+              <h2 id="ranking-heading">Overall preference</h2>
+              <p>Rank all four strategies from 1 (most preferred) to 4 (least preferred). Use the same rank only for a genuine tie.</p>
+            </div>
+            <div class="ranking-controls">
+              <span class="required-note">4 ranks required</span>
+              <div id="rank-selectors" class="rank-selectors"></div>
+              <p id="preference-complete-note" class="preference-complete-note" role="status" hidden>Overall preference saved. Now rate each strategy below.</p>
+            </div>
+          </section>
+
+          <section id="rating-section" class="rating-section" aria-labelledby="ratings-heading" hidden>
             <div class="section-heading-row">
               <div>
+                <p class="eyebrow">Step 2</p>
                 <h2 id="ratings-heading">Rate each strategy</h2>
                 <p>Choose one score from 1 to 5 for every dimension. You may skip this task and return later.</p>
               </div>
@@ -237,14 +252,6 @@
             </div>
           </section>
 
-          <section id="derived-ranking" class="derived-ranking-summary" aria-labelledby="derived-ranking-heading" aria-live="polite" hidden>
-            <div>
-              <h2 id="derived-ranking-heading">Overall Ranking</h2>
-              <p>Calculated automatically from the three ratings above.</p>
-            </div>
-            <ol id="derived-ranking-list" class="derived-ranking-list"></ol>
-          </section>
-
           <nav class="task-actions" aria-label="Task navigation">
             <button id="previous-button" class="button button-secondary" type="button">← Previous</button>
             <button id="next-button" class="button button-primary" type="submit">Save &amp; Next <span aria-hidden="true">→</span></button>
@@ -279,6 +286,6 @@
       </section>
     </main>
 
-    <footer class="site-footer">Human protocol v0.2 · Flexible task navigation</footer>
+    <footer class="site-footer">Human protocol v0.3 · Overall preference + dimension ratings</footer>
   </body>
 </html>

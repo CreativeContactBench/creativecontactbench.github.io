@@ -3,10 +3,11 @@ import {
   DIMENSION_KEYS,
   OVERALL_RANKING_SOURCE,
   STRATEGIES,
-  deriveOverallRanking,
   getOnboardingCtaLabel,
   getPrimaryTaskActionState,
   getTaskSubmitDestination,
+  normalizeOverallRanking,
+  overallRankingIsComplete,
   readStoredParticipantState,
   responseIsComplete,
   studyIsComplete,
@@ -16,7 +17,7 @@ import {
 const CONFIG = window.CCB_CONFIG;
 const EXPECTED_REVISION = "b14ae69caecbeb062eb60c9189ee879a2514229b";
 const ASSET_REVISION_ROOT = `revisions/${EXPECTED_REVISION}`;
-const PROTOCOL_VERSION = "0.2";
+const PROTOCOL_VERSION = "0.3";
 const EXPECTED_TASK_IDS = Array.from(
   { length: 67 },
   (_, index) => `task-${String(index + 1).padStart(2, "0")}`,
@@ -72,14 +73,16 @@ const elements = Object.fromEntries(
     "task-instruction",
     "strategy-grid",
     "evaluation-form",
+    "ranking-section",
+    "rank-selectors",
+    "preference-complete-note",
+    "rating-section",
     "rating-matrix-body",
     "dimension-help",
     "help-title",
     "help-question",
     "help-anchors",
     "close-help-button",
-    "derived-ranking",
-    "derived-ranking-list",
     "previous-button",
     "next-button",
     "completion-count",
@@ -143,9 +146,9 @@ function clearProtectedContent() {
   studyTasks = [];
   elements["task-instruction"].textContent = "";
   elements["strategy-grid"].replaceChildren();
+  elements["rank-selectors"].replaceChildren();
   elements["rating-matrix-body"].replaceChildren();
-  elements["derived-ranking-list"].replaceChildren();
-  elements["derived-ranking"].hidden = true;
+  elements["rating-section"].hidden = true;
   activeTaskStartedAt = null;
 }
 
@@ -203,14 +206,22 @@ function validateProtocol(candidate) {
     candidate?.task_count !== 67 ||
     candidate?.canonical_order_only !== true ||
     candidate?.vlm_balanced_permutations_used !== false ||
-    candidate?.manual_overall_ranking_required !== false ||
-    candidate?.overall_ranking?.source !== "derived_from_dimension_ratings" ||
-    candidate?.overall_ranking?.weighting !== "equal" ||
-    candidate?.overall_ranking?.formula !== "effectiveness + feasibility + creativity" ||
-    candidate?.overall_ranking?.sort !== "descending" ||
+    candidate?.manual_overall_ranking_required !== true ||
+    candidate?.overall_ranking?.source !== OVERALL_RANKING_SOURCE ||
+    candidate?.overall_ranking?.collected_before_dimension_ratings !== true ||
+    candidate?.overall_ranking?.all_strategies_required !== true ||
     candidate?.overall_ranking?.ties_allowed !== true ||
-    candidate?.overall_ranking?.tie_method !== "group_equal_total_scores" ||
-    candidate?.overall_ranking?.ranking_style !== "dense"
+    candidate?.overall_ranking?.ranking_style !== "dense" ||
+    candidate?.dimension_derived_ranking?.source !== "derived_from_dimension_ratings" ||
+    candidate?.dimension_derived_ranking?.computed_at !== "analysis" ||
+    candidate?.dimension_derived_ranking?.displayed_to_participant !== false ||
+    candidate?.dimension_derived_ranking?.submitted_by_client !== false ||
+    candidate?.dimension_derived_ranking?.weighting !== "equal" ||
+    candidate?.dimension_derived_ranking?.formula !== "effectiveness + feasibility + creativity" ||
+    candidate?.dimension_derived_ranking?.sort !== "descending" ||
+    candidate?.dimension_derived_ranking?.ties_allowed !== true ||
+    candidate?.dimension_derived_ranking?.tie_method !== "group_equal_total_scores" ||
+    candidate?.dimension_derived_ranking?.ranking_style !== "dense"
   ) {
     throw new Error("Public protocol metadata is invalid.");
   }
@@ -256,7 +267,7 @@ async function loadProtectedStudy() {
   showScreen("asset-loading-screen");
   try {
     if (!protocol) {
-      const protocolResponse = await fetch("./human_eval_v0.2.json", { cache: "no-store" });
+      const protocolResponse = await fetch("./human_eval_v0.3.json", { cache: "no-store" });
       if (!protocolResponse.ok) throw new Error("Protocol metadata is unavailable.");
       protocol = validateProtocol(await protocolResponse.json());
     }
@@ -298,6 +309,7 @@ function getTaskResponse(taskId) {
     participantState.responses[taskId] = {
       task_id: taskId,
       ratings: {},
+      rankings: {},
       first_viewed_at: new Date().toISOString(),
       last_saved_at: null,
       duration_seconds: 0,
@@ -319,7 +331,11 @@ function readCurrentForm() {
   const task = studyTasks[participantState.current_task_index];
   const response = getTaskResponse(task.task_id);
   saveActiveTaskDuration();
+  response.rankings ||= {};
   for (const label of STRATEGIES) {
+    const rank = document.querySelector(`select[name="rank-${label}"]`)?.value;
+    if (rank) response.rankings[label] = Number(rank);
+    else delete response.rankings[label];
     response.ratings[label] ||= {};
     for (const dimension of DIMENSION_KEYS) {
       const selected = document.querySelector(
@@ -327,15 +343,6 @@ function readCurrentForm() {
       );
       if (selected) response.ratings[label][dimension] = Number(selected.value);
     }
-  }
-  if (responseIsComplete(response)) {
-    Object.assign(response, deriveOverallRanking(response.ratings), {
-      overall_ranking_source: OVERALL_RANKING_SOURCE,
-    });
-  } else {
-    delete response.overall_scores;
-    delete response.overall_ranking;
-    delete response.overall_ranking_source;
   }
   response.last_saved_at = new Date().toISOString();
   saveParticipantState();
@@ -346,11 +353,15 @@ function completeResponseCount() {
   return studyTasks.filter((task) => responseIsComplete(participantState.responses[task.task_id])).length;
 }
 
-function responseHasAnyRating(response) {
-  return STRATEGIES.some((label) => DIMENSION_KEYS.some((dimension) => {
-    const value = response?.ratings?.[label]?.[dimension];
-    return Number.isInteger(value) && value >= 1 && value <= 5;
-  }));
+function responseHasAnyAnswer(response) {
+  return STRATEGIES.some((label) => {
+    const rank = response?.rankings?.[label];
+    if (Number.isInteger(rank) && rank >= 1 && rank <= 4) return true;
+    return DIMENSION_KEYS.some((dimension) => {
+      const value = response?.ratings?.[label]?.[dimension];
+      return Number.isInteger(value) && value >= 1 && value <= 5;
+    });
+  });
 }
 
 function renderTaskNavigator() {
@@ -365,7 +376,7 @@ function renderTaskNavigator() {
     const response = participantState.responses[task.task_id];
     const status = responseIsComplete(response)
       ? "Complete"
-      : responseHasAnyRating(response)
+      : responseHasAnyAnswer(response)
         ? "In progress"
         : "Not started";
     const option = document.createElement("option");
@@ -438,24 +449,47 @@ function renderRatingMatrix(response) {
   }
 }
 
-function renderDerivedRanking(response) {
-  elements["derived-ranking-list"].replaceChildren();
-  if (!responseIsComplete(response)) {
-    elements["derived-ranking"].hidden = true;
-    return;
+function renderRankSelectors(response) {
+  elements["rank-selectors"].replaceChildren();
+  for (const label of STRATEGIES) {
+    const wrapper = document.createElement("label");
+    const heading = document.createElement("span");
+    heading.append("Strategy ");
+    const strong = document.createElement("strong");
+    strong.textContent = label;
+    heading.append(strong);
+    wrapper.append(heading);
+
+    const select = document.createElement("select");
+    select.name = `rank-${label}`;
+    select.required = true;
+    select.setAttribute("aria-label", `Overall preference rank for strategy ${label}`);
+    const prompt = document.createElement("option");
+    prompt.value = "";
+    prompt.textContent = "Choose rank";
+    prompt.disabled = true;
+    prompt.selected = !response.rankings?.[label];
+    select.append(prompt);
+    for (let value = 1; value <= 4; value += 1) {
+      const option = document.createElement("option");
+      option.value = String(value);
+      option.textContent = value === 1
+        ? "1 — Most preferred"
+        : value === 4
+          ? "4 — Least preferred"
+          : String(value);
+      option.selected = response.rankings?.[label] === value;
+      select.append(option);
+    }
+    wrapper.append(select);
+    elements["rank-selectors"].append(wrapper);
   }
-  const { overall_ranking } = deriveOverallRanking(response.ratings);
-  overall_ranking.forEach((group, index) => {
-    const item = document.createElement("li");
-    const rank = document.createElement("span");
-    rank.className = "derived-rank-number";
-    rank.textContent = String(index + 1);
-    const strategies = document.createElement("span");
-    strategies.textContent = `${group.length === 1 ? "Strategy" : "Strategies"} ${group.join(", ")}`;
-    item.append(rank, strategies);
-    elements["derived-ranking-list"].append(item);
-  });
-  elements["derived-ranking"].hidden = false;
+}
+
+function updateRatingStage(response) {
+  const rankingComplete = overallRankingIsComplete(response);
+  elements["rating-section"].hidden = !rankingComplete;
+  elements["preference-complete-note"].hidden = !rankingComplete;
 }
 
 async function loadCurrentPrivateImage(task, renderIndex) {
@@ -504,8 +538,9 @@ function renderTask() {
     elements["strategy-grid"].append(card);
   }
 
+  renderRankSelectors(response);
   renderRatingMatrix(response);
-  renderDerivedRanking(response);
+  updateRatingStage(response);
   elements["previous-button"].hidden = index === 0;
   elements["dimension-help"].hidden = true;
   updateNextButton();
@@ -519,7 +554,6 @@ function buildSubmissionResponses() {
   return studyTasks.map((task) => {
     const response = participantState.responses[task.task_id];
     if (!responseIsComplete(response)) throw new Error("A required task response is incomplete.");
-    const derived = deriveOverallRanking(response.ratings);
     return {
       task_id: task.task_id,
       ratings: Object.fromEntries(
@@ -530,8 +564,7 @@ function buildSubmissionResponses() {
           ),
         ]),
       ),
-      overall_scores: derived.overall_scores,
-      overall_ranking: derived.overall_ranking,
+      overall_ranking: normalizeOverallRanking(response.rankings),
       overall_ranking_source: OVERALL_RANKING_SOURCE,
       first_viewed_at: response.first_viewed_at,
       last_saved_at: response.last_saved_at,
@@ -674,13 +707,13 @@ function bindEvents() {
 
   elements["evaluation-form"].addEventListener("input", () => {
     const response = readCurrentForm();
-    renderDerivedRanking(response);
+    updateRatingStage(response);
     renderTaskNavigator();
     updateNextButton();
   });
   elements["evaluation-form"].addEventListener("change", () => {
     const response = readCurrentForm();
-    renderDerivedRanking(response);
+    updateRatingStage(response);
     renderTaskNavigator();
     updateNextButton();
   });

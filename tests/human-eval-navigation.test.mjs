@@ -235,6 +235,16 @@ test("task UI supports jumping and saving partial answers", () => {
   assert.match(app, /You can finish them in any order before final submission/);
 });
 
+test("participant UI shows presentation positions without internal task IDs", () => {
+  const html = readFileSync(new URL("../human-eval/index.html", import.meta.url), "utf8");
+  const app = readFileSync(new URL("../human-eval/app.js", import.meta.url), "utf8");
+  assert.doesNotMatch(html, /id="task-id"/);
+  assert.match(app, /option\.textContent = `Task \$\{index \+ 1\} — \$\{status\}`/);
+  assert.doesNotMatch(app, /option\.textContent = `Task \$\{task\.task_id\.slice/);
+  assert.match(app, /Robot manipulation scene for task \$\{renderIndex \+ 1\} of \$\{studyTasks\.length\}/);
+  assert.match(app, /task_id: task\.task_id/);
+});
+
 test("overall preference is presented before ratings while both sections stay visible", () => {
   const html = readFileSync(new URL("../human-eval/index.html", import.meta.url), "utf8");
   const app = readFileSync(new URL("../human-eval/app.js", import.meta.url), "utf8");

@@ -430,7 +430,7 @@ h3 { font-size: 17px; }
 
 .task-screen { padding-top: 0; }
 .task-topline { display: flex; align-items: end; justify-content: space-between; gap: 20px; }
-.task-topline h1 { margin: 0; font-size: 25px; }
+.task-topline .eyebrow { margin-bottom: 11px; font-size: 15px; }
 .task-navigation-tools { display: flex; align-items: end; justify-content: end; gap: 14px; }
 .saved-count { margin: 0 0 11px; color: var(--muted); font-size: 13px; white-space: nowrap; }
 .task-jump-label { display: grid; gap: 5px; color: var(--muted); font-size: 12px; font-weight: 700; }

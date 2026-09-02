@@ -95,9 +95,9 @@ test("pilot navigation labels tasks 1–2 as next and task 3 as finish", () => {
   assert.deepEqual(getPrimaryTaskAction(2, 3), { isFinal: true, label: "Save & Finish" });
 });
 
-test("formal navigation labels task 66 as next and task 67 as finish", () => {
-  assert.deepEqual(getPrimaryTaskAction(65, 67), { isFinal: false, label: "Save & Next" });
-  assert.deepEqual(getPrimaryTaskAction(66, 67), { isFinal: true, label: "Save & Finish" });
+test("formal navigation labels task 29 as next and task 30 as finish", () => {
+  assert.deepEqual(getPrimaryTaskAction(28, 30), { isFinal: false, label: "Save & Next" });
+  assert.deepEqual(getPrimaryTaskAction(29, 30), { isFinal: true, label: "Save & Finish" });
 });
 
 test("complete pilot responses carry manual overall preferences", () => {
@@ -130,16 +130,16 @@ test("an incomplete study can advance and the final action starts review", () =>
   assert.equal(getTaskSubmitDestination(2, 3, false), "review-incomplete");
 });
 
-test("v0.3 local state is isolated from v0.2 state", () => {
+test("v0.4 local state is isolated from v0.3 state", () => {
   const storage = memoryStorage();
-  const oldKey = "ccb-human-eval-0.2-pilot";
-  const newKey = "ccb-human-eval-0.3-pilot";
-  const oldState = { protocol_version: "0.2", marker: "untouched" };
+  const oldKey = "ccb-human-eval-0.3-pilot";
+  const newKey = "ccb-human-eval-0.4-pilot";
+  const oldState = { protocol_version: "0.3", marker: "untouched" };
   storage.setItem(oldKey, JSON.stringify(oldState));
 
   const state = {
     participant_id: "participant-1",
-    protocol_version: "0.3",
+    protocol_version: "0.4",
     dataset_revision: REVISION,
     pilot: true,
     current_task_index: 0,
@@ -149,19 +149,19 @@ test("v0.3 local state is isolated from v0.2 state", () => {
 
   assert.deepEqual(JSON.parse(storage.getItem(oldKey)), oldState);
   assert.equal(readStoredParticipantState(storage, oldKey, {
-    protocolVersion: "0.3", datasetRevision: REVISION, pilot: true,
+    protocolVersion: "0.4", datasetRevision: REVISION, pilot: true,
   }), null);
   assert.deepEqual(readStoredParticipantState(storage, newKey, {
-    protocolVersion: "0.3", datasetRevision: REVISION, pilot: true,
+    protocolVersion: "0.4", datasetRevision: REVISION, pilot: true,
   }), state);
 });
 
 test("saved responses from a previous dataset revision are isolated", () => {
   const storage = memoryStorage();
-  const storageKey = "ccb-human-eval-0.3-formal";
+  const storageKey = "ccb-human-eval-0.4-formal";
   storage.setItem(storageKey, JSON.stringify({
     participant_id: "participant-old-revision",
-    protocol_version: "0.3",
+    protocol_version: "0.4",
     dataset_revision: "d8fc98ae30bf1233518330215a6e57f990565d94",
     pilot: false,
     current_task_index: 0,
@@ -169,19 +169,19 @@ test("saved responses from a previous dataset revision are isolated", () => {
   }));
 
   assert.equal(readStoredParticipantState(storage, storageKey, {
-    protocolVersion: "0.3", datasetRevision: REVISION, pilot: false,
+    protocolVersion: "0.4", datasetRevision: REVISION, pilot: false,
   }), null);
 });
 
 test("partial overall preference and ratings survive local persistence", () => {
   const storage = memoryStorage();
-  const storageKey = "ccb-human-eval-0.3-formal";
+  const storageKey = "ccb-human-eval-0.4-formal";
   const partial = completeResponse("task-12");
   delete partial.rankings.D;
   delete partial.ratings.C.embodied_feasibility;
   const state = {
     participant_id: "participant-partial",
-    protocol_version: "0.3",
+    protocol_version: "0.4",
     dataset_revision: REVISION,
     pilot: false,
     current_task_index: 11,
@@ -190,7 +190,7 @@ test("partial overall preference and ratings survive local persistence", () => {
 
   writeStoredParticipantState(storage, storageKey, state);
   const restored = readStoredParticipantState(storage, storageKey, {
-    protocolVersion: "0.3", datasetRevision: REVISION, pilot: false,
+    protocolVersion: "0.4", datasetRevision: REVISION, pilot: false,
   });
   assert.deepEqual(restored, state);
   assert.equal(responseIsComplete(restored.responses["task-12"]), false);
@@ -198,17 +198,17 @@ test("partial overall preference and ratings survive local persistence", () => {
 
 test("reviewing the last task restores the overall preference and ratings", () => {
   const storage = memoryStorage();
-  const storageKey = "ccb-human-eval-0.3-pilot";
+  const storageKey = "ccb-human-eval-0.4-pilot";
   const tasks = ["task-01", "task-02", "task-03"].map((task_id) => ({ task_id }));
   const state = {
     participant_id: "participant-1",
-    protocol_version: "0.3",
+    protocol_version: "0.4",
     dataset_revision: REVISION,
     pilot: true,
     current_task_index: 2,
     responses: Object.fromEntries(tasks.map(({ task_id }) => [task_id, completeResponse(task_id)])),
   };
-  const expected = { protocolVersion: "0.3", datasetRevision: REVISION, pilot: true };
+  const expected = { protocolVersion: "0.4", datasetRevision: REVISION, pilot: true };
 
   writeStoredParticipantState(storage, storageKey, state);
   const refreshed = readStoredParticipantState(storage, storageKey, expected);
@@ -234,23 +234,31 @@ test("task UI supports jumping and saving partial answers", () => {
   assert.match(app, /You can finish them in any order before final submission/);
 });
 
-test("overall preference is collected before ratings and derived ranking is not displayed", () => {
+test("overall preference is presented before ratings while both sections stay visible", () => {
   const html = readFileSync(new URL("../human-eval/index.html", import.meta.url), "utf8");
   const app = readFileSync(new URL("../human-eval/app.js", import.meta.url), "utf8");
   assert.ok(html.indexOf('id="ranking-section"') < html.indexOf('id="rating-section"'));
-  assert.match(html, /id="rating-section"[^>]*hidden/);
+  assert.doesNotMatch(html, /id="rating-section"[^>]*hidden/);
   assert.match(html, /Use the same rank only for a genuine tie/);
   assert.match(app, /overallRankingIsComplete\(response\)/);
+  assert.match(app, /elements\["rating-section"\]\.hidden = false/);
   assert.match(app, /overall_ranking: normalizeOverallRanking\(response\.rankings\)/);
   assert.match(app, /overall_ranking_source: OVERALL_RANKING_SOURCE/);
   assert.doesNotMatch(html, /derived-ranking|Calculated automatically from the three ratings/);
   assert.doesNotMatch(app, /deriveOverallRanking|overall_scores|derived-ranking/);
 });
 
-test("v0.3 protocol distinguishes direct preference from analysis-derived ranking", () => {
+test("v0.4 protocol selects the first 30 tasks and distinguishes both rankings", () => {
   const protocol = JSON.parse(readFileSync(
-    new URL("../human-eval/human_eval_v0.3.json", import.meta.url),
+    new URL("../human-eval/human_eval_v0.4.json", import.meta.url),
     "utf8",
+  ));
+  assert.equal(protocol.human_protocol_version, "0.4");
+  assert.equal(protocol.source_task_count, 67);
+  assert.equal(protocol.task_count, 30);
+  assert.deepEqual(protocol.formal_task_ids, Array.from(
+    { length: 30 },
+    (_, index) => `task-${String(index + 1).padStart(2, "0")}`,
   ));
   assert.equal(protocol.manual_overall_ranking_required, true);
   assert.equal(protocol.overall_ranking.source, "participant_overall_preference");
@@ -280,7 +288,7 @@ test("static worked example remains display-only and separate from study tasks",
   assert.match(html, /data-display-only="true"/);
   assert.match(html, /src="\.\/worked-example-guide-v03\.svg"/);
   assert.doesNotMatch(app, /worked-example-guide|tutorial/i);
-  assert.match(app, /studyTasks = PILOT \? allTasks\.slice\(0, 3\) : allTasks/);
+  assert.match(app, /allTasks\.slice\(0, QUESTIONNAIRE_TASK_COUNT\)/);
   assert.match(app, /return studyTasks\.map\(\(task\) =>/);
 });
 

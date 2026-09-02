@@ -24,6 +24,7 @@ REQUIRED_PUBLIC_FILES = {
     "human-eval/human_eval_v0.2.json",
     "human-eval/human_eval_v0.3.json",
     "human-eval/human_eval_v0.4.json",
+    "human-eval/human_eval_v0.5.json",
     "human-eval/study-navigation.mjs",
     "human-eval/worked-example-guide.png",
     "human-eval/worked-example-guide-v03.svg",
@@ -128,8 +129,8 @@ def validate(root: Path, private_assets: Path) -> None:
         if unsafe_call in app_source:
             errors.append(f"Unsafe or disallowed runtime behavior found: {unsafe_call}")
     for required_v03_source in (
-        'const PROTOCOL_VERSION = "0.4"',
-        'fetch("./human_eval_v0.4.json"',
+        'const PROTOCOL_VERSION = "0.5"',
+        'fetch("./human_eval_v0.5.json"',
         "normalizeOverallRanking",
         "overall_ranking_source",
     ):
@@ -219,6 +220,51 @@ def validate(root: Path, private_assets: Path) -> None:
         errors.append("Human v0.4 manual-ranking metadata is invalid")
     if protocol_v04.get("dimension_derived_ranking") != expected_analysis_ranking_metadata:
         errors.append("Human v0.4 analysis-ranking metadata is invalid")
+
+    protocol_v05 = json.loads((root / "human-eval" / "human_eval_v0.5.json").read_text(encoding="utf-8"))
+    if protocol_v05.get("human_protocol_version") != "0.5":
+        errors.append("Human v0.5 protocol version is invalid")
+    if protocol_v05.get("dataset_revision") != "b14ae69caecbeb062eb60c9189ee879a2514229b":
+        errors.append("Human v0.5 dataset revision is invalid")
+    if protocol_v05.get("source_task_count") != 67 or protocol_v05.get("task_count") != 30:
+        errors.append("Human v0.5 source or questionnaire task count is invalid")
+    selection = protocol_v05.get("questionnaire_selection", {})
+    expected_core_ids = [f"task-{index:02d}" for index in range(1, 20)]
+    seed = "CreativeContactBench-human-v0.5-representative-30-2026-09-02"
+    pool = [f"task-{index:02d}" for index in range(20, 68)]
+    expected_sample_draw_order = sorted(
+        pool,
+        key=lambda task_id: hashlib.sha256(f"{seed}:{task_id}".encode()).hexdigest(),
+    )[:11]
+    expected_formal_ids = expected_core_ids + sorted(expected_sample_draw_order)
+    if selection.get("method") != "sha256_seeded_sort" or selection.get("seed") != seed:
+        errors.append("Human v0.5 random-selection method or seed is invalid")
+    if selection.get("candidate_pool") != {
+        "first_task_id": "task-20",
+        "last_task_id": "task-67",
+        "task_count": 48,
+    }:
+        errors.append("Human v0.5 random-selection candidate pool is invalid")
+    if selection.get("always_included_task_ids") != expected_core_ids:
+        errors.append("Human v0.5 must always include task-01 through task-19")
+    if selection.get("sampled_task_ids") != expected_sample_draw_order:
+        errors.append("Human v0.5 random sample cannot be reproduced from its seed")
+    if protocol_v05.get("formal_task_ids") != expected_formal_ids:
+        errors.append("Human v0.5 formal task set or canonical order is invalid")
+    if protocol_v05.get("canonical_order_only") is not False:
+        errors.append("Human v0.5 must use participant-randomized presentation order")
+    expected_presentation = {
+        "scope": "per_participant",
+        "method": "fisher_yates",
+        "persisted_with_progress": True,
+        "submission_response_order": "canonical_task_id_ascending",
+    }
+    if protocol_v05.get("presentation_order") != expected_presentation:
+        errors.append("Human v0.5 presentation-order metadata is invalid")
+    if protocol_v05.get("overall_ranking") != expected_manual_ranking_metadata:
+        errors.append("Human v0.5 manual-ranking metadata is invalid")
+    if protocol_v05.get("dimension_derived_ranking") != expected_analysis_ranking_metadata:
+        errors.append("Human v0.5 analysis-ranking metadata is invalid")
 
     config_source = (root / "human-eval" / "config.js").read_text(encoding="utf-8")
     email_match = re.search(r"authEmail:\s*['\"]([^'\"]+)['\"]", config_source)

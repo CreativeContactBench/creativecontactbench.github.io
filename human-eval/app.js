@@ -12,15 +12,15 @@ import {
   responseIsComplete,
   studyIsComplete,
   writeStoredParticipantState,
-} from "./study-navigation.mjs?v=human-eval-v05-session-protection-2";
+} from "./study-navigation.mjs?v=human-eval-v05-task-instructions-95661e73";
 import {
   downloadProtectedAssetWithRetry,
-} from "./protected-asset-loader.mjs?v=human-eval-v05-session-protection-2";
+} from "./protected-asset-loader.mjs?v=human-eval-v05-task-instructions-95661e73";
 
 const CONFIG = window.CCB_CONFIG;
 const EXPECTED_REVISION = "b14ae69caecbeb062eb60c9189ee879a2514229b";
 const ASSET_REVISION_ROOT = `revisions/${EXPECTED_REVISION}`;
-const ASSET_CACHE_NONCE = "task06-green-target-fb5e4710";
+const ASSET_CACHE_NONCE = "task10-task13-instructions-95661e73";
 const PROTOCOL_VERSION = "0.5";
 const PROTOCOL_REQUEST_TIMEOUT_MS = 15_000;
 const SOURCE_TASK_COUNT = 67;

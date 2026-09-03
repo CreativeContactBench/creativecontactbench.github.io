@@ -20,6 +20,7 @@ import {
 const CONFIG = window.CCB_CONFIG;
 const EXPECTED_REVISION = "b14ae69caecbeb062eb60c9189ee879a2514229b";
 const ASSET_REVISION_ROOT = `revisions/${EXPECTED_REVISION}`;
+const ASSET_CACHE_NONCE = "task06-green-target-fb5e4710";
 const PROTOCOL_VERSION = "0.5";
 const PROTOCOL_REQUEST_TIMEOUT_MS = 15_000;
 const SOURCE_TASK_COUNT = 67;
@@ -394,7 +395,11 @@ async function loadProtectedStudy() {
     } = await downloadProtectedAssetWithRetry({
       download: ({ signal }) => supabase.storage
         .from(CONFIG.assetBucket)
-        .download(`${ASSET_REVISION_ROOT}/tasks.json`, {}, { signal, cache: "no-store" }),
+        .download(
+          `${ASSET_REVISION_ROOT}/tasks.json`,
+          { cacheNonce: ASSET_CACHE_NONCE },
+          { signal, cache: "no-store" },
+        ),
       refreshSession: () => supabase.auth.refreshSession(),
       isCurrent: () => Boolean(authSession),
     });
@@ -644,7 +649,7 @@ async function loadCurrentPrivateImage(task, renderIndex) {
       .from(CONFIG.assetBucket)
       .download(
         `${ASSET_REVISION_ROOT}/${task.image_path}`,
-        {},
+        { cacheNonce: ASSET_CACHE_NONCE },
         { signal, cache: "no-store" },
       ),
     refreshSession: () => supabase.auth.refreshSession(),

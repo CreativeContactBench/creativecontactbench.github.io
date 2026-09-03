@@ -118,8 +118,9 @@ def validate(root: Path, private_assets: Path) -> None:
     required_security_calls = [
         "signInWithPassword",
         "ASSET_REVISION_ROOT",
-        ".download(`${ASSET_REVISION_ROOT}/tasks.json`",
+        "`${ASSET_REVISION_ROOT}/tasks.json`",
         "`${ASSET_REVISION_ROOT}/${task.image_path}`",
+        "cacheNonce: ASSET_CACHE_NONCE",
         ".insert(payload)",
     ]
     for call in required_security_calls:

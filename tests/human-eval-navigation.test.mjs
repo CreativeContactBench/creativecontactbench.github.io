@@ -253,7 +253,7 @@ test("participant UI shows presentation positions without internal task IDs", ()
 test("human-evaluation assets are cache-busted as one compatible release", () => {
   const html = readFileSync(new URL("../human-eval/index.html", import.meta.url), "utf8");
   const app = readFileSync(new URL("../human-eval/app.js", import.meta.url), "utf8");
-  const version = "human-eval-v05-session-protection-2";
+  const version = "human-eval-v05-task-instructions-95661e73";
   assert.match(html, new RegExp(`styles\\.css\\?v=${version}`));
   assert.match(html, new RegExp(`config\\.js\\?v=${version}`));
   assert.match(html, new RegExp(`app\\.js\\?v=${version}`));
@@ -468,7 +468,7 @@ test("static worked example remains display-only and separate from study tasks",
 test("protected task metadata and images remain pinned to the dataset revision", () => {
   const app = readFileSync(new URL("../human-eval/app.js", import.meta.url), "utf8");
   assert.match(app, /const ASSET_REVISION_ROOT = `revisions\/\$\{EXPECTED_REVISION\}`/);
-  assert.match(app, /const ASSET_CACHE_NONCE = "task06-green-target-fb5e4710"/);
+  assert.match(app, /const ASSET_CACHE_NONCE = "task10-task13-instructions-95661e73"/);
   assert.match(app, /`\$\{ASSET_REVISION_ROOT\}\/tasks\.json`/);
   assert.match(app, /`\$\{ASSET_REVISION_ROOT\}\/\$\{task\.image_path\}`/);
   assert.match(app, /\{ cacheNonce: ASSET_CACHE_NONCE \}/);

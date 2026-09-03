@@ -253,7 +253,7 @@ test("participant UI shows presentation positions without internal task IDs", ()
 test("human-evaluation assets are cache-busted as one compatible release", () => {
   const html = readFileSync(new URL("../human-eval/index.html", import.meta.url), "utf8");
   const app = readFileSync(new URL("../human-eval/app.js", import.meta.url), "utf8");
-  const version = "human-eval-v05-session-protection-1";
+  const version = "human-eval-v05-session-protection-2";
   assert.match(html, new RegExp(`styles\\.css\\?v=${version}`));
   assert.match(html, new RegExp(`config\\.js\\?v=${version}`));
   assert.match(html, new RegExp(`app\\.js\\?v=${version}`));
@@ -326,6 +326,57 @@ test("protected image download stops after one retry", async () => {
   assert.equal(result.data, null);
   assert.match(result.error.message, /failure 2/);
   assert.equal(result.attempts, 2);
+});
+
+test("a timed-out protected download refreshes and retries instead of hanging", async () => {
+  let downloadAttempts = 0;
+  let refreshAttempts = 0;
+  const result = await downloadProtectedAssetWithRetry({
+    download: async () => {
+      downloadAttempts += 1;
+      if (downloadAttempts === 1) return new Promise(() => {});
+      return { data: { type: "application/json" }, error: null };
+    },
+    refreshSession: async () => {
+      refreshAttempts += 1;
+      return { data: { session: { access_token: "refreshed" } }, error: null };
+    },
+    timeoutMs: 5,
+  });
+
+  assert.equal(downloadAttempts, 2);
+  assert.equal(refreshAttempts, 1);
+  assert.equal(result.data.type, "application/json");
+  assert.equal(result.attempts, 2);
+});
+
+test("a stalled session refresh cannot prevent the second download attempt", async () => {
+  let downloadAttempts = 0;
+  const result = await downloadProtectedAssetWithRetry({
+    download: async () => {
+      downloadAttempts += 1;
+      return downloadAttempts === 1
+        ? { data: null, error: new Error("temporary failure") }
+        : { data: { type: "image/jpeg" }, error: null };
+    },
+    refreshSession: async () => new Promise(() => {}),
+    timeoutMs: 5,
+  });
+
+  assert.equal(downloadAttempts, 2);
+  assert.equal(result.data.type, "image/jpeg");
+  assert.equal(result.attempts, 2);
+});
+
+test("protected task metadata uses the same refresh-and-retry loader as images", () => {
+  const app = readFileSync(new URL("../human-eval/app.js", import.meta.url), "utf8");
+  assert.match(
+    app,
+    /downloadProtectedAssetWithRetry\(\{[\s\S]*tasks\.json[\s\S]*refreshSession: \(\) => supabase\.auth\.refreshSession\(\)/,
+  );
+  assert.match(app, /\{ signal, cache: "no-store" \}/);
+  assert.match(app, /fetchProtocolMetadata\(\)/);
+  assert.match(app, /signal: controller\.signal/);
 });
 
 test("sign out is restricted to the current participant session", () => {
@@ -417,8 +468,9 @@ test("static worked example remains display-only and separate from study tasks",
 test("protected task metadata and images remain pinned to the dataset revision", () => {
   const app = readFileSync(new URL("../human-eval/app.js", import.meta.url), "utf8");
   assert.match(app, /const ASSET_REVISION_ROOT = `revisions\/\$\{EXPECTED_REVISION\}`/);
-  assert.match(app, /download\(`\$\{ASSET_REVISION_ROOT\}\/tasks\.json`\)/);
-  assert.match(app, /download\(`\$\{ASSET_REVISION_ROOT\}\/\$\{task\.image_path\}`\)/);
+  assert.match(app, /download\(`\$\{ASSET_REVISION_ROOT\}\/tasks\.json`, \{\}, \{ signal, cache: "no-store" \}\)/);
+  assert.match(app, /`\$\{ASSET_REVISION_ROOT\}\/\$\{task\.image_path\}`/);
+  assert.match(app, /\{ signal, cache: "no-store" \}/);
 });
 
 test("onboarding scene count is derived from the loaded study task set", () => {

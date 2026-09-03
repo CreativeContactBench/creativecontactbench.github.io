@@ -12,15 +12,16 @@ import {
   responseIsComplete,
   studyIsComplete,
   writeStoredParticipantState,
-} from "./study-navigation.mjs?v=human-eval-v05-session-protection-1";
+} from "./study-navigation.mjs?v=human-eval-v05-session-protection-2";
 import {
   downloadProtectedAssetWithRetry,
-} from "./protected-asset-loader.mjs?v=human-eval-v05-session-protection-1";
+} from "./protected-asset-loader.mjs?v=human-eval-v05-session-protection-2";
 
 const CONFIG = window.CCB_CONFIG;
 const EXPECTED_REVISION = "b14ae69caecbeb062eb60c9189ee879a2514229b";
 const ASSET_REVISION_ROOT = `revisions/${EXPECTED_REVISION}`;
 const PROTOCOL_VERSION = "0.5";
+const PROTOCOL_REQUEST_TIMEOUT_MS = 15_000;
 const SOURCE_TASK_COUNT = 67;
 const QUESTIONNAIRE_TASK_COUNT = 30;
 const REQUIRED_CORE_TASK_IDS = Array.from(
@@ -361,6 +362,19 @@ function validatePrivateTasks(payload) {
   return payload.tasks;
 }
 
+async function fetchProtocolMetadata() {
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), PROTOCOL_REQUEST_TIMEOUT_MS);
+  try {
+    return await fetch("./human_eval_v0.5.json", {
+      cache: "no-store",
+      signal: controller.signal,
+    });
+  } finally {
+    clearTimeout(timeoutId);
+  }
+}
+
 async function loadProtectedStudy() {
   if (!authSession || protectedLoadInProgress) return;
   protectedLoadInProgress = true;
@@ -368,13 +382,24 @@ async function loadProtectedStudy() {
   showScreen("asset-loading-screen");
   try {
     if (!protocol) {
-      const protocolResponse = await fetch("./human_eval_v0.5.json", { cache: "no-store" });
+      const protocolResponse = await fetchProtocolMetadata();
       if (!protocolResponse.ok) throw new Error("Protocol metadata is unavailable.");
       protocol = validateProtocol(await protocolResponse.json());
     }
-    const { data, error } = await supabase.storage
-      .from(CONFIG.assetBucket)
-      .download(`${ASSET_REVISION_ROOT}/tasks.json`);
+    const {
+      data,
+      error,
+      session: refreshedSession,
+      cancelled,
+    } = await downloadProtectedAssetWithRetry({
+      download: ({ signal }) => supabase.storage
+        .from(CONFIG.assetBucket)
+        .download(`${ASSET_REVISION_ROOT}/tasks.json`, {}, { signal, cache: "no-store" }),
+      refreshSession: () => supabase.auth.refreshSession(),
+      isCurrent: () => Boolean(authSession),
+    });
+    if (refreshedSession) authSession = refreshedSession;
+    if (cancelled || !authSession) return;
     if (error || !data) throw new Error("Protected task metadata is unavailable.");
     const payload = JSON.parse(await data.text());
     allTasks = validatePrivateTasks(payload);
@@ -615,9 +640,13 @@ async function loadCurrentPrivateImage(task, renderIndex) {
     session: refreshedSession,
     cancelled,
   } = await downloadProtectedAssetWithRetry({
-    download: () => supabase.storage
+    download: ({ signal }) => supabase.storage
       .from(CONFIG.assetBucket)
-      .download(`${ASSET_REVISION_ROOT}/${task.image_path}`),
+      .download(
+        `${ASSET_REVISION_ROOT}/${task.image_path}`,
+        {},
+        { signal, cache: "no-store" },
+      ),
     refreshSession: () => supabase.auth.refreshSession(),
     isCurrent: requestIsCurrent,
   });

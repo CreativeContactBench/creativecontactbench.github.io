@@ -1,9 +1,44 @@
-async function attemptDownload(download) {
+const DEFAULT_TIMEOUT_MS = 15_000;
+
+async function attemptSessionRefresh(refreshSession, timeoutMs) {
+  let timeoutId;
+  const timeoutResult = new Promise((resolve) => {
+    timeoutId = setTimeout(() => resolve(null), timeoutMs);
+  });
+  const refreshResult = Promise.resolve()
+    .then(refreshSession)
+    .catch(() => null);
   try {
-    const result = await download();
-    return result || { data: null, error: new Error("Protected asset download returned no result.") };
-  } catch (error) {
-    return { data: null, error };
+    return await Promise.race([refreshResult, timeoutResult]);
+  } finally {
+    clearTimeout(timeoutId);
+  }
+}
+
+async function attemptDownload(download, timeoutMs) {
+  const controller = new AbortController();
+  let timeoutId;
+  const timeoutResult = new Promise((resolve) => {
+    timeoutId = setTimeout(() => {
+      controller.abort();
+      const error = new Error("Protected asset download timed out.");
+      error.name = "TimeoutError";
+      resolve({ data: null, error });
+    }, timeoutMs);
+  });
+  const downloadResult = Promise.resolve()
+    .then(() => download({ signal: controller.signal }))
+    .then(
+      (result) => result || {
+        data: null,
+        error: new Error("Protected asset download returned no result."),
+      },
+      (error) => ({ data: null, error }),
+    );
+  try {
+    return await Promise.race([downloadResult, timeoutResult]);
+  } finally {
+    clearTimeout(timeoutId);
   }
 }
 
@@ -15,8 +50,9 @@ export async function downloadProtectedAssetWithRetry({
   download,
   refreshSession,
   isCurrent = () => true,
+  timeoutMs = DEFAULT_TIMEOUT_MS,
 }) {
-  const firstResult = await attemptDownload(download);
+  const firstResult = await attemptDownload(download, timeoutMs);
   if (!isCurrent()) {
     return { data: null, error: null, session: null, cancelled: true, attempts: 1 };
   }
@@ -25,17 +61,13 @@ export async function downloadProtectedAssetWithRetry({
   }
 
   let refreshedSession = null;
-  try {
-    const refreshResult = await refreshSession();
-    refreshedSession = refreshResult?.data?.session || null;
-  } catch {
-    // A second download can still succeed after a transient refresh failure.
-  }
+  const refreshResult = await attemptSessionRefresh(refreshSession, timeoutMs);
+  refreshedSession = refreshResult?.data?.session || null;
   if (!isCurrent()) {
     return { data: null, error: null, session: refreshedSession, cancelled: true, attempts: 1 };
   }
 
-  const secondResult = await attemptDownload(download);
+  const secondResult = await attemptDownload(download, timeoutMs);
   if (!isCurrent()) {
     return { data: null, error: null, session: refreshedSession, cancelled: true, attempts: 2 };
   }

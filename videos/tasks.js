@@ -1128,10 +1128,10 @@ window.CreativeContactBenchTasks = {
           "title": null,
           "description": "Pick the nearest cube and place it on the target.",
           "rationale": null,
-          "video": "Task 11/A.mp4",
+          "video": "Task 11/B.mp4",
           "videoStatus": "available",
-          "mappingStatus": "mapped from A/B/C/D filename",
-          "actualFilename": "A.mp4"
+          "mappingStatus": "Reassigned per researcher correction",
+          "actualFilename": "B.mp4"
         },
         {
           "label": "B",
@@ -1140,10 +1140,10 @@ window.CreativeContactBenchTasks = {
           "title": null,
           "description": "Squeeze each cube and choose the one with the weakest tactile response.",
           "rationale": null,
-          "video": "Task 11/B.mp4",
-          "videoStatus": "available",
-          "mappingStatus": "mapped from A/B/C/D filename",
-          "actualFilename": "B.mp4"
+          "video": null,
+          "videoStatus": "missing",
+          "mappingStatus": "No recording assigned after researcher correction",
+          "actualFilename": null
         },
         {
           "label": "C",
@@ -1152,10 +1152,10 @@ window.CreativeContactBenchTasks = {
           "title": null,
           "description": "Put the cubes into the water, choose the one that floats, and then place it on the target.",
           "rationale": null,
-          "video": "Task 11/C.mp4",
+          "video": "Task 11/A.mp4",
           "videoStatus": "available",
-          "mappingStatus": "mapped from A/B/C/D filename",
-          "actualFilename": "C.mp4"
+          "mappingStatus": "Reassigned per researcher correction",
+          "actualFilename": "A.mp4"
         },
         {
           "label": "D",
@@ -1164,10 +1164,10 @@ window.CreativeContactBenchTasks = {
           "title": null,
           "description": "Push each cube across the table and choose the one that slides farthest.",
           "rationale": null,
-          "video": null,
-          "videoStatus": "missing",
-          "mappingStatus": "missing on disk",
-          "actualFilename": null
+          "video": "Task 11/C.mp4",
+          "videoStatus": "available",
+          "mappingStatus": "Reassigned per researcher correction",
+          "actualFilename": "C.mp4"
         }
       ],
       "realWorldOutcome": null,
@@ -1184,24 +1184,24 @@ window.CreativeContactBenchTasks = {
         {
           "filename": "A.mp4",
           "sizeBytes": 129372136,
-          "option": "A",
-          "mappingStatus": "mapped from A/B/C/D filename"
+          "option": "C",
+          "mappingStatus": "Reassigned per researcher correction"
         },
         {
           "filename": "B.mp4",
           "sizeBytes": 68164592,
-          "option": "B",
-          "mappingStatus": "mapped from A/B/C/D filename"
+          "option": "A",
+          "mappingStatus": "Reassigned per researcher correction"
         },
         {
           "filename": "C.mp4",
           "sizeBytes": 42569749,
-          "option": "C",
-          "mappingStatus": "mapped from A/B/C/D filename"
+          "option": "D",
+          "mappingStatus": "Reassigned per researcher correction"
         }
       ],
       "missingVideoOptions": [
-        "D"
+        "B"
       ]
     },
     {
@@ -1346,10 +1346,10 @@ window.CreativeContactBenchTasks = {
           "title": null,
           "description": "Tilt the box onto one bottom edge and repeatedly pivot or scoot it around the rubber mat toward the green target.",
           "rationale": null,
-          "video": "Task 13/B.mp4",
-          "videoStatus": "available",
-          "mappingStatus": "mapped from A/B/C/D filename",
-          "actualFilename": "B.mp4"
+          "video": null,
+          "videoStatus": "missing",
+          "mappingStatus": "No recording assigned after researcher correction",
+          "actualFilename": null
         },
         {
           "label": "C",
@@ -1358,10 +1358,10 @@ window.CreativeContactBenchTasks = {
           "title": null,
           "description": "Push the box from an alternative angle with the robot wrist or body surface so it stays on the normal table surface and avoids the rubber mat.",
           "rationale": null,
-          "video": "Task 13/C.mp4",
+          "video": "Task 13/B.mp4",
           "videoStatus": "available",
-          "mappingStatus": "mapped from A/B/C/D filename",
-          "actualFilename": "C.mp4"
+          "mappingStatus": "Reassigned per researcher correction",
+          "actualFilename": "B.mp4"
         },
         {
           "label": "D",
@@ -1370,10 +1370,10 @@ window.CreativeContactBenchTasks = {
           "title": null,
           "description": "Try to grasp the box with the gripper, lift it, and carry it to the green target.",
           "rationale": null,
-          "video": null,
-          "videoStatus": "missing",
-          "mappingStatus": "missing on disk",
-          "actualFilename": null
+          "video": "Task 13/C.mp4",
+          "videoStatus": "available",
+          "mappingStatus": "Reassigned per researcher correction",
+          "actualFilename": "C.mp4"
         }
       ],
       "realWorldOutcome": null,
@@ -1397,18 +1397,18 @@ window.CreativeContactBenchTasks = {
         {
           "filename": "B.mp4",
           "sizeBytes": 99370692,
-          "option": "B",
-          "mappingStatus": "mapped from A/B/C/D filename"
+          "option": "C",
+          "mappingStatus": "Reassigned per researcher correction"
         },
         {
           "filename": "C.mp4",
           "sizeBytes": 57670141,
-          "option": "C",
-          "mappingStatus": "mapped from A/B/C/D filename"
+          "option": "D",
+          "mappingStatus": "Reassigned per researcher correction"
         }
       ],
       "missingVideoOptions": [
-        "D"
+        "B"
       ]
     },
     {

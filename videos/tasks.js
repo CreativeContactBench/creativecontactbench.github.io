@@ -602,10 +602,10 @@ window.CreativeContactBenchTasks = {
           "title": null,
           "description": "Push the casserole straight across the table toward the green target using the robot arm.",
           "rationale": null,
-          "video": "Task 6/A.mp4",
+          "video": "Task 6/C.mp4",
           "videoStatus": "available",
-          "mappingStatus": "mapped from A/B/C/D filename",
-          "actualFilename": "A.mp4"
+          "mappingStatus": "A/C swapped per researcher correction",
+          "actualFilename": "C.mp4"
         },
         {
           "label": "B",
@@ -626,10 +626,10 @@ window.CreativeContactBenchTasks = {
           "title": null,
           "description": "Slide the casserole to the table edge, grasp the exposed overhanging part, and carry it to the green target.",
           "rationale": null,
-          "video": "Task 6/C.mp4",
+          "video": "Task 6/A.mp4",
           "videoStatus": "available",
-          "mappingStatus": "mapped from A/B/C/D filename",
-          "actualFilename": "C.mp4"
+          "mappingStatus": "A/C swapped per researcher correction",
+          "actualFilename": "A.mp4"
         },
         {
           "label": "D",
@@ -658,8 +658,8 @@ window.CreativeContactBenchTasks = {
         {
           "filename": "A.mp4",
           "sizeBytes": 31597251,
-          "option": "A",
-          "mappingStatus": "mapped from A/B/C/D filename"
+          "option": "C",
+          "mappingStatus": "A/C swapped per researcher correction"
         },
         {
           "filename": "B.mp4",
@@ -670,8 +670,8 @@ window.CreativeContactBenchTasks = {
         {
           "filename": "C.mp4",
           "sizeBytes": 30119952,
-          "option": "C",
-          "mappingStatus": "mapped from A/B/C/D filename"
+          "option": "A",
+          "mappingStatus": "A/C swapped per researcher correction"
         },
         {
           "filename": "D.mp4",

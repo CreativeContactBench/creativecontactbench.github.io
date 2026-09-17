@@ -382,10 +382,10 @@ window.CreativeContactBenchTasks = {
           "title": "Edge grasping without adding weight to the box",
           "description": "Grasp the edge of the lid, lift it, and place it on top of the box.",
           "rationale": "When the lid contacts the box, the lightweight box may slide across the table.",
-          "video": "Task 4/A.mp4",
+          "video": "Task 4/D.mp4",
           "videoStatus": "available",
-          "mappingStatus": "mapped from A/B/C/D filename",
-          "actualFilename": "A.mp4"
+          "mappingStatus": "Reassigned per researcher correction: A=D, B=C, C=B, D=A",
+          "actualFilename": "D.mp4"
         },
         {
           "label": "B",
@@ -394,10 +394,10 @@ window.CreativeContactBenchTasks = {
           "title": "Lifting and flipping the lid from underneath without adding weight to the box",
           "description": "Insert the gripper underneath the lid, lift and flip the lid, and place it on top of the box.",
           "rationale": "This makes the lid easier to manipulate, but the box may still slide during final closure.",
-          "video": "Task 4/B.mp4",
+          "video": "Task 4/C.mp4",
           "videoStatus": "available",
-          "mappingStatus": "mapped from A/B/C/D filename",
-          "actualFilename": "B.mp4"
+          "mappingStatus": "Reassigned per researcher correction: A=D, B=C, C=B, D=A",
+          "actualFilename": "C.mp4"
         },
         {
           "label": "C",
@@ -406,10 +406,10 @@ window.CreativeContactBenchTasks = {
           "title": "Adding weight to the box while using an edge grasp",
           "description": "Lay the can horizontally inside the box, grasp the edge of the lid, and place the lid on top of the box.",
           "rationale": "This addresses the sliding problem. However, grasping the thin edge of the lid requires substantial wrist rotation and pose adjustment, which may exceed the available workspace or kinematic range of a single robot arm.",
-          "video": "Task 4/C.mp4",
+          "video": "Task 4/B.mp4",
           "videoStatus": "available",
-          "mappingStatus": "mapped from A/B/C/D filename",
-          "actualFilename": "C.mp4"
+          "mappingStatus": "Reassigned per researcher correction: A=D, B=C, C=B, D=A",
+          "actualFilename": "B.mp4"
         },
         {
           "label": "D",
@@ -418,10 +418,10 @@ window.CreativeContactBenchTasks = {
           "title": "Adding weight and lifting the lid from underneath",
           "description": "Lay the can horizontally inside the box, insert the gripper underneath the lid, lift and flip the lid, and place it on top of the box.",
           "rationale": "The can acts as ballast to stabilize the box, while supporting the lid from underneath reduces the need for precise edge grasping and extensive wrist rotation.",
-          "video": "Task 4/D.mp4",
+          "video": "Task 4/A.mp4",
           "videoStatus": "available",
-          "mappingStatus": "mapped from A/B/C/D filename",
-          "actualFilename": "D.mp4"
+          "mappingStatus": "Reassigned per researcher correction: A=D, B=C, C=B, D=A",
+          "actualFilename": "A.mp4"
         }
       ],
       "realWorldOutcome": null,
@@ -443,26 +443,26 @@ window.CreativeContactBenchTasks = {
         {
           "filename": "A.mp4",
           "sizeBytes": 75703709,
-          "option": "A",
-          "mappingStatus": "mapped from A/B/C/D filename"
+          "option": "D",
+          "mappingStatus": "Reassigned per researcher correction: A=D, B=C, C=B, D=A"
         },
         {
           "filename": "B.mp4",
           "sizeBytes": 80002210,
-          "option": "B",
-          "mappingStatus": "mapped from A/B/C/D filename"
+          "option": "C",
+          "mappingStatus": "Reassigned per researcher correction: A=D, B=C, C=B, D=A"
         },
         {
           "filename": "C.mp4",
           "sizeBytes": 50999609,
-          "option": "C",
-          "mappingStatus": "mapped from A/B/C/D filename"
+          "option": "B",
+          "mappingStatus": "Reassigned per researcher correction: A=D, B=C, C=B, D=A"
         },
         {
           "filename": "D.mp4",
           "sizeBytes": 35919030,
-          "option": "D",
-          "mappingStatus": "mapped from A/B/C/D filename"
+          "option": "A",
+          "mappingStatus": "Reassigned per researcher correction: A=D, B=C, C=B, D=A"
         }
       ],
       "missingVideoOptions": []

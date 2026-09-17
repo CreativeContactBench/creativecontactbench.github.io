@@ -184,10 +184,10 @@ window.CreativeContactBenchTasks = {
           "title": null,
           "description": "Pull the device toward the target by its cable instead of grasping the device itself.",
           "rationale": null,
-          "video": "Task 2/C.mp4",
+          "video": "Task 2/D.mp4",
           "videoStatus": "available",
-          "mappingStatus": "mapped from A/B/C/D filename",
-          "actualFilename": "C.mp4"
+          "mappingStatus": "C/D swapped per researcher correction",
+          "actualFilename": "D.mp4"
         },
         {
           "label": "D",
@@ -196,10 +196,10 @@ window.CreativeContactBenchTasks = {
           "title": null,
           "description": "First move the power strip closer to the marked target to provide more cable slack, then pick up the device and place it in the target.",
           "rationale": null,
-          "video": "Task 2/D.mp4",
+          "video": "Task 2/C.mp4",
           "videoStatus": "available",
-          "mappingStatus": "mapped from A/B/C/D filename",
-          "actualFilename": "D.mp4"
+          "mappingStatus": "C/D swapped per researcher correction",
+          "actualFilename": "C.mp4"
         }
       ],
       "realWorldOutcome": null,
@@ -233,14 +233,14 @@ window.CreativeContactBenchTasks = {
         {
           "filename": "C.mp4",
           "sizeBytes": 47474412,
-          "option": "C",
-          "mappingStatus": "mapped from A/B/C/D filename"
+          "option": "D",
+          "mappingStatus": "C/D swapped per researcher correction"
         },
         {
           "filename": "D.mp4",
           "sizeBytes": 28151226,
-          "option": "D",
-          "mappingStatus": "mapped from A/B/C/D filename"
+          "option": "C",
+          "mappingStatus": "C/D swapped per researcher correction"
         }
       ],
       "missingVideoOptions": []

@@ -382,10 +382,10 @@ window.CreativeContactBenchTasks = {
           "title": "Edge grasping without adding weight to the box",
           "description": "Grasp the edge of the lid, lift it, and place it on top of the box.",
           "rationale": "When the lid contacts the box, the lightweight box may slide across the table.",
-          "video": "Task 4/D.mp4",
+          "video": "Task 4/C.mp4",
           "videoStatus": "available",
-          "mappingStatus": "Reassigned per researcher correction: A=D, B=C, C=B, D=A",
-          "actualFilename": "D.mp4"
+          "mappingStatus": "Researcher-verified video mapping: A=C.mp4, B=D.mp4, C=B.mp4, D=A.mp4",
+          "actualFilename": "C.mp4"
         },
         {
           "label": "B",
@@ -394,10 +394,10 @@ window.CreativeContactBenchTasks = {
           "title": "Lifting and flipping the lid from underneath without adding weight to the box",
           "description": "Insert the gripper underneath the lid, lift and flip the lid, and place it on top of the box.",
           "rationale": "This makes the lid easier to manipulate, but the box may still slide during final closure.",
-          "video": "Task 4/C.mp4",
+          "video": "Task 4/D.mp4",
           "videoStatus": "available",
-          "mappingStatus": "Reassigned per researcher correction: A=D, B=C, C=B, D=A",
-          "actualFilename": "C.mp4"
+          "mappingStatus": "Researcher-verified video mapping: A=C.mp4, B=D.mp4, C=B.mp4, D=A.mp4",
+          "actualFilename": "D.mp4"
         },
         {
           "label": "C",
@@ -408,7 +408,7 @@ window.CreativeContactBenchTasks = {
           "rationale": "This addresses the sliding problem. However, grasping the thin edge of the lid requires substantial wrist rotation and pose adjustment, which may exceed the available workspace or kinematic range of a single robot arm.",
           "video": "Task 4/B.mp4",
           "videoStatus": "available",
-          "mappingStatus": "Reassigned per researcher correction: A=D, B=C, C=B, D=A",
+          "mappingStatus": "Researcher-verified video mapping: A=C.mp4, B=D.mp4, C=B.mp4, D=A.mp4",
           "actualFilename": "B.mp4"
         },
         {
@@ -420,7 +420,7 @@ window.CreativeContactBenchTasks = {
           "rationale": "The can acts as ballast to stabilize the box, while supporting the lid from underneath reduces the need for precise edge grasping and extensive wrist rotation.",
           "video": "Task 4/A.mp4",
           "videoStatus": "available",
-          "mappingStatus": "Reassigned per researcher correction: A=D, B=C, C=B, D=A",
+          "mappingStatus": "Researcher-verified video mapping: A=C.mp4, B=D.mp4, C=B.mp4, D=A.mp4",
           "actualFilename": "A.mp4"
         }
       ],
@@ -444,25 +444,25 @@ window.CreativeContactBenchTasks = {
           "filename": "A.mp4",
           "sizeBytes": 75703709,
           "option": "D",
-          "mappingStatus": "Reassigned per researcher correction: A=D, B=C, C=B, D=A"
+          "mappingStatus": "Researcher-verified video mapping: A=C.mp4, B=D.mp4, C=B.mp4, D=A.mp4"
         },
         {
           "filename": "B.mp4",
           "sizeBytes": 80002210,
           "option": "C",
-          "mappingStatus": "Reassigned per researcher correction: A=D, B=C, C=B, D=A"
+          "mappingStatus": "Researcher-verified video mapping: A=C.mp4, B=D.mp4, C=B.mp4, D=A.mp4"
         },
         {
           "filename": "C.mp4",
           "sizeBytes": 50999609,
-          "option": "B",
-          "mappingStatus": "Reassigned per researcher correction: A=D, B=C, C=B, D=A"
+          "option": "A",
+          "mappingStatus": "Researcher-verified video mapping: A=C.mp4, B=D.mp4, C=B.mp4, D=A.mp4"
         },
         {
           "filename": "D.mp4",
           "sizeBytes": 35919030,
-          "option": "A",
-          "mappingStatus": "Reassigned per researcher correction: A=D, B=C, C=B, D=A"
+          "option": "B",
+          "mappingStatus": "Researcher-verified video mapping: A=C.mp4, B=D.mp4, C=B.mp4, D=A.mp4"
         }
       ],
       "missingVideoOptions": []
@@ -707,10 +707,10 @@ window.CreativeContactBenchTasks = {
           "title": null,
           "description": "Grasp the bowl and lift it directly to the target position.",
           "rationale": null,
-          "video": "Task 7/A.mp4",
+          "video": "Task 7/D.mp4",
           "videoStatus": "available",
-          "mappingStatus": "mapped from A/B/C/D filename",
-          "actualFilename": "A.mp4"
+          "mappingStatus": "Researcher-verified video mapping: A=D.mp4, B=B.mp4, C=C.mp4, D=A.mp4",
+          "actualFilename": "D.mp4"
         },
         {
           "label": "B",
@@ -743,10 +743,10 @@ window.CreativeContactBenchTasks = {
           "title": null,
           "description": "Grasp the rim of the bowl and slide it to the target.",
           "rationale": null,
-          "video": "Task 7/D.mp4",
+          "video": "Task 7/A.mp4",
           "videoStatus": "available",
-          "mappingStatus": "mapped from A/B/C/D filename",
-          "actualFilename": "D.mp4"
+          "mappingStatus": "Researcher-verified video mapping: A=D.mp4, B=B.mp4, C=C.mp4, D=A.mp4",
+          "actualFilename": "A.mp4"
         }
       ],
       "realWorldOutcome": null,
@@ -765,8 +765,8 @@ window.CreativeContactBenchTasks = {
         {
           "filename": "A.mp4",
           "sizeBytes": 35255977,
-          "option": "A",
-          "mappingStatus": "mapped from A/B/C/D filename"
+          "option": "D",
+          "mappingStatus": "Researcher-verified video mapping: A=D.mp4, B=B.mp4, C=C.mp4, D=A.mp4"
         },
         {
           "filename": "B.mp4",
@@ -783,8 +783,8 @@ window.CreativeContactBenchTasks = {
         {
           "filename": "D.mp4",
           "sizeBytes": 47421492,
-          "option": "D",
-          "mappingStatus": "mapped from A/B/C/D filename"
+          "option": "A",
+          "mappingStatus": "Researcher-verified video mapping: A=D.mp4, B=B.mp4, C=C.mp4, D=A.mp4"
         }
       ],
       "missingVideoOptions": []
@@ -814,10 +814,10 @@ window.CreativeContactBenchTasks = {
           "title": null,
           "description": "Grasp the container from top and lift it directly to the target position.",
           "rationale": null,
-          "video": "Task 8/A.mp4",
+          "video": "Task 8/B.mp4",
           "videoStatus": "available",
-          "mappingStatus": "mapped from A/B/C/D filename",
-          "actualFilename": "A.mp4"
+          "mappingStatus": "Researcher-verified video mapping: A=B.mp4, B=A.mp4, C=C.mp4",
+          "actualFilename": "B.mp4"
         },
         {
           "label": "B",
@@ -826,10 +826,10 @@ window.CreativeContactBenchTasks = {
           "title": null,
           "description": "Push the container toward the target.",
           "rationale": null,
-          "video": "Task 8/B.mp4",
+          "video": "Task 8/A.mp4",
           "videoStatus": "available",
-          "mappingStatus": "mapped from A/B/C/D filename",
-          "actualFilename": "B.mp4"
+          "mappingStatus": "Researcher-verified video mapping: A=B.mp4, B=A.mp4, C=C.mp4",
+          "actualFilename": "A.mp4"
         },
         {
           "label": "C",
@@ -871,14 +871,14 @@ window.CreativeContactBenchTasks = {
         {
           "filename": "A.mp4",
           "sizeBytes": 43301180,
-          "option": "A",
-          "mappingStatus": "mapped from A/B/C/D filename"
+          "option": "B",
+          "mappingStatus": "Researcher-verified video mapping: A=B.mp4, B=A.mp4, C=C.mp4"
         },
         {
           "filename": "B.mp4",
           "sizeBytes": 81205205,
-          "option": "B",
-          "mappingStatus": "mapped from A/B/C/D filename"
+          "option": "A",
+          "mappingStatus": "Researcher-verified video mapping: A=B.mp4, B=A.mp4, C=C.mp4"
         },
         {
           "filename": "C.mp4",
@@ -916,10 +916,10 @@ window.CreativeContactBenchTasks = {
           "title": null,
           "description": "Grasp the bell pepper and move it aside, then pick and place the broccoli using its stalk to the bowl.",
           "rationale": null,
-          "video": "Task 9/A.mp4",
+          "video": "Task 9/C.mp4",
           "videoStatus": "available",
-          "mappingStatus": "mapped from A/B/C/D filename",
-          "actualFilename": "A.mp4"
+          "mappingStatus": "Researcher-verified video mapping: A=C.mp4, B=A.mp4, C=D.mp4, D=B.mp4",
+          "actualFilename": "C.mp4"
         },
         {
           "label": "B",
@@ -928,10 +928,10 @@ window.CreativeContactBenchTasks = {
           "title": null,
           "description": "Push the broccoli straight toward the bowl without moving the bell pepper first.",
           "rationale": null,
-          "video": "Task 9/B.mp4",
+          "video": "Task 9/A.mp4",
           "videoStatus": "available",
-          "mappingStatus": "mapped from A/B/C/D filename",
-          "actualFilename": "B.mp4"
+          "mappingStatus": "Researcher-verified video mapping: A=C.mp4, B=A.mp4, C=D.mp4, D=B.mp4",
+          "actualFilename": "A.mp4"
         },
         {
           "label": "C",
@@ -940,10 +940,10 @@ window.CreativeContactBenchTasks = {
           "title": null,
           "description": "Push the bell pepper using the gripper and pick and place the broccoli into the bowl.",
           "rationale": null,
-          "video": "Task 9/C.mp4",
+          "video": "Task 9/D.mp4",
           "videoStatus": "available",
-          "mappingStatus": "mapped from A/B/C/D filename",
-          "actualFilename": "C.mp4"
+          "mappingStatus": "Researcher-verified video mapping: A=C.mp4, B=A.mp4, C=D.mp4, D=B.mp4",
+          "actualFilename": "D.mp4"
         },
         {
           "label": "D",
@@ -952,10 +952,10 @@ window.CreativeContactBenchTasks = {
           "title": null,
           "description": "Grasp the broccoli directly and carry it to the target.",
           "rationale": null,
-          "video": "Task 9/D.mp4",
+          "video": "Task 9/B.mp4",
           "videoStatus": "available",
-          "mappingStatus": "mapped from A/B/C/D filename",
-          "actualFilename": "D.mp4"
+          "mappingStatus": "Researcher-verified video mapping: A=C.mp4, B=A.mp4, C=D.mp4, D=B.mp4",
+          "actualFilename": "B.mp4"
         }
       ],
       "realWorldOutcome": null,
@@ -973,26 +973,26 @@ window.CreativeContactBenchTasks = {
         {
           "filename": "A.mp4",
           "sizeBytes": 22201437,
-          "option": "A",
-          "mappingStatus": "mapped from A/B/C/D filename"
+          "option": "B",
+          "mappingStatus": "Researcher-verified video mapping: A=C.mp4, B=A.mp4, C=D.mp4, D=B.mp4"
         },
         {
           "filename": "B.mp4",
           "sizeBytes": 45084145,
-          "option": "B",
-          "mappingStatus": "mapped from A/B/C/D filename"
+          "option": "D",
+          "mappingStatus": "Researcher-verified video mapping: A=C.mp4, B=A.mp4, C=D.mp4, D=B.mp4"
         },
         {
           "filename": "C.mp4",
           "sizeBytes": 73181158,
-          "option": "C",
-          "mappingStatus": "mapped from A/B/C/D filename"
+          "option": "A",
+          "mappingStatus": "Researcher-verified video mapping: A=C.mp4, B=A.mp4, C=D.mp4, D=B.mp4"
         },
         {
           "filename": "D.mp4",
           "sizeBytes": 57469273,
-          "option": "D",
-          "mappingStatus": "mapped from A/B/C/D filename"
+          "option": "C",
+          "mappingStatus": "Researcher-verified video mapping: A=C.mp4, B=A.mp4, C=D.mp4, D=B.mp4"
         }
       ],
       "missingVideoOptions": []

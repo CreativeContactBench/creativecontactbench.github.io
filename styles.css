@@ -134,6 +134,63 @@ h2 {
   margin: 0;
 }
 
+.leaderboard-scroll {
+  overflow-x: auto;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+}
+
+.leaderboard-scroll:focus-visible {
+  outline: 2px solid var(--link);
+  outline-offset: 3px;
+}
+
+.leaderboard {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.leaderboard caption {
+  padding: 12px 14px;
+  text-align: left;
+  font-weight: 600;
+}
+
+.leaderboard th,
+.leaderboard td {
+  padding: 10px 12px;
+  border-top: 1px solid var(--line);
+  white-space: nowrap;
+  text-align: right;
+}
+
+.leaderboard th:first-child {
+  text-align: left;
+}
+
+.leaderboard thead,
+.leaderboard-group {
+  background: var(--soft);
+}
+
+.leaderboard th[scope="row"] {
+  font-weight: 500;
+}
+
+.leaderboard .leaderboard-group th {
+  color: var(--muted);
+  padding-block: 8px;
+  font-weight: 600;
+}
+
+.leaderboard-notes {
+  margin: 12px 0 0;
+  font-size: 0.875rem;
+  color: var(--muted);
+}
+
 .task-grid {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));

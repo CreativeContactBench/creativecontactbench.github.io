@@ -25,7 +25,7 @@ function walkMp4Files(directory) {
 
 test("homepage links to both public videos and the gated human evaluation", () => {
   const homepage = fs.readFileSync(path.join(root, "index.html"), "utf8");
-  assert.match(homepage, /href="\.\/videos\/"/);
+  assert.match(homepage, /href="\.\/videos\/(?:index\.html)?"/);
   assert.match(homepage, /href="\.\/human-eval\/"/);
 });
 

@@ -48,6 +48,18 @@ def iter_public_files(root: Path):
             yield path
 
 
+def without_approved_home_example(text: str, public_manifest: Path) -> str:
+    """Task 05 is already public in the approved gallery and reused on the homepage."""
+    source = public_manifest.read_text(encoding="utf-8")
+    data = json.JSONDecoder().raw_decode(source.partition("=")[2].lstrip())[0]
+    task = next(task for task in data["tasks"] if task["id"] == 5)
+    approved = [task["goal"], *(option["strategy"] for option in task["options"])]
+    for phrase in approved:
+        if isinstance(phrase, str) and phrase:
+            text = text.replace(phrase, "")
+    return text
+
+
 def validate(root: Path, private_assets: Path) -> None:
     errors: list[str] = []
     relative_files = {str(path.relative_to(root)) for path in iter_public_files(root)}
@@ -301,6 +313,8 @@ def validate(root: Path, private_assets: Path) -> None:
             if path.suffix.lower() not in TEXT_SUFFIXES:
                 continue
             text = path.read_text(encoding="utf-8", errors="ignore")
+            if path == root / "index.html":
+                text = without_approved_home_example(text, gallery_manifest_path)
             if any(phrase in text for phrase in protected_phrases):
                 errors.append(f"Protected task or strategy text found in {path.relative_to(root)}")
 

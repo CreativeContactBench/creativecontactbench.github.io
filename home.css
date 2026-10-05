@@ -1,0 +1,101 @@
+/* Home-only layout; task pages and their video grids keep their existing styles. */
+.home-page {
+  width: min(1080px, calc(100% - 48px));
+  padding-top: 48px;
+}
+
+.skip-link {
+  position: absolute;
+  top: 8px;
+  left: 16px;
+  padding: 8px 12px;
+  background: var(--bg);
+  transform: translateY(-160%);
+  z-index: 2;
+}
+
+.skip-link:focus { transform: none; }
+.home-page :focus-visible { outline: 2px solid var(--link); outline-offset: 4px; }
+.home-page [id] { scroll-margin-top: 24px; }
+.home-page .hero { border: 0; padding-bottom: 26px; }
+.home-page h1 { font-size: 52px; line-height: 1.14; overflow-wrap: anywhere; }
+.home-page .subtitle { max-width: 720px; font-size: 20px; line-height: 1.5; margin-top: 16px; }
+.home-page .authors { color: var(--muted); font-size: 14px; margin-top: 12px; }
+.home-page .links { gap: 8px 26px; margin-top: 24px; }
+.home-page .links a { border: 0; background: none; min-width: 0; padding: 5px 0; min-height: 36px; font-size: 15px; }
+.home-page .links a:hover { color: var(--link); text-decoration: underline; }
+.home-page figure { margin: 0; }
+.home-page figcaption { margin-top: 12px; color: var(--muted); font-size: 14px; line-height: 1.55; }
+.rgb-overview-poster { display: block; width: 100%; height: auto; aspect-ratio: 20 / 9; object-fit: contain; }
+.home-page .section { padding-top: 58px; }
+.home-page h2 { font-size: 28px; padding-bottom: 12px; margin-bottom: 24px; }
+.home-page h3 { font-size: 20px; line-height: 1.35; margin: 0 0 10px; font-weight: 650; }
+.overview-copy { max-width: 870px; font-size: 18px; line-height: 1.75; }
+.overview-copy p { margin: 0 0 14px; }
+.study-facts { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); border-block: 1px solid var(--line); padding: 24px 0; margin: 28px 0 36px; gap: 16px; }
+.study-facts > div { display: flex; flex-direction: column-reverse; justify-content: end; gap: 4px; }
+.study-facts dd { margin: 0; font-size: 34px; line-height: 1.2; font-weight: 650; font-variant-numeric: tabular-nums; }
+.study-facts dt { font-size: 14px; color: var(--muted); }
+.media-heading { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; margin-bottom: 12px; }
+.media-heading h3 { margin: 0; }
+.media-heading span { color: var(--muted); font-size: 14px; }
+.home-page video { width: 100%; display: block; aspect-ratio: 16 / 9; object-fit: contain; background: #121212; border-radius: 4px; }
+.media-fallback { padding: 14px; margin: 0; border: 1px solid var(--line); }
+.example-layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.12fr); gap: 36px; align-items: start; }
+.example-scene img { display: block; width: 100%; height: auto; aspect-ratio: 4 / 3; object-fit: contain; background: var(--soft); }
+.section-label { margin: 0 0 10px; font-size: 13px; font-weight: 600; color: var(--muted); }
+.example-options h3 { font-size: 25px; margin-bottom: 24px; }
+.strategy-list { list-style: none; margin: 0 0 22px; padding: 0; }
+.strategy-list li { display: grid; grid-template-columns: 26px minmax(0, 1fr); gap: 12px; padding: 13px 0; border-top: 1px solid var(--line); }
+.strategy-list p { margin: 0; font-size: 15px; line-height: 1.6; }
+.strategy-letter { font-size: 18px; font-weight: 650; }
+.text-link { font-size: 15px; font-weight: 600; padding-block: 8px; display: inline-block; }
+.section-intro { max-width: 870px; margin: 0 0 26px; font-size: 17px; line-height: 1.75; }
+.evaluation-steps { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 30px; }
+.step-number { color: var(--link); font-size: 14px; font-variant-numeric: tabular-nums; display: block; margin-bottom: 12px; }
+.evaluation-steps p { margin: 0; line-height: 1.7; font-size: 15px; }
+.scope-note { border-top: 1px solid var(--line); margin: 26px 0 0; padding-top: 16px; font-size: 14px; color: var(--muted); line-height: 1.7; }
+.results-context { color: var(--muted); font-size: 14px; margin: 0 0 18px; }
+.home-page .leaderboard-scroll { border-radius: 4px; }
+.home-page .leaderboard { font-size: 14px; }
+.home-page .leaderboard td, .home-page .leaderboard th { padding: 11px 12px; }
+.home-page .leaderboard tbody tr:not(.leaderboard-group):hover { background: #fafbfc; }
+.home-page .leaderboard-notes { line-height: 1.7; }
+.gallery-link { margin-top: 16px; }
+.home-page .footer { margin-top: 58px; padding-top: 24px; font-size: 14px; }
+.home-page .footer p:first-child { font-weight: 600; color: var(--text); }
+.home-page .footer p + p { margin-top: 4px; }
+.home-page .footer nav { display: flex; justify-content: center; gap: 24px; margin-top: 14px; }
+
+@media (max-width: 800px) {
+  .home-page { width: calc(100% - 32px); padding-top: 34px; }
+  .home-page h1 { font-size: 40px; }
+  .home-page .subtitle { font-size: 18px; }
+  .example-layout { gap: 24px; grid-template-columns: 1fr; }
+  .example-scene { max-width: 580px; }
+  .evaluation-steps { gap: 22px; }
+  .home-page .section { padding-top: 42px; }
+}
+
+@media (max-width: 520px) {
+  .home-page h1 { font-size: 29px; }
+  .home-page .subtitle { font-size: 17px; }
+  .home-page .links { gap: 4px 18px; margin-top: 18px; }
+  .home-page h2 { font-size: 24px; margin-bottom: 20px; }
+  .overview-copy { font-size: 16px; }
+  .study-facts { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 22px; }
+  .study-facts dd { font-size: 30px; }
+  .evaluation-steps { grid-template-columns: 1fr; gap: 24px; }
+  .evaluation-steps > div + div { border-top: 1px solid var(--line); padding-top: 20px; }
+  .step-number { margin-bottom: 6px; }
+  .example-options h3 { font-size: 23px; }
+}
+
+@media (max-width: 360px) {
+  .home-page h1 { font-size: 25px; }
+  .home-page .links { gap: 2px 14px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+}

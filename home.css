@@ -27,6 +27,8 @@
 .home-page figure { margin: 0; }
 .home-page figcaption { margin-top: 12px; color: var(--muted); font-size: 14px; line-height: 1.55; }
 .rgb-overview-poster { display: block; width: 100%; height: auto; aspect-ratio: 20 / 9; object-fit: contain; }
+.home-page .project-film { margin-top: 28px; }
+.project-film video { height: auto; }
 .home-page .section { padding-top: 58px; }
 .home-page h2 { font-size: 28px; padding-bottom: 12px; margin-bottom: 24px; }
 .home-page h3 { font-size: 20px; line-height: 1.35; margin: 0 0 10px; font-weight: 650; }

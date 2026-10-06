@@ -10,11 +10,11 @@
     />
     <link rel="icon" href="data:," />
     <link rel="stylesheet" href="styles.css?v=20261004-home" />
-    <link rel="stylesheet" href="home.css?v=20261004-rgb-poster" />
+    <link rel="stylesheet" href="home.css?v=20261005-latest-film" />
     <script src="home.js?v=20261004-home" defer></script>
   </head>
   <body>
-    <a class="skip-link" href="#task-example">Skip to content</a>
+    <a class="skip-link" href="#project-video">Skip to content</a>
     <main class="page home-page">
       <header class="hero" id="top">
         <h1>CreativeContactBench</h1>
@@ -33,7 +33,14 @@
 
       <figure class="scene-overview">
         <img class="rgb-overview-poster" src="./assets/images/creativecontactbench-rgb-poster-overlay.png" alt="CreativeContactBench RGB poster showing benchmark scenes around the project logo" width="3840" height="1728" fetchpriority="high" />
-        <figcaption>A selection of benchmark scenes. Each task pairs an RGB image with an instruction and four candidate strategies.</figcaption>
+      </figure>
+
+      <figure class="project-film" id="project-video">
+        <video controls playsinline preload="none" width="1920" height="1080" poster="./assets/images/ccb-sup-v5-cover.jpg" aria-label="CreativeContactBench full project video" data-home-video>
+          <source src="./assets/video/CCB_sup_v5.mp4" type="video/mp4" />
+          <a href="./assets/video/CCB_sup_v5.mp4">Open the project video</a>
+        </video>
+        <p class="media-fallback" hidden>The video could not be loaded. <a href="./assets/video/CCB_sup_v5.mp4">Open the MP4</a>.</p>
       </figure>
 
       <section class="section" id="task-example" aria-labelledby="example-title">

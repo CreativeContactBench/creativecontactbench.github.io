@@ -49,14 +49,20 @@ test("homepage references existing local media and anchors", () => {
 test("homepage omits the subtitle and overview section", () => {
   assert.doesNotMatch(html, /class="subtitle"|id="overview"|href="#overview"|overview-title|overview-film/);
   assert.doesNotMatch(html, /Recognizing useful, non-obvious, and physically feasible manipulation strategies\./);
-  assert.ok(html.includes('class="skip-link" href="#task-example"'));
+  assert.ok(html.includes('class="skip-link" href="#project-video"'));
   assert.doesNotMatch(html, /Video overview|overview-20261004\.mp4|overview-video-cover\.jpg/);
   assert.equal(fs.existsSync(path.join(root, "assets/video/creativecontactbench-overview-20261004.mp4")), false);
 });
 
-test("homepage keeps the reproduction montage without autoplay or strategy sources", () => {
+test("latest full video follows the RGB poster without extra introductory copy", () => {
+  assert.doesNotMatch(html, /A selection of benchmark scenes/);
+  assert.match(html, /class="scene-overview">[\s\S]*?<\/figure>\s*<figure class="project-film" id="project-video">/);
+  assert.match(html, /src="\.\/assets\/video\/CCB_sup_v5\.mp4"/);
+});
+
+test("homepage videos use native controls without autoplay or strategy sources", () => {
   const videos = Array.from(html.matchAll(/<video\b([^>]*)>/g), (match) => match[1]);
-  assert.equal(videos.length, 1);
+  assert.equal(videos.length, 2);
   for (const attrs of videos) {
     assert.match(attrs, /preload="none"/);
     assert.match(attrs, /\bcontrols\b/);

@@ -45,6 +45,8 @@ The page has a full RGB overview poster, a full Task 05 example, evaluation prot
 do not autoplay, and use `preload="none"`. They are hosted locally, without third-party video embeds or analytics.
 
 The outdated 142-second overview video and its cover have been removed from the public website.
+The selected full edit, `assets/video/CCB_sup_v5.mp4`, now appears directly beneath the RGB poster
+without an Overview heading or introductory caption. It is the unchanged 1080p V4.24 export.
 The original edit, recordings, and archived website export remain outside this repository under
 `../video_draft/website_20261004/`. The real-world montage and task videos remain published.
 The public inventory has 72 recordings for 19 tasks, which is not the same as 76 possible candidate slots.

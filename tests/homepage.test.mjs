@@ -58,6 +58,55 @@ test("latest full video follows the RGB poster without extra introductory copy",
   assert.doesNotMatch(html, /A selection of benchmark scenes/);
   assert.match(html, /class="scene-overview">[\s\S]*?<\/figure>\s*<figure class="project-film" id="project-video">/);
   assert.match(html, /src="\.\/assets\/video\/CCB_sup_v5\.mp4"/);
+  assert.match(html, /poster="\.\/assets\/images\/project-film-contact\.jpg"/);
+});
+
+test("scene comparison preserves RGB by default and exposes associated keyboard tabs", () => {
+  assert.match(html, /class="scene-tabs"[^>]+role="tablist"[^>]+hidden/);
+  for (const name of ["rgb", "real"]) {
+    assert.match(html, new RegExp(`id="${name}-tab" role="tab" aria-controls="${name}-scene"`));
+    assert.match(html, new RegExp(`id="${name}-scene"[^>]+role="tabpanel" aria-labelledby="${name}-tab"`));
+  }
+  assert.match(html, /id="real-scene"[^>]+hidden/);
+  assert.doesNotMatch(html, /id="rgb-scene"[^>]+hidden/);
+  assert.match(html, /assets\/images\/task05-real-initial\.png/);
+});
+
+test("scene tabs support pointer and keyboard navigation without changing media sources", () => {
+  const panels = { "rgb-scene": { hidden: false }, "real-scene": { hidden: true } };
+  let focused;
+  const tabs = Object.keys(panels).map((id) => ({
+    handlers: {}, attrs: { "aria-controls": id },
+    getAttribute(key) { return this.attrs[key]; },
+    setAttribute(key, value) { this.attrs[key] = value; },
+    addEventListener(key, fn) { this.handlers[key] = fn; },
+    focus() { focused = this; }
+  }));
+  const tablist = { hidden: true, querySelectorAll: () => tabs };
+  vm.runInNewContext(fs.readFileSync(path.join(root, "home.js"), "utf8"), {
+    document: {
+      querySelectorAll: () => [],
+      querySelector: () => tablist,
+      getElementById: (id) => panels[id]
+    }
+  });
+  assert.equal(tablist.hidden, false);
+  tabs[1].handlers.click();
+  assert.equal(panels["rgb-scene"].hidden, true);
+  assert.equal(panels["real-scene"].hidden, false);
+  assert.equal(tabs[1].attrs["aria-selected"], "true");
+  const key = (index, value) => tabs[index].handlers.keydown({ key: value, preventDefault() {} });
+  key(1, "ArrowRight");
+  assert.equal(focused, tabs[0]);
+  assert.equal(tabs[0].tabIndex, 0);
+  assert.equal(tabs[1].tabIndex, -1);
+  assert.equal(panels["rgb-scene"].hidden, false);
+  key(0, "ArrowLeft");
+  assert.equal(focused, tabs[1]);
+  key(1, "Home");
+  assert.equal(focused, tabs[0]);
+  key(0, "End");
+  assert.equal(focused, tabs[1]);
 });
 
 test("homepage videos use native controls without autoplay or strategy sources", () => {

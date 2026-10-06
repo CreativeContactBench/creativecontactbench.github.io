@@ -10,14 +10,14 @@
     />
     <link rel="icon" href="data:," />
     <link rel="stylesheet" href="styles.css?v=20261004-home" />
-    <link rel="stylesheet" href="home.css?v=20261005-latest-film" />
-    <script src="home.js?v=20261004-home" defer></script>
+    <link rel="stylesheet" href="home.css?v=20261005-refine-1" />
+    <script src="home.js?v=20261005-refine-1" defer></script>
   </head>
   <body>
     <a class="skip-link" href="#project-video">Skip to content</a>
     <main class="page home-page">
       <header class="hero" id="top">
-        <h1>CreativeContactBench</h1>
+        <h1>Creative<span class="brand-accent">Contact</span>Bench</h1>
 
         <p class="authors">
           Anonymous Authors
@@ -36,7 +36,7 @@
       </figure>
 
       <figure class="project-film" id="project-video">
-        <video controls playsinline preload="none" width="1920" height="1080" poster="./assets/images/ccb-sup-v5-cover.jpg" aria-label="CreativeContactBench full project video" data-home-video>
+        <video controls playsinline preload="none" width="1920" height="1080" poster="./assets/images/project-film-contact.jpg" aria-label="CreativeContactBench full project video" data-home-video>
           <source src="./assets/video/CCB_sup_v5.mp4" type="video/mp4" />
           <a href="./assets/video/CCB_sup_v5.mp4">Open the project video</a>
         </video>
@@ -47,8 +47,17 @@
         <h2 id="example-title">Task Example</h2>
         <div class="example-layout">
           <figure class="example-scene">
-            <img src="./videos/posters/task-05.jpg" alt="An RGB scene with a robot, three soda cans, and a plastic container on a table" width="800" height="600" loading="lazy" decoding="async" />
-            <figcaption>Task 05 &middot; RGB scene</figcaption>
+            <div class="scene-tabs" role="tablist" aria-label="Task 05 scene" hidden>
+              <button type="button" id="rgb-tab" role="tab" aria-controls="rgb-scene" aria-selected="true">RGB scene</button>
+              <button type="button" id="real-tab" role="tab" aria-controls="real-scene" aria-selected="false" tabindex="-1">Real-world scene</button>
+            </div>
+            <div id="rgb-scene" class="scene-panel" role="tabpanel" aria-labelledby="rgb-tab" tabindex="0">
+              <img src="./videos/posters/task-05.jpg" alt="An RGB scene with a robot, three soda cans, and a plastic container on a table" width="800" height="600" loading="lazy" decoding="async" />
+            </div>
+            <div id="real-scene" class="scene-panel" role="tabpanel" aria-labelledby="real-tab" tabindex="0" hidden>
+              <img src="./assets/images/task05-real-initial.png" alt="The real-world Task 05 setup: a robot above three soda cans and a plastic container" width="1280" height="720" loading="lazy" decoding="async" />
+            </div>
+            <figcaption>Task 05</figcaption>
           </figure>
           <div class="example-options">
             <p class="section-label">Task instruction</p>

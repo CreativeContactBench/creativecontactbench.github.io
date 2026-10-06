@@ -10,8 +10,9 @@
     />
     <link rel="icon" href="data:," />
     <link rel="stylesheet" href="styles.css?v=20261004-home" />
-    <link rel="stylesheet" href="home.css?v=20261005-refine-1" />
+    <link rel="stylesheet" href="home.css?v=20261005-wide" />
     <script src="home.js?v=20261005-refine-1" defer></script>
+    <script src="leaderboard.js?v=20261005-sort" defer></script>
   </head>
   <body>
     <a class="skip-link" href="#project-video">Skip to content</a>
@@ -93,13 +94,13 @@
             <caption>RGB evaluation on 30 human-evaluated tasks</caption>
             <thead>
               <tr>
-                <th scope="col">Configuration</th>
-                <th scope="col">Valid</th>
-                <th scope="col">Mean &tau;<sub>b</sub> [95% CI]</th>
-                <th scope="col">n<sub>&tau;</sub></th>
-                <th scope="col">Strict (%)</th>
-                <th scope="col">Inclusive (%)</th>
-                <th scope="col">Top ties</th>
+                <th scope="col" data-sort-type="text">Configuration</th>
+                <th scope="col" data-sort-type="ratio">Valid</th>
+                <th scope="col" data-sort-type="number" data-sort-default="descending">Mean &tau;<sub>b</sub> [95% CI]</th>
+                <th scope="col" data-sort-type="number">n<sub>&tau;</sub></th>
+                <th scope="col" data-sort-type="number">Strict (%)</th>
+                <th scope="col" data-sort-type="number">Inclusive (%)</th>
+                <th scope="col" data-sort-type="number">Top ties</th>
               </tr>
             </thead>
             <tbody aria-label="Complete coverage">

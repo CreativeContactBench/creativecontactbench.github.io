@@ -44,11 +44,10 @@ The page has a full RGB overview poster, a full Task 05 example, evaluation prot
 18-configuration leaderboard, and an entry to the 19-task reproduction gallery. Homepage videos use native controls,
 do not autoplay, and use `preload="none"`. They are hosted locally, without third-party video embeds or analytics.
 
-The archived website overview is a separate 142-second edition, no longer embedded on the homepage. Its leaderboard and hardware-count title were regenerated
-from the editable video project; the other scenes and the 3x/5x demonstration speeds were retained. The public
-inventory has 72 recordings for 19 tasks, which is not the same as 76 possible candidate slots. The original
-video projects and source recordings are preserved. The source script is in
-`../video_draft/website_20261004/build_media.py`, outside the public website.
+The outdated 142-second overview video and its cover have been removed from the public website.
+The original edit, recordings, and archived website export remain outside this repository under
+`../video_draft/website_20261004/`. The real-world montage and task videos remain published.
+The public inventory has 72 recordings for 19 tasks, which is not the same as 76 possible candidate slots.
 
 Validation:
 

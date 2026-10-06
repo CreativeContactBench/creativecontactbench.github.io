@@ -50,6 +50,8 @@ test("homepage omits the subtitle and overview section", () => {
   assert.doesNotMatch(html, /class="subtitle"|id="overview"|href="#overview"|overview-title|overview-film/);
   assert.doesNotMatch(html, /Recognizing useful, non-obvious, and physically feasible manipulation strategies\./);
   assert.ok(html.includes('class="skip-link" href="#task-example"'));
+  assert.doesNotMatch(html, /Video overview|overview-20261004\.mp4|overview-video-cover\.jpg/);
+  assert.equal(fs.existsSync(path.join(root, "assets/video/creativecontactbench-overview-20261004.mp4")), false);
 });
 
 test("homepage keeps the reproduction montage without autoplay or strategy sources", () => {

@@ -40,11 +40,11 @@ The range-enabled preview supports seeking in the overview and demonstration vid
 ## Homepage Review Edition (2026-10-04)
 
 `home.css` and `home.js` are homepage-only; the gallery and task-detail presentation are unchanged.
-The page has a full RGB overview poster, research overview, a full Task 05 example, evaluation protocol, the supplied
+The page has a full RGB overview poster, a full Task 05 example, evaluation protocol, the supplied
 18-configuration leaderboard, and an entry to the 19-task reproduction gallery. Homepage videos use native controls,
 do not autoplay, and use `preload="none"`. They are hosted locally, without third-party video embeds or analytics.
 
-The website overview is a separate 142-second edition. Its leaderboard and hardware-count title were regenerated
+The archived website overview is a separate 142-second edition, no longer embedded on the homepage. Its leaderboard and hardware-count title were regenerated
 from the editable video project; the other scenes and the 3x/5x demonstration speeds were retained. The public
 inventory has 72 recordings for 19 tasks, which is not the same as 76 possible candidate slots. The original
 video projects and source recordings are preserved. The source script is in

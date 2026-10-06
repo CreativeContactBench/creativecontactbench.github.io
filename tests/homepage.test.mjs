@@ -46,9 +46,15 @@ test("homepage references existing local media and anchors", () => {
   }
 });
 
-test("homepage does not load strategy videos or autoplay either overview", () => {
+test("homepage omits the subtitle and overview section", () => {
+  assert.doesNotMatch(html, /class="subtitle"|id="overview"|href="#overview"|overview-title|overview-film/);
+  assert.doesNotMatch(html, /Recognizing useful, non-obvious, and physically feasible manipulation strategies\./);
+  assert.ok(html.includes('class="skip-link" href="#task-example"'));
+});
+
+test("homepage keeps the reproduction montage without autoplay or strategy sources", () => {
   const videos = Array.from(html.matchAll(/<video\b([^>]*)>/g), (match) => match[1]);
-  assert.equal(videos.length, 2);
+  assert.equal(videos.length, 1);
   for (const attrs of videos) {
     assert.match(attrs, /preload="none"/);
     assert.match(attrs, /\bcontrols\b/);

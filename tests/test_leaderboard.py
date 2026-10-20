@@ -96,8 +96,9 @@ class LeaderboardTest(unittest.TestCase):
             self.assertNotIn("BF16", row[0])
             self.assertNotIn("thinking", row[0])
         self.assertIn("original BF16 weights", self.html)
-        self.assertIn("4 and 10 truncated responses", self.html)
-        self.assertIn("version-equivalence assumption", self.html)
+        self.assertEqual(self.html.count('class="leaderboard-notes"'), 1)
+        self.assertNotIn("(descriptive only)", self.html)
+        self.assertIn("with thinking enabled", self.html)
         self.assertIn('title="10/26 eligible valid tasks"', self.html)
         self.assertIn('title="8/20 eligible valid tasks"', self.html)
 

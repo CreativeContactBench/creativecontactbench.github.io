@@ -120,7 +120,7 @@
               <tr><th scope="row">Gemma-3-4B</th><td>30/30</td><td>0.062 [−0.130, 0.248]</td><td>30</td><td title="7/30 eligible valid tasks">23.3</td><td title="7/30 eligible valid tasks">23.3</td><td>1</td></tr>
             </tbody>
             <tbody aria-label="Partial coverage">
-              <tr class="leaderboard-group"><th colspan="7" scope="rowgroup">Partial coverage (descriptive only)</th></tr>
+              <tr class="leaderboard-group"><th colspan="7" scope="rowgroup">Partial coverage</th></tr>
               <tr><th scope="row">Qwen3.6-35B-A3B</th><td>26/30</td><td>0.476 [0.294, 0.634]</td><td>26</td><td title="10/26 eligible valid tasks">38.5</td><td title="10/26 eligible valid tasks">38.5</td><td>0</td></tr>
               <tr><th scope="row">Gemma-4-12B</th><td>27/30</td><td>0.401 [0.236, 0.563]</td><td>27</td><td title="12/27 eligible valid tasks">44.4</td><td title="16/27 eligible valid tasks">59.3</td><td>4</td></tr>
               <tr><th scope="row">Qwen3.5-9B</th><td>20/30</td><td>0.367 [0.150, 0.583]</td><td>20</td><td title="8/20 eligible valid tasks">40.0</td><td title="8/20 eligible valid tasks">40.0</td><td>0</td></tr>
@@ -130,20 +130,8 @@
           </table>
         </div>
         <p class="leaderboard-notes" id="leaderboard-notes">
-          Valid: complete responses / 30 tasks. n<sub>&tau;</sub>: tasks with defined Kendall's &tau;<sub>b</sub>.
-          Strict and Inclusive report Top-1 agreement over eligible valid responses; hover over a percentage for its numerator and denominator.
-          Top ties: model responses with a tied top rank. Partial coverage is descriptive only because valid task sets differ.
-          Qwen3.6-35B-A3B and Qwen3.5-9B have 4 and 10 truncated responses, respectively; these are not replaced with earlier answers.
-        </p>
-        <p class="leaderboard-notes">
-          The four rerun Qwen models use original BF16 weights. Thinking is enabled for Qwen3.8-27B, Qwen3.6-35B-A3B, and Qwen3.5-9B;
-          Qwen3-VL-8B-Instruct retains its instruction-tuned configuration. These results replace the earlier quantized configurations.
-        </p>
-        <p class="leaderboard-notes">
-          This is the RGB30 expanded comparison: Tasks 06, 10, and 13 rely on the registered author version-equivalence assumption;
-          individual participants' viewed input versions were not independently verified.
-          Confidence intervals use 10,000 task-bootstrap resamples (seed 20260908), conditional on the ten participants.
-          Undefined task-level &tau;<sub>b</sub> is omitted, never filled; human-reference top ties are excluded from Top-1 denominators.
+          Qwen3.8-27B, Qwen3.6-35B-A3B, and Qwen3.5-9B use original BF16 weights with thinking enabled;
+          Qwen3-VL-8B-Instruct uses original BF16 weights in Instruct mode.
         </p>
       </section>
 

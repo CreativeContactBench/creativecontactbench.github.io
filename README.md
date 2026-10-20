@@ -70,8 +70,16 @@ were checked against the author-provided handoff. The update includes only aggre
 results; no private inputs, raw model responses or participant records are published.
 The source result archive has SHA-256
 `2ca3063a07bf41bc23a79d8c10f6ca753eac83c13b6a95f8cd8edd7a2328927e`.
-The RGB30 author-equivalence assumption for Tasks 06/10/13 and task-bootstrap protocol
-are stated below the table. Original results remain available in Git history.
+The homepage note contains model configurations only. Complete and partial coverage
+remain separate in the table; sorting never mixes the two groups. Partial results are
+descriptive because their valid task subsets differ.
+
+Analysis details retained here: the RGB30 expanded comparison assumes author-confirmed
+version equivalence for Tasks 06/10/13; individual participant-view versions were not
+independently verified. Confidence intervals use 10,000 task-bootstrap resamples
+(seed 20260908), conditional on the ten participants. Undefined task-level tau is omitted,
+never filled; human-reference top ties are excluded from Top-1 denominators. Original
+results remain available in Git history.
 
 ## GitHub Pages
 

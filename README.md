@@ -88,3 +88,16 @@ files to the default branch, then enable Pages from the repository settings if i
 
 Do not publish until the researcher has reviewed the login gate and uploaded the private study package to the private
 bucket with the authenticated Supabase CLI workflow documented in `human-eval/README.md`.
+
+## Two additional RGB30 models (2026-10-20)
+
+Gemma-4-31B and Mistral-Small-3.2-24B-Instruct-2506 each completed 30/30 valid
+responses (60 calls, no invalid or missing answers). The leaderboard now contains
+20 configurations: 15 complete coverage and 5 partial coverage. All 18 existing rows
+are unchanged. The input manifest, actual saved request text/settings/image hashes,
+parsing functions and analysis functions match the registered RGB30 protocol; the
+new-model deployment adds model-specific load arguments. Raw responses were parsed
+again and the task-bootstrap results reproduced before publication. Gemma uses BF16
+with thinking; Mistral uses BF16 in Instruct mode. Only aggregate results are published.
+The new result archive SHA-256 is
+`99e61abae35f6b19d5d30eed791c8317b5d605c277d612f1bcdb6a7ff6103c03`.

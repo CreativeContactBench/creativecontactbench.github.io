@@ -11,9 +11,11 @@ GPT-6 Astra|30/30|0.709 [0.555, 0.844]|30|73.3|73.3|1
 GPT-5.5|30/30|0.667 [0.511, 0.800]|30|66.7|66.7|0
 GPT-5.4|30/30|0.629 [0.503, 0.752]|30|56.7|56.7|0
 Qwen3.8-27B|30/30|0.575 [0.430, 0.705]|30|60.0|60.0|0
+Gemma-4-31B|30/30|0.563 [0.367, 0.733]|30|63.3|63.3|0
 Qwen3-VL-8B-Instruct|30/30|0.229 [0.056, 0.395]|30|26.7|26.7|0
 Phi-4-Reasoning-Vision-15B|30/30|0.229 [0.030, 0.418]|30|26.7|33.3|4
 Phi-3.5-Vision|30/30|0.222 [0.056, 0.389]|30|50.0|50.0|0
+Mistral-Small-3.2-24B-Instruct-2506|30/30|0.185 [−0.022, 0.381]|30|16.7|16.7|0
 Gemma-3-12B|30/30|0.181 [−0.003, 0.362]|30|26.7|26.7|0
 Gemma-4-E2B|30/30|0.170 [−0.067, 0.409]|27|36.7|50.0|9
 Gemma-3-27B|30/30|0.149 [−0.031, 0.322]|30|16.7|16.7|0
@@ -87,7 +89,7 @@ class LeaderboardTest(unittest.TestCase):
         self.assertEqual(self.table.rows, [row.split("|") for row in EXPECTED.splitlines()])
 
     def test_complete_and_partial_groups(self):
-        self.assertEqual(self.table.groups, [("Complete coverage", 0), ("Partial coverage", 13)])
+        self.assertEqual(self.table.groups, [("Complete coverage", 0), ("Partial coverage", 15)])
 
     def test_replaced_qwen_labels_and_configuration_note(self):
         self.assertNotIn("&dagger;", self.html)
@@ -99,7 +101,7 @@ class LeaderboardTest(unittest.TestCase):
             self.assertIn(f"{model}: BF16, thinking enabled;", self.html)
         self.assertEqual(self.html.count('class="leaderboard-notes"'), 1)
         self.assertNotIn("(descriptive only)", self.html)
-        self.assertIn("Qwen3-VL-8B-Instruct: BF16, Instruct mode.", self.html)
+        self.assertIn("Qwen3-VL-8B-Instruct: BF16, Instruct mode;", self.html)
         self.assertIn('title="10/26 eligible valid tasks"', self.html)
         self.assertIn('title="8/20 eligible valid tasks"', self.html)
 

@@ -96,7 +96,8 @@ th[aria-sort] .sort-indicator { color: #fff; }
 .home-page .leaderboard .leaderboard-group th { font-size: 12px; padding-block: 9px; color: var(--muted); background: var(--soft); }
 .home-page .leaderboard td strong { color: var(--link); font-weight: 750; }
 .home-page .leaderboard tbody tr:not(.leaderboard-group):hover { background: #f3f6fb; }
-.home-page .leaderboard-notes { line-height: 1.7; font-size: 13px; margin-top: 18px; max-width: 1000px; }
+.home-page .leaderboard-notes { line-height: 1.7; font-size: 13px; margin-top: 18px; max-width: none; }
+.home-page .leaderboard-notes .model-note { display: inline-block; max-width: 100%; }
 .gallery-link { margin-top: 16px; }
 .home-page .reproduction-film { max-width: 1200px; }
 .home-page .footer { display: grid; grid-template-columns: 1fr auto; gap: 6px 24px; text-align: left; margin-top: 72px; padding-top: 24px; font-size: 13px; }

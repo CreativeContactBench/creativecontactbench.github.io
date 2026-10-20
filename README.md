@@ -58,7 +58,20 @@ python3 -m unittest discover -s tests -p test_leaderboard.py -v
 node --test tests/homepage.test.mjs tests/video-gallery.test.mjs tests/human-eval-navigation.test.mjs
 ```
 
-The supplied dagger markers remain unchanged. Their methodological footnote requires author confirmation.
+## RGB30 leaderboard update (2026-10-20)
+
+The four previously quantized Qwen rows have been replaced by their verified BF16 reruns.
+Model names remain concise; precision and reasoning settings are stated below the table.
+There are 13 complete-coverage configurations and 5 partial-coverage configurations.
+The new runs contain 120 attempted slots, 106 valid responses and 14 truncated responses
+(4 for Qwen3.6-35B-A3B; 10 for Qwen3.5-9B). Partial coverage stays in its own descriptive group.
+Frozen RGB30 inputs, model settings, saved requests and the recomputed metrics/intervals
+were checked against the author-provided handoff. The update includes only aggregate
+results; no private inputs, raw model responses or participant records are published.
+The source result archive has SHA-256
+`2ca3063a07bf41bc23a79d8c10f6ca753eac83c13b6a95f8cd8edd7a2328927e`.
+The RGB30 author-equivalence assumption for Tasks 06/10/13 and task-bootstrap protocol
+are stated below the table. Original results remain available in Git history.
 
 ## GitHub Pages
 

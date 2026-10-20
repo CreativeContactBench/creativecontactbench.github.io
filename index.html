@@ -88,7 +88,7 @@
 
       <section class="section" id="results" aria-labelledby="results-title">
         <h2 id="results-title">Leaderboard</h2>
-        <p class="results-context">Human&ndash;VLM agreement &middot; 18 configurations &middot; Updated 4 October 2026</p>
+        <p class="results-context">Human&ndash;VLM agreement &middot; 18 configurations &middot; Updated 20 October 2026</p>
         <div class="leaderboard-scroll" role="region" aria-labelledby="results-title" tabindex="0">
           <table class="leaderboard" aria-describedby="leaderboard-notes">
             <caption>RGB evaluation on 30 human-evaluated tasks</caption>
@@ -105,34 +105,45 @@
             </thead>
             <tbody aria-label="Complete coverage">
               <tr class="leaderboard-group"><th colspan="7" scope="rowgroup">Complete coverage</th></tr>
-              <tr><th scope="row">GPT-5.6 Sol</th><td>30/30</td><td><strong>0.729</strong> [0.585, 0.856]</td><td>30</td><td>66.7</td><td>66.7</td><td>0</td></tr>
-              <tr><th scope="row">GPT-6 Astra</th><td>30/30</td><td>0.709 [0.555, 0.844]</td><td>30</td><td><strong>73.3</strong></td><td><strong>73.3</strong></td><td>1</td></tr>
-              <tr><th scope="row">GPT-5.5</th><td>30/30</td><td>0.667 [0.511, 0.800]</td><td>30</td><td>66.7</td><td>66.7</td><td>0</td></tr>
-              <tr><th scope="row">GPT-5.4</th><td>30/30</td><td>0.629 [0.503, 0.752]</td><td>30</td><td>56.7</td><td>56.7</td><td>0</td></tr>
-              <tr><th scope="row">Qwen3.8-27B<sup>&dagger;</sup></th><td>30/30</td><td>0.400 [0.189, 0.578]</td><td>30</td><td>46.7</td><td>46.7</td><td>0</td></tr>
-              <tr><th scope="row">Qwen3.6-35B-A3B<sup>&dagger;</sup></th><td>30/30</td><td>0.258 [0.082, 0.427]</td><td>30</td><td>30.0</td><td>36.7</td><td>3</td></tr>
-              <tr><th scope="row">Phi-4-Reasoning-Vision-15B</th><td>30/30</td><td>0.229 [0.030, 0.418]</td><td>30</td><td>26.7</td><td>33.3</td><td>4</td></tr>
-              <tr><th scope="row">Phi-3.5-Vision</th><td>30/30</td><td>0.222 [0.056, 0.389]</td><td>30</td><td>50.0</td><td>50.0</td><td>0</td></tr>
-              <tr><th scope="row">Qwen3.5-9B<sup>&dagger;</sup></th><td>30/30</td><td>0.185 [&minus;0.011, 0.374]</td><td>30</td><td>36.7</td><td>36.7</td><td>0</td></tr>
-              <tr><th scope="row">Gemma-3-12B</th><td>30/30</td><td>0.181 [&minus;0.003, 0.362]</td><td>30</td><td>26.7</td><td>26.7</td><td>0</td></tr>
-              <tr><th scope="row">Gemma-4-E2B</th><td>30/30</td><td>0.170 [&minus;0.067, 0.409]</td><td>27</td><td>36.7</td><td>50.0</td><td>9</td></tr>
-              <tr><th scope="row">Gemma-3-27B</th><td>30/30</td><td>0.149 [&minus;0.031, 0.322]</td><td>30</td><td>16.7</td><td>16.7</td><td>0</td></tr>
-              <tr><th scope="row">Qwen3-VL-8B-Instruct<sup>&dagger;</sup></th><td>30/30</td><td>0.132 [&minus;0.041, 0.308]</td><td>30</td><td>23.3</td><td>23.3</td><td>0</td></tr>
-              <tr><th scope="row">Qwen3-VL-4B-Instruct</th><td>30/30</td><td>0.093 [&minus;0.107, 0.293]</td><td>30</td><td>23.3</td><td>30.0</td><td>2</td></tr>
-              <tr><th scope="row">Gemma-3-4B</th><td>30/30</td><td>0.062 [&minus;0.130, 0.248]</td><td>30</td><td>23.3</td><td>23.3</td><td>1</td></tr>
+              <tr><th scope="row">GPT-5.6 Sol</th><td>30/30</td><td><strong>0.729</strong> [0.585, 0.856]</td><td>30</td><td title="20/30 eligible valid tasks">66.7</td><td title="20/30 eligible valid tasks">66.7</td><td>0</td></tr>
+              <tr><th scope="row">GPT-6 Astra</th><td>30/30</td><td>0.709 [0.555, 0.844]</td><td>30</td><td title="22/30 eligible valid tasks"><strong>73.3</strong></td><td title="22/30 eligible valid tasks"><strong>73.3</strong></td><td>1</td></tr>
+              <tr><th scope="row">GPT-5.5</th><td>30/30</td><td>0.667 [0.511, 0.800]</td><td>30</td><td title="20/30 eligible valid tasks">66.7</td><td title="20/30 eligible valid tasks">66.7</td><td>0</td></tr>
+              <tr><th scope="row">GPT-5.4</th><td>30/30</td><td>0.629 [0.503, 0.752]</td><td>30</td><td title="17/30 eligible valid tasks">56.7</td><td title="17/30 eligible valid tasks">56.7</td><td>0</td></tr>
+              <tr><th scope="row">Qwen3.8-27B</th><td>30/30</td><td>0.575 [0.430, 0.705]</td><td>30</td><td title="18/30 eligible valid tasks">60.0</td><td title="18/30 eligible valid tasks">60.0</td><td>0</td></tr>
+              <tr><th scope="row">Qwen3-VL-8B-Instruct</th><td>30/30</td><td>0.229 [0.056, 0.395]</td><td>30</td><td title="8/30 eligible valid tasks">26.7</td><td title="8/30 eligible valid tasks">26.7</td><td>0</td></tr>
+              <tr><th scope="row">Phi-4-Reasoning-Vision-15B</th><td>30/30</td><td>0.229 [0.030, 0.418]</td><td>30</td><td title="8/30 eligible valid tasks">26.7</td><td title="10/30 eligible valid tasks">33.3</td><td>4</td></tr>
+              <tr><th scope="row">Phi-3.5-Vision</th><td>30/30</td><td>0.222 [0.056, 0.389]</td><td>30</td><td title="15/30 eligible valid tasks">50.0</td><td title="15/30 eligible valid tasks">50.0</td><td>0</td></tr>
+              <tr><th scope="row">Gemma-3-12B</th><td>30/30</td><td>0.181 [−0.003, 0.362]</td><td>30</td><td title="8/30 eligible valid tasks">26.7</td><td title="8/30 eligible valid tasks">26.7</td><td>0</td></tr>
+              <tr><th scope="row">Gemma-4-E2B</th><td>30/30</td><td>0.170 [−0.067, 0.409]</td><td>27</td><td title="11/30 eligible valid tasks">36.7</td><td title="15/30 eligible valid tasks">50.0</td><td>9</td></tr>
+              <tr><th scope="row">Gemma-3-27B</th><td>30/30</td><td>0.149 [−0.031, 0.322]</td><td>30</td><td title="5/30 eligible valid tasks">16.7</td><td title="5/30 eligible valid tasks">16.7</td><td>0</td></tr>
+              <tr><th scope="row">Qwen3-VL-4B-Instruct</th><td>30/30</td><td>0.093 [−0.107, 0.293]</td><td>30</td><td title="7/30 eligible valid tasks">23.3</td><td title="9/30 eligible valid tasks">30.0</td><td>2</td></tr>
+              <tr><th scope="row">Gemma-3-4B</th><td>30/30</td><td>0.062 [−0.130, 0.248]</td><td>30</td><td title="7/30 eligible valid tasks">23.3</td><td title="7/30 eligible valid tasks">23.3</td><td>1</td></tr>
             </tbody>
             <tbody aria-label="Partial coverage">
-              <tr class="leaderboard-group"><th colspan="7" scope="rowgroup">Partial coverage</th></tr>
-              <tr><th scope="row">Gemma-4-12B</th><td>27/30</td><td>0.401 [0.236, 0.563]</td><td>27</td><td>44.4</td><td>59.3</td><td>4</td></tr>
-              <tr><th scope="row">Gemma-4-E4B</th><td>26/30</td><td>0.237 [0.025, 0.439]</td><td>26</td><td>46.2</td><td>46.2</td><td>0</td></tr>
-              <tr><th scope="row">Phi-4-Multimodal</th><td>29/30</td><td>0.178 [&minus;0.062, 0.408]</td><td>19</td><td>13.8</td><td>72.4</td><td>20</td></tr>
+              <tr class="leaderboard-group"><th colspan="7" scope="rowgroup">Partial coverage (descriptive only)</th></tr>
+              <tr><th scope="row">Qwen3.6-35B-A3B</th><td>26/30</td><td>0.476 [0.294, 0.634]</td><td>26</td><td title="10/26 eligible valid tasks">38.5</td><td title="10/26 eligible valid tasks">38.5</td><td>0</td></tr>
+              <tr><th scope="row">Gemma-4-12B</th><td>27/30</td><td>0.401 [0.236, 0.563]</td><td>27</td><td title="12/27 eligible valid tasks">44.4</td><td title="16/27 eligible valid tasks">59.3</td><td>4</td></tr>
+              <tr><th scope="row">Qwen3.5-9B</th><td>20/30</td><td>0.367 [0.150, 0.583]</td><td>20</td><td title="8/20 eligible valid tasks">40.0</td><td title="8/20 eligible valid tasks">40.0</td><td>0</td></tr>
+              <tr><th scope="row">Gemma-4-E4B</th><td>26/30</td><td>0.237 [0.025, 0.439]</td><td>26</td><td title="12/26 eligible valid tasks">46.2</td><td title="12/26 eligible valid tasks">46.2</td><td>0</td></tr>
+              <tr><th scope="row">Phi-4-Multimodal</th><td>29/30</td><td>0.178 [−0.062, 0.408]</td><td>19</td><td title="4/29 eligible valid tasks">13.8</td><td title="21/29 eligible valid tasks">72.4</td><td>20</td></tr>
             </tbody>
           </table>
         </div>
         <p class="leaderboard-notes" id="leaderboard-notes">
           Valid: complete responses / 30 tasks. n<sub>&tau;</sub>: tasks with defined Kendall's &tau;<sub>b</sub>.
-          Strict and Inclusive report Top-1 agreement. Top ties: model responses with a tied top rank.
-          Partial-coverage configurations are reported separately because their valid task sets differ.
+          Strict and Inclusive report Top-1 agreement over eligible valid responses; hover over a percentage for its numerator and denominator.
+          Top ties: model responses with a tied top rank. Partial coverage is descriptive only because valid task sets differ.
+          Qwen3.6-35B-A3B and Qwen3.5-9B have 4 and 10 truncated responses, respectively; these are not replaced with earlier answers.
+        </p>
+        <p class="leaderboard-notes">
+          The four rerun Qwen models use original BF16 weights. Thinking is enabled for Qwen3.8-27B, Qwen3.6-35B-A3B, and Qwen3.5-9B;
+          Qwen3-VL-8B-Instruct retains its instruction-tuned configuration. These results replace the earlier quantized configurations.
+        </p>
+        <p class="leaderboard-notes">
+          This is the RGB30 expanded comparison: Tasks 06, 10, and 13 rely on the registered author version-equivalence assumption;
+          individual participants' viewed input versions were not independently verified.
+          Confidence intervals use 10,000 task-bootstrap resamples (seed 20260908), conditional on the ten participants.
+          Undefined task-level &tau;<sub>b</sub> is omitted, never filled; human-reference top ties are excluded from Top-1 denominators.
         </p>
       </section>
 

@@ -1,4 +1,4 @@
-"""Verify the author-supplied October 4 leaderboard without browser dependencies."""
+"""Verify the author-supplied October 20 leaderboard without browser dependencies."""
 
 from html.parser import HTMLParser
 from pathlib import Path
@@ -10,20 +10,20 @@ EXPECTED = """GPT-5.6 Sol|30/30|0.729 [0.585, 0.856]|30|66.7|66.7|0
 GPT-6 Astra|30/30|0.709 [0.555, 0.844]|30|73.3|73.3|1
 GPT-5.5|30/30|0.667 [0.511, 0.800]|30|66.7|66.7|0
 GPT-5.4|30/30|0.629 [0.503, 0.752]|30|56.7|56.7|0
-Qwen3.8-27B\u2020|30/30|0.400 [0.189, 0.578]|30|46.7|46.7|0
-Qwen3.6-35B-A3B\u2020|30/30|0.258 [0.082, 0.427]|30|30.0|36.7|3
+Qwen3.8-27B|30/30|0.575 [0.430, 0.705]|30|60.0|60.0|0
+Qwen3-VL-8B-Instruct|30/30|0.229 [0.056, 0.395]|30|26.7|26.7|0
 Phi-4-Reasoning-Vision-15B|30/30|0.229 [0.030, 0.418]|30|26.7|33.3|4
 Phi-3.5-Vision|30/30|0.222 [0.056, 0.389]|30|50.0|50.0|0
-Qwen3.5-9B\u2020|30/30|0.185 [\u22120.011, 0.374]|30|36.7|36.7|0
-Gemma-3-12B|30/30|0.181 [\u22120.003, 0.362]|30|26.7|26.7|0
-Gemma-4-E2B|30/30|0.170 [\u22120.067, 0.409]|27|36.7|50.0|9
-Gemma-3-27B|30/30|0.149 [\u22120.031, 0.322]|30|16.7|16.7|0
-Qwen3-VL-8B-Instruct\u2020|30/30|0.132 [\u22120.041, 0.308]|30|23.3|23.3|0
-Qwen3-VL-4B-Instruct|30/30|0.093 [\u22120.107, 0.293]|30|23.3|30.0|2
-Gemma-3-4B|30/30|0.062 [\u22120.130, 0.248]|30|23.3|23.3|1
+Gemma-3-12B|30/30|0.181 [−0.003, 0.362]|30|26.7|26.7|0
+Gemma-4-E2B|30/30|0.170 [−0.067, 0.409]|27|36.7|50.0|9
+Gemma-3-27B|30/30|0.149 [−0.031, 0.322]|30|16.7|16.7|0
+Qwen3-VL-4B-Instruct|30/30|0.093 [−0.107, 0.293]|30|23.3|30.0|2
+Gemma-3-4B|30/30|0.062 [−0.130, 0.248]|30|23.3|23.3|1
+Qwen3.6-35B-A3B|26/30|0.476 [0.294, 0.634]|26|38.5|38.5|0
 Gemma-4-12B|27/30|0.401 [0.236, 0.563]|27|44.4|59.3|4
+Qwen3.5-9B|20/30|0.367 [0.150, 0.583]|20|40.0|40.0|0
 Gemma-4-E4B|26/30|0.237 [0.025, 0.439]|26|46.2|46.2|0
-Phi-4-Multimodal|29/30|0.178 [\u22120.062, 0.408]|19|13.8|72.4|20"""
+Phi-4-Multimodal|29/30|0.178 [−0.062, 0.408]|19|13.8|72.4|20"""
 
 
 class LeaderboardParser(HTMLParser):
@@ -87,7 +87,19 @@ class LeaderboardTest(unittest.TestCase):
         self.assertEqual(self.table.rows, [row.split("|") for row in EXPECTED.splitlines()])
 
     def test_complete_and_partial_groups(self):
-        self.assertEqual(self.table.groups, [("Complete coverage", 0), ("Partial coverage", 15)])
+        self.assertEqual(self.table.groups, [("Complete coverage", 0), ("Partial coverage", 13)])
+
+    def test_replaced_qwen_labels_and_configuration_note(self):
+        self.assertNotIn("&dagger;", self.html)
+        self.assertNotIn("†", self.html)
+        for row in self.table.rows:
+            self.assertNotIn("BF16", row[0])
+            self.assertNotIn("thinking", row[0])
+        self.assertIn("original BF16 weights", self.html)
+        self.assertIn("4 and 10 truncated responses", self.html)
+        self.assertIn("version-equivalence assumption", self.html)
+        self.assertIn('title="10/26 eligible valid tasks"', self.html)
+        self.assertIn('title="8/20 eligible valid tasks"', self.html)
 
     def test_only_supplied_winners_are_bold(self):
         self.assertEqual(self.table.highlights, ["0.729", "73.3", "73.3"])

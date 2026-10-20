@@ -95,10 +95,10 @@ class LeaderboardTest(unittest.TestCase):
         for row in self.table.rows:
             self.assertNotIn("BF16", row[0])
             self.assertNotIn("thinking", row[0])
-        self.assertIn("Qwen reruns: BF16; thinking enabled except for 8B-Instruct.", self.html)
+        self.assertIn("Qwen3.8-27B, Qwen3.6-35B-A3B, Qwen3.5-9B: BF16, thinking enabled.<br />", self.html)
         self.assertEqual(self.html.count('class="leaderboard-notes"'), 1)
         self.assertNotIn("(descriptive only)", self.html)
-        self.assertIn("thinking enabled except for 8B-Instruct", self.html)
+        self.assertIn("Qwen3-VL-8B-Instruct: BF16, Instruct mode.", self.html)
         self.assertIn('title="10/26 eligible valid tasks"', self.html)
         self.assertIn('title="8/20 eligible valid tasks"', self.html)
 
